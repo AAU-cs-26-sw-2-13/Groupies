@@ -1,0 +1,87 @@
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+h1{
+    margin: 0;
+    color: black;
+    font-family: Arial, Verdana, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #fef7ff;
+}
+
+.button1{
+    padding: 1rem 1.8rem;
+    background-color: #4f378b;
+    color: white;
+    border: 0px;
+    border-radius: 50px;
+}
+
+header {
+    width: 100%;
+    background-color: #e8def8;
+    display: flex;
+    justify-content: space-between;
+    min-height: 85px;
+    align-items: center;
+    padding: 0 1.5rem;
+
+}
+
+#loginregDiv{
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+}
+
+.section-box{
+    background-color: white;
+    width: 60%;
+    margin-top: 1rem;
+    border-radius: 1%;
+    display: flex;
+    flex-direction: column;
+}
+
+.aside-box{
+    background-color: white;
+    width: 20%;
+}
+
+.tripImage{
+    width: 4rem;
+    height: 4 rem;
+}
+
+.tripText{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-content: space-evenly;
+}
+
+.Trip{
+    padding: 0 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-content: space-around;
+}
+
+.TripInformation{
+    display: flex;
+    gap: 1rem   ;
+}
+main{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}

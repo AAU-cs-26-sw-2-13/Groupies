@@ -1,21 +1,14 @@
 {
-  "name": "groupies",
+  "name": "servertesting",
   "version": "1.0.0",
-  "description": " Description here ",
-  "main": "index.js",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AAU-cs-26-sw-2-13/Groupies.git"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "bugs": {
-    "url": "https://github.com/AAU-cs-26-sw-2-13/Groupies/issues"
-  },
-  "homepage": "https://github.com/AAU-cs-26-sw-2-13/Groupies#readme"
+  "type": "module"
 }
