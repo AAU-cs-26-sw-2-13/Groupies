@@ -18,7 +18,7 @@ server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
 
-const publicResources="publicResources/";
+const publicResources="frontend/";
 const cwd = process.cwd()
 
 function sanitizePath(userPath){
