@@ -37,6 +37,26 @@ body {
     background-color: #fef7ff;
 }
 
+.button{
+    padding: 1rem 1.8rem;
+    background-color: #4f378b;
+    color: white;
+    border: 0px;
+    border-radius: 50px;
+    transition-duration: 0.4s;
+}
+
+.button1 {
+    background-color: #4f378b;
+    color: white;
+
+}
+
+.button1:hover {
+    background-color: #3a2c5e;
+    color: white;
+}
+
 header {
     width: 100%;
     background-color: #e8def8;
