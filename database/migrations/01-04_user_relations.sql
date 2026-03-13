@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS user_relations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  target_user_id INT NOT NULL,
+  follow_at DATETIME DEFAULT NULL,
+  follow_value BINARY NOT NULL DEFAULT 0,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
