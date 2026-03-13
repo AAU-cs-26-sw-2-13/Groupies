@@ -12,8 +12,8 @@
             "driver": "MySQL",
             "name": "Groupies",
             "database": "groupies",
-            "username": "root",
-            "password": "MikDisMikki5471"
+            "username": "patrick",
+            "password": "admin"
         }
     ]
 }

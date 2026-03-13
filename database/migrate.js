@@ -10,8 +10,27 @@ dotenv.config(); // ← Configure process.env to the .env settings
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+async function dropAll() {
+  if (process.env.MYSQL_DROPALL == 'true') {
+    await query(`DROP DATABASE IF EXISTS \`${process.env.MYSQL_DATABASE}\``);
+    await query(`CREATE DATABASE IF NOT EXISTS \`${process.env.MYSQL_DATABASE}\``);
+    await query(`USE \`${process.env.MYSQL_DATABASE}\``);
+
+    console.log("Successfully dropped and reset database");
+    return 1;
+  }
+  return 0;
+}
+
 async function migrate() {
   console.log("Using DB:", process.env.MYSQL_DATABASE);
+
+  try {
+    await dropAll()
+  } catch (err) {
+    console.error("DropAll error:", err);
+    process.exit(1);
+  }
 
   const dir = path.join(__dirname, "migrations");
   const files = (await fs.readdir(dir)) /* Read the files in the migrations directory */
