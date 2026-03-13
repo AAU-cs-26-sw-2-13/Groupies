@@ -66,7 +66,6 @@ function fileResponse(res, userPath){
         }
     } )
 }
-<<<<<<< HEAD
 export async function queryResponse(res, queryFunction) {
     try {
         const response = await queryFunction();
@@ -85,15 +84,6 @@ export async function queryResponse(res, queryFunction) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: "Internal Server Error" }));
         }
-=======
- export async function queryResponse(res, queryFunction){
-    let response = await queryFunction()
-    if(response){
-        res.statusCode = 200;
-        res.setHeader('Content-Type', "application/json")
-        res.write(JSON.stringify(response))
-        res.end()
->>>>>>> bd92f3e (Ammended queries and added dynamic html page generation support)
     }
 }
 
