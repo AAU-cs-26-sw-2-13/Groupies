@@ -1,11 +1,11 @@
 import path, { relative } from "path"
 import { fileResponse } from "./server.js";
+import {parseJSON} from "./routerHelpers.js"
+export {createResponse} 
 
-export {createRespons} 
 
 
-
-function createRespons(req, res){
+function createResponse(req, res){
     let baseURL = 'http://' + req.headers.host+"/";    //https://github.com/nodejs/node/issues/12682
     let url=new URL(req.url, baseURL);
     console.log(req.method)
