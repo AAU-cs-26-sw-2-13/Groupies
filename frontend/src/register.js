@@ -4,7 +4,7 @@ async function sendData() {
     const fromData = new FormData(form1);
 
     try {
-        const response = await fetch("http://localhost:3000/api/register", {
+        const response = await fetch("http://localhost:3000/api/auth/register", {
             method: "POST",
             body: fromData,
         });
