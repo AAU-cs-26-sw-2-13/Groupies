@@ -177,13 +177,14 @@ let jsonUsers;
 usersQuery.then(userResponse => {
     return userResponse.json()
 }).then(jsonUserResponse => {
-    jsonUsers = jsonUserResponse;
+    loadUsers(jsonUserResponse)
 })
 
-function loadUsers(){
-
+function loadUsers(userArray){
+    for(let u of userArray){
+        userList.append(createUser(u.username, 19, "Male", "Denmark"))
+    }
 }
-
 
 tripList.append(createTrip("Trip to the united states!", "Mikkel")) 
 tripList.append(createTrip("Africe round trip!!!", "Victor")) 
@@ -191,10 +192,3 @@ tripList.append(createTrip("Biking in the mountains", "Mathias"))
 tripList.append(createTrip("Germany history tour", "Ruben")) 
 tripList.append(createTrip("Japan 2027","Matheus")) 
 
-createUser()
-
-userList.append(createUser("Mikkel",19,"Male","Denmark"))
-userList.append(createUser("Victor", 21, "Female", "Denmark"))
-userList.append(createUser("Mathias", 87, "Cykelmyg", "England"))
-userList.append(createUser())
-userList.append(createUser())
