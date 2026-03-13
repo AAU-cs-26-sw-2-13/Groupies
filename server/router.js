@@ -25,10 +25,8 @@ async function createResponse(req, res) {
                         let jsonData = JSON.parse(data)
                         if (jsonData.sessionId === "empty") {
                             if (jsonData.query === "users") {
-                                console.log(jsonData.query)
                                 queryResponse(res, getAllUsers)
                             } else if (jsonData.query === "groups") {
-                                console.log(jsonData.query)
                                 queryResponse(res, getAllGroups)
                             }
                         }
