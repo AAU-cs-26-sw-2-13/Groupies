@@ -220,6 +220,7 @@ function createUserHTML(userArray){
 }
 
 function loadGroups(groupArray){
+    console.log(groupArray)
     for(let t of groupArray){
         tripList.append(createTrip(t.title, t.name_first + " " + t.name_last))
     }
