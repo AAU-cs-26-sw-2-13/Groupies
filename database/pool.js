@@ -17,6 +17,6 @@ export const pool = mysql.createPool({
 
 // Helper to run the SQL queries to the server through the pool.
 export async function query(sql, params = []) {
-  const [rows] = await pool.execute(sql, params);
+  const [rows] = await pool.query(sql, params);
   return rows;
 }
