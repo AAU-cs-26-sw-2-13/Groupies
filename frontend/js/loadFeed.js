@@ -63,12 +63,12 @@ function createTrip(title, host, tags){
     tripText.append(tripHost)
 
     lowerTripInfo.append(genreList)
-
+    
     genreList.append(genre)
     return list
 }
 //Generates the HTML object for a new user
-function createUser(name, age, gender, country){
+function createUser(name, age, gender, country, tags){
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -86,9 +86,6 @@ function createUser(name, age, gender, country){
     let userInfoText = document.createElement("p")
 
     let genreList = document.createElement("ul")
-
-    let genre = document.createElement("li")
-
 
     article.setAttribute("class", "userBox")
     article.addEventListener('click', profileClick)
@@ -114,9 +111,6 @@ function createUser(name, age, gender, country){
 
     genreList.setAttribute("class", "prefListFront")
 
-    genre.setAttribute("class", "pref-item")
-    genre.textContent = "Adventure"
-
     list.append(article)
 
     article.append(upperUserInfo)
@@ -133,7 +127,13 @@ function createUser(name, age, gender, country){
 
     lowerUserInfo.append(genreList)
 
-    genreList.append(genre)
+    for(let t of tags){
+        let genre = document.createElement("li")
+        genre.setAttribute("class", "pref-item")
+        genre.textContent = t
+        genreList.append(genre)
+    }
+    
 
     console.log(list)
     return list
@@ -176,8 +176,7 @@ let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUse
 usersQuery.then(userResponse => {
     return userResponse.json()
 }).then(jsonUserResponse => {
-    console.log(jsonUserResponse)
-    loadUsers(jsonUserResponse)
+    createUserHTML(loadUsers(jsonUserResponse))
 })
 //Get groups
 let sessionDataTrips = {sessionId: "empty", query:"groups"}
@@ -185,15 +184,11 @@ let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTri
 groupQuery.then(groupResponse => {
     return groupResponse.json()
 }).then(data => {
-    return loadGroups(data)
-    
-}).then(data => {
-    console.log(data)
-    createUserHTML(data)
+    loadGroups(data)
 })
 
 function loadUsers(userArray){
-    let userArrayWithPref = []
+    let userArrayWithPref = {}
 
     for(let u of userArray){
         if (!userArrayWithPref[u.id]){
@@ -205,21 +200,22 @@ function loadUsers(userArray){
                 gender: u.gender,
                 age: u.age,
                 picture: u.picture,
-                prefs: [u.preference_id]
+                prefs: []
             }
-        } else {
+        }
+        if(userArrayWithPref[u.id] && u.preference_id != null){
             userArrayWithPref[u.id].prefs.push(u.preference_id)
         }
     }
 
-    console.log(userArrayWithPref)
-    return userArrayWithPref
+    return Object.values(userArrayWithPref) 
 }
 
 function createUserHTML(userArray){
-    console.log(userArray)
     for(let u of userArray){
-        userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country))
+        if(u){
+            userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.prefs))
+        }
     }
 }
 

@@ -1,3 +1,3 @@
 INSERT INTO user_prefs(user_id, preference_id, preference_value)
-VALUES(1, "Running", 1)
+VALUES(2, "Adventure", 1)
 
