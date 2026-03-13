@@ -12,32 +12,6 @@ async function createResponse(req, res){
     let url=new URL(req.url, baseURL);
     
     switch(req.method){
-        case "POST":{
-            let pathElements = url.pathname.split("/")
-            switch (pathElements[1]){
-                case "":{
-                    //Load discovery feed
-                    let data = ""
-                    req.on('data', chunk => {
-                        data += chunk.toString()
-                    })
-                    req.on('end', ()=>{
-                        let jsonData = JSON.parse(data)
-                        if (jsonData.sessionId === "empty"){
-                            if(jsonData.query === "users"){
-                                console.log(jsonData.query)
-                                queryResponse(res, getAllUsers)
-                            }else if (jsonData.query === "groups"){
-                                console.log(jsonData.query)
-                                queryResponse(res, getAllGroups)
-                            }
-                        }
-                    })
-                }
-            }
-            break
-
-        }
         case "GET": {
             let pathElements = url.pathname.split("/")
             //Routing to different paths
@@ -51,6 +25,7 @@ async function createResponse(req, res){
                     break;
                 }
             }
+            break;
         }
         case "POST": {
             let pathElements = url.pathname.split("/")
@@ -161,6 +136,7 @@ async function createResponse(req, res){
                                     }
                                 }
                             }
+                            break;
                         }
                         case "pref": {
                             const session = await getSession(req);
@@ -184,10 +160,10 @@ async function createResponse(req, res){
                                 preferenceName,
                                 user_id: session.user_id
                             }));
+                            break;
                         }
                     }
                 }
-                    break;
             }
         }
     }
