@@ -12,3 +12,8 @@ export async function getAllUsers(){
     let queryResponse =  await query(sqlGetAllUsers)
     return queryResponse
 }
+
+export async function getAllGroups(){
+    let queryResponse =  await query(defaultGroups)
+    return queryResponse
+}

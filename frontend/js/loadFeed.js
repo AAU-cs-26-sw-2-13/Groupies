@@ -171,16 +171,30 @@ function profileClick(event){
 }
 
 //Get users
-let sessionData = {sessionId: "empty", query:"users"}
-let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionData)})
-let jsonUsers;
+let sessionDataUser = {sessionId: "empty", query:"users"}
+let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUser)})
 usersQuery.then(userResponse => {
     return userResponse.json()
 }).then(jsonUserResponse => {
+    console.log(jsonUserResponse)
     loadUsers(jsonUserResponse)
+})
+//Get groups
+let sessionDataTrips = {sessionId: "empty", query:"groups"}
+let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTrips)})
+groupQuery.then(groupResponse => {
+    return groupResponse.json()
+}).then(data => {
+    console.log("GROUPS: "+data)
 })
 
 function loadUsers(userArray){
+    for(let u of userArray){
+        userList.append(createUser(u.name_first + " " + u.name_last, u.age, "Male", u.country))
+    }
+}
+
+function groups(groupArray){
     for(let u of userArray){
         userList.append(createUser(u.username, 19, "Male", "Denmark"))
     }
