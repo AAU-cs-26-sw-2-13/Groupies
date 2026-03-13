@@ -10,6 +10,7 @@ const hostname = 'localhost';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
+   
     createResponse(req, res)
 });
 
@@ -66,24 +67,13 @@ function fileResponse(res, userPath){
         }
     } )
 }
-export async function queryResponse(res, queryFunction) {
-    try {
-        const response = await queryFunction();
-        if (response) {
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(response));
-            return;
-        }
-        // Handle the case where no data was found
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: "Resource not found" }));
-
-    } catch (error) {
-        // If queryFunction fails
-        if (!res.headersSent) {
-            res.writeHead(500, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: "Internal Server Error" }));
-        }
+export async function queryResponse(res, queryFunction){
+    let response = await queryFunction()
+    if(response){
+        res.statusCode = 200;
+        res.setHeader('Content-Type', "application/json")
+        res.write(JSON.stringify(response))
+        res.end()
     }
 }
 

@@ -4,74 +4,37 @@ import crypto from "node:crypto";
 import path, { relative } from "path"
 import { fileResponse, queryResponse } from "./server.js";
 import { parseJSON, setSessionCookie, getSession } from "./routerHelpers.js"
-import { getAllUsers, getAllGroups} from "./serverQueries.js";
+import { getAllUsers, getAllGroups } from "./serverQueries.js";
 export { createResponse }
 
-async function createResponse(req, res){
-    let baseURL = 'http://' + req.headers.host+"/";    //https://github.com/nodejs/node/issues/12682
-    let url=new URL(req.url, baseURL);
-    
-    switch(req.method){
-        case "POST":{
+async function createResponse(req, res) {
+    let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
+    let url = new URL(req.url, baseURL);
+
+    switch (req.method) {
+        case "POST": {
             let pathElements = url.pathname.split("/")
-            switch (pathElements[1]){
-                case "":{
+            switch (pathElements[1]) {
+                case "": {
                     //Load discovery feed
                     let data = ""
                     req.on('data', chunk => {
                         data += chunk.toString()
                     })
-                    req.on('end', ()=>{
+                    req.on('end', () => {
                         let jsonData = JSON.parse(data)
-                        if (jsonData.sessionId === "empty"){
-                            if(jsonData.query === "users"){
+                        if (jsonData.sessionId === "empty") {
+                            if (jsonData.query === "users") {
                                 console.log(jsonData.query)
                                 queryResponse(res, getAllUsers)
-                            }else if (jsonData.query === "groups"){
+                            } else if (jsonData.query === "groups") {
                                 console.log(jsonData.query)
                                 queryResponse(res, getAllGroups)
                             }
                         }
                     })
                 }
-            }
-            break
-
-        }
-        case "GET": {
-            let pathElements = url.pathname.split("/")
-            //Routing to different paths
-            switch (pathElements[1]) {
-                case "": {
-                    fileResponse(res, "html/index.html")
-                    break;
-                }
-                default: {
-                    fileResponse(res, url.pathname)
-                    break;
-                }
-            }
-        }
-        case "POST": {
-            let pathElements = url.pathname.split("/")
-            
-            switch (pathElements[1]) {
-                case "": {
-                    //Load discovery feed
-                    let data = ""
-                    req.on('data', chunk => {
-                        data += chunk.toString()
-                    })
-                 req.on('end', () => {
-                        let jsonData = JSON.parse(data)
-
-                        if (jsonData.sessionId === "empty") {
-                            if (jsonData.query === "users") {
-                                queryResponse(res, getAllUsers)
-                            }
-                        }
-                    })
-                }
+                break;
                 case "api": {
                     switch (pathElements[2]) {
                         case "auth": {
@@ -147,7 +110,6 @@ async function createResponse(req, res){
                                             username: session.username,
                                             name: session.name
                                         }));
-
                                     }
                                     case "logout": {
                                         const cookie = req.headers.cookie || "";
@@ -161,6 +123,7 @@ async function createResponse(req, res){
                                     }
                                 }
                             }
+                            break;
                         }
                         case "pref": {
                             const session = await getSession(req);
@@ -177,7 +140,7 @@ async function createResponse(req, res){
                             }
 
 
-                                res.writeHead(200, { "Content-Type": "application/json" });
+                            res.writeHead(200, { "Content-Type": "application/json" });
                             return res.end(JSON.stringify({
                                 status: "enabled",
                                 value: 1,
@@ -185,9 +148,26 @@ async function createResponse(req, res){
                                 user_id: session.user_id
                             }));
                         }
+                        break;
                     }
                 }
+                break;
+            }
+        }
+            break;
+
+        case "GET": {
+            let pathElements = url.pathname.split("/")
+            //Routing to different paths
+            switch (pathElements[1]) {
+                case "": {
+                    fileResponse(res, "html/index.html")
                     break;
+                }
+                default: {
+                    fileResponse(res, url.pathname)
+                    break;
+                }
             }
         }
     }
