@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS group_members (
     role ENUM('owner', 'member') DEFAULT 'member',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (group_id) REFERENCES travel_groups(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES `groups` (id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
 
     UNIQUE KEY uniq_group_user (group_id, user_id)
