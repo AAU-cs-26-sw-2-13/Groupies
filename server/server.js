@@ -4,14 +4,14 @@ import fs from "fs"
 
 export {fileResponse}
 
-import {createRespons} from "./router.js"
+import {createResponse} from "./router.js"
 
 const hostname = 'localhost';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
    
-    createRespons(req, res)
+    createResponse(req, res)
 });
 
 server.listen(port, hostname, () => {
@@ -67,7 +67,7 @@ function fileResponse(res, userPath){
         }
     } )
 }
- export async function queryResponse(res, queryFunction){
+export async function queryResponse(res, queryFunction){
     let response = await queryFunction()
     if(response){
         res.statusCode = 200;
