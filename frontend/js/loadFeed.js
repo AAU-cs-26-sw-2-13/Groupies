@@ -185,24 +185,48 @@ let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTri
 groupQuery.then(groupResponse => {
     return groupResponse.json()
 }).then(data => {
-    console.log("GROUPS: "+data)
+    return loadGroups(data)
+    
+}).then(data => {
+    console.log(data)
+    createUserHTML(data)
 })
 
 function loadUsers(userArray){
+    let userArrayWithPref = []
+
     for(let u of userArray){
-        userList.append(createUser(u.name_first + " " + u.name_last, u.age, "Male", u.country))
+        if (!userArrayWithPref[u.id]){
+            userArrayWithPref[u.id] = {
+                id: u.id,
+                name_first: u.name_first,
+                name_last: u.name_last,
+                country: u.country,
+                gender: u.gender,
+                age: u.age,
+                picture: u.picture,
+                prefs: [u.preference_id]
+            }
+        } else {
+            userArrayWithPref[u.id].prefs.push(u.preference_id)
+        }
+    }
+
+    console.log(userArrayWithPref)
+    return userArrayWithPref
+}
+
+function createUserHTML(userArray){
+    console.log(userArray)
+    for(let u of userArray){
+        userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country))
     }
 }
 
-function groups(groupArray){
-    for(let u of userArray){
-        userList.append(createUser(u.username, 19, "Male", "Denmark"))
+function loadGroups(groupArray){
+    for(let t of groupArray){
+        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last))
     }
 }
-
-tripList.append(createTrip("Trip to the united states!", "Mikkel")) 
-tripList.append(createTrip("Africe round trip!!!", "Victor")) 
-tripList.append(createTrip("Biking in the mountains", "Mathias")) 
-tripList.append(createTrip("Germany history tour", "Ruben")) 
-tripList.append(createTrip("Japan 2027","Matheus")) 
+ 
 
