@@ -1,6 +1,7 @@
-CREATE TABLE IF NOT EXISTS user_preferences (
+CREATE TABLE IF NOT EXISTS user_prefs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
-  preference_id VARCHAR(100) NOT NULL,
+  preference_id VARCHAR(50) NOT NULL,
+  preference_value BINARY NOT NULL DEFAULT 0,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

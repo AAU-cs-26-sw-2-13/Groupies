@@ -4,11 +4,8 @@ import crypto from "node:crypto";
 import path, { relative } from "path"
 import { fileResponse, queryResponse } from "./server.js";
 import { parseJSON, setSessionCookie, getSession } from "./routerHelpers.js"
-import { getAllUsers } from "./serverQueries.js";
+import { getAllUsers, getAllGroups } from "./serverQueries.js";
 export { createResponse }
-
-
-
 
 async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
@@ -29,10 +26,13 @@ async function createResponse(req, res) {
                         if (jsonData.sessionId === "empty") {
                             if (jsonData.query === "users") {
                                 queryResponse(res, getAllUsers)
+                            } else if (jsonData.query === "groups") {
+                                queryResponse(res, getAllGroups)
                             }
                         }
                     })
                 }
+                break;
                 case "api": {
                     switch (pathElements[2]) {
                         case "auth": {
@@ -55,7 +55,7 @@ async function createResponse(req, res) {
                                             return res.end(JSON.stringify({ error: "Username already taken!" }));
                                         }
                                         /* If username and password received and username unique, hash a password and query insert user */
-                                        const hash = bcrypt.hash(password, 12);
+                                        const hash = await bcrypt.hash(password, 12);
                                         await query("INSERT INTO users (username, password_hash, name)", [username, hash, name || null]);
 
                                         console.log(`✓ User registered: ${username}`); //Debug log
@@ -108,7 +108,6 @@ async function createResponse(req, res) {
                                             username: session.username,
                                             name: session.name
                                         }));
-
                                     }
                                     case "logout": {
                                         const cookie = req.headers.cookie || "";
@@ -122,6 +121,7 @@ async function createResponse(req, res) {
                                     }
                                 }
                             }
+                            break;
                         }
                         case "pref": {
                             const session = await getSession(req);
@@ -133,15 +133,26 @@ async function createResponse(req, res) {
                             const body = await parseJSON(req);
                             const preferenceName = String(body.preferenceName || "").trim();
 
-                            if(!preferenceName){
+                            if (!preferenceName) {
                                 //handle no preference received
                             }
-                            
+
+
+                            res.writeHead(200, { "Content-Type": "application/json" });
+                            return res.end(JSON.stringify({
+                                status: "enabled",
+                                value: 1,
+                                preferenceName,
+                                user_id: session.user_id
+                            }));
+                            break;
                         }
+                        break;
                     }
                 }
-                    break;
+                break;
             }
+            break;
         }
         case "GET": {
             let pathElements = url.pathname.split("/")
