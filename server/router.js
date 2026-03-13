@@ -153,9 +153,8 @@ async function createResponse(req, res) {
                 }
                 break;
             }
-        }
             break;
-
+        }
         case "GET": {
             let pathElements = url.pathname.split("/")
             //Routing to different paths
