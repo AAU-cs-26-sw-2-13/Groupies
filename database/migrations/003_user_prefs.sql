@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS user_preferences (
+CREATE TABLE IF NOT EXISTS user_prefs (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   preference_id VARCHAR(100) NOT NULL,
