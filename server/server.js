@@ -28,13 +28,11 @@ function sanitizePath(userPath){
     }
     userPath = path.normalize(userPath).replace(/^(\.\.(\/|\\|$))+/, '');
     let p = path.join(publicResources, userPath)
-    console.log("Path is + " + p)
     return p;
 }
 
 function guessMimeType(fileName){
   const fileExtension=fileName.split('.').pop().toLowerCase();
-  console.log(fileExtension);
   const ext2Mime ={ //Aught to check with IANA spec
     "txt": "text/txt",
     "html": "text/html",
@@ -68,7 +66,16 @@ function fileResponse(res, userPath){
             res.end('\n');
         }
     } )
-
 }
+ export async function queryResponse(res, queryFunction){
+    let response = await queryFunction()
+    if(response){
+        res.statusCode = 200;
+        res.setHeader('Content-Type', "application/json")
+        res.write(JSON.stringify(response))
+        res.end()
+    }
+}
+
 
 
