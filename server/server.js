@@ -4,14 +4,13 @@ import fs from "fs"
 
 export {fileResponse}
 
-import {createRespons} from "./router.js"
+import {createResponse} from "./router.js"
 
 const hostname = 'localhost';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
-   
-    createRespons(req, res)
+    createResponse(req, res)
 });
 
 server.listen(port, hostname, () => {
@@ -28,13 +27,11 @@ function sanitizePath(userPath){
     }
     userPath = path.normalize(userPath).replace(/^(\.\.(\/|\\|$))+/, '');
     let p = path.join(publicResources, userPath)
-    console.log("Path is + " + p)
     return p;
 }
 
 function guessMimeType(fileName){
   const fileExtension=fileName.split('.').pop().toLowerCase();
-  console.log(fileExtension);
   const ext2Mime ={ //Aught to check with IANA spec
     "txt": "text/txt",
     "html": "text/html",
@@ -68,7 +65,27 @@ function fileResponse(res, userPath){
             res.end('\n');
         }
     } )
-
 }
+export async function queryResponse(res, queryFunction) {
+    try {
+        const response = await queryFunction();
+        if (response) {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(response));
+            return;
+        }
+        // Handle the case where no data was found
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: "Resource not found" }));
+
+    } catch (error) {
+        // If queryFunction fails
+        if (!res.headersSent) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: "Internal Server Error" }));
+        }
+    }
+}
+
 
 
