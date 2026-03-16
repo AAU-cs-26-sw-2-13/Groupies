@@ -4,6 +4,5 @@ CREATE TABLE IF NOT EXISTS group_tags (
   tag_id VARCHAR(50) NOT NULL,
   tag_value BINARY NOT NULL DEFAULT 0,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE
 );
