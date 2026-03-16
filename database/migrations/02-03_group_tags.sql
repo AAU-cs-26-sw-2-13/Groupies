@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS group_tags (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  group_id INT NOT NULL,
+  tag_id VARCHAR(50) NOT NULL,
+  tag_value BINARY NOT NULL DEFAULT 0,
+  
+  FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE
+);
