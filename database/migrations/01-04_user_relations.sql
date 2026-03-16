@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS user_relations (
   follow_at DATETIME DEFAULT NULL,
   follow_value BINARY NOT NULL DEFAULT 0,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE CASCADE
 );

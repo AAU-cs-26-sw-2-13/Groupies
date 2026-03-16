@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS group_activities (
   date_start_at DATETIME, 
   date_end_at DATETIME,
 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE
 );
