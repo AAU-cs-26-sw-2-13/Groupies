@@ -1,6 +1,8 @@
 //Queries to dom elements
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
+let header = document.querySelector("header")
+let discovered = 1;
 
 //Generates the HTML object for a new trip
 function createTrip(title, host, tags){
@@ -20,9 +22,6 @@ function createTrip(title, host, tags){
     let tripHost = document.createElement("p")
 
     let genreList = document.createElement("ul")
-
-    let genre = document.createElement("li")
-
 
     article.setAttribute("class", "trip")
     article.addEventListener('click', groupClick)
@@ -45,9 +44,6 @@ function createTrip(title, host, tags){
 
     genreList.setAttribute("class", "prefListFront")
 
-    genre.setAttribute("class", "pref-item")
-    genre.textContent = "Adventure"
-
     list.append(article)
 
     article.append(upperTripInfo)
@@ -64,7 +60,13 @@ function createTrip(title, host, tags){
 
     lowerTripInfo.append(genreList)
     
-    genreList.append(genre)
+    for(let t of tags){
+        let genre = document.createElement("li")
+        genre.setAttribute("class", "pref-item")
+        genre.textContent = t
+
+        genreList.append(genre)
+    }
     return list
 }
 //Generates the HTML object for a new user
@@ -128,10 +130,12 @@ function createUser(name, age, gender, country, tags){
     lowerUserInfo.append(genreList)
 
     for(let t of tags){
-        let genre = document.createElement("li")
-        genre.setAttribute("class", "pref-item")
-        genre.textContent = t
-        genreList.append(genre)
+        if(t !== null){
+            let genre = document.createElement("li")
+            genre.setAttribute("class", "pref-item")
+            genre.textContent = t
+            genreList.append(genre)
+        }
     }
     
 
@@ -170,13 +174,79 @@ function profileClick(event){
     console.log(event.target)
 }
 
+function createHomePageLoggedIn(user){
+    let mainDiv = document.createElement("div")
+    mainDiv.setAttribute("class", "profile")
+
+    //Login button
+    let profileImage = document.createElement("img")
+    profileImage.setAttribute("class", "profileImage")
+    profileImage.setAttribute("src", "img/notFound.jpg")
+
+    //Register button
+    let username = document.createElement("p")
+    username.setAttribute("class", "profileName")
+    username.textContent = user.name
+
+    mainDiv.append(username)
+    mainDiv.append(profileImage)
+
+    header.append(mainDiv)
+}
+
+function createHomePageLoggedOut(){
+    //Main div
+    let mainDiv = document.createElement("div")
+    mainDiv.setAttribute("class", "loginregDiv")
+
+    //Login button
+    let loginButton = document.createElement("button")
+    loginButton.setAttribute("class", "button")
+    loginButton.setAttribute("type", "button")
+    loginButton.textContent = "Login"
+
+    //Register button
+    let registerButton = document.createElement("button")
+    registerButton.setAttribute("class", "button")
+    registerButton.setAttribute("type", "button")
+    registerButton.setAttribute("id", "register")
+    registerButton.textContent = "Register"
+
+    mainDiv.append(loginButton)
+    mainDiv.append(registerButton)
+
+    header.append(mainDiv)
+}
+//Get me
+let me = fetch("/api/auth/me",{
+    method: "POST",
+    credentials: "include"
+}).then(response=>{
+    if(response.status===401){
+        console.log("User not logged in.")
+        //createHomePageLoggedOut()
+        user={
+            user_id: 1,
+            username: "Mikkel123",
+            name: "Mikkel Dissing"
+        }
+        createHomePageLoggedIn(user)
+        //return null
+    }
+})
+
+
+
+
+
+
 //Get users
 let sessionDataUser = {sessionId: "empty", query:"users"}
 let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUser)})
 usersQuery.then(userResponse => {
     return userResponse.json()
 }).then(jsonUserResponse => {
-    createUserHTML(loadUsers(jsonUserResponse))
+    createUserHTML(jsonUserResponse)
 })
 //Get groups
 let sessionDataTrips = {sessionId: "empty", query:"groups"}
@@ -184,45 +254,20 @@ let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTri
 groupQuery.then(groupResponse => {
     return groupResponse.json()
 }).then(data => {
-    loadGroups(data)
+    createGroups(data)
 })
-
-function loadUsers(userArray){
-    let userArrayWithPref = {}
-
-    for(let u of userArray){
-        if (!userArrayWithPref[u.id]){
-            userArrayWithPref[u.id] = {
-                id: u.id,
-                name_first: u.name_first,
-                name_last: u.name_last,
-                country: u.country,
-                gender: u.gender,
-                age: u.age,
-                picture: u.picture,
-                prefs: []
-            }
-        }
-        if(userArrayWithPref[u.id] && u.preference_id != null){
-            userArrayWithPref[u.id].prefs.push(u.preference_id)
-        }
-    }
-
-    return Object.values(userArrayWithPref) 
-}
 
 function createUserHTML(userArray){
     for(let u of userArray){
-        if(u){
-            userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.prefs))
-        }
+        console.log(u.preferences)
+        userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.preferences))
     }
 }
 
-function loadGroups(groupArray){
+function createGroups(groupArray){
     console.log(groupArray)
     for(let t of groupArray){
-        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last))
+        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last, t.tags))
     }
 }
  
