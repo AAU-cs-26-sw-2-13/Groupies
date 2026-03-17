@@ -1,25 +1,43 @@
 import { query } from "../database/pool.js";
 import { faker } from '@faker-js/faker';
 
-export async function mockUserPreferences(amount){
+async function mockUserPreferences(amount){
     let result = await query(`SELECT * FROM preferences`);
     let n = result.length;
 
-    let mockUserPreferences = [];
+    let mockPreferences = [];
     for (let i=1; i <= amount; i++) {
         for (let j=0; j < n; j++) {
             if (Math.random < 0.5) { continue; }
             let preference = [i, result[j][`preference_id`], 1];
-            mockUserPreferences.push(preference);
+            mockPreferences.push(preference);
         }
     }
     
     await query(
         `INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES ?`,
-        [mockUserPreferences]
+        [mockPreferences]
     );
     
     console.log(`✓ Mocked preferences for ${amount} of users`);
+}
+
+async function mockUserRelations(amount){
+    let mockRelations = [];
+    for (let i=1; i <= amount; i++) {
+        for (let j=1; j <= amount; j++) {
+            if (Math.random() < 0.95) { continue; }
+            let relation = [i, j, 1];
+            mockRelations.push(relation);
+        }
+    }
+    
+    await query(
+        `INSERT INTO user_relations (user_id, target_user_id, follow_value) VALUES ?`,
+        [mockRelations]
+    );
+    
+    console.log(`✓ Mocked relations for ${amount} of users`);
 }
 
 export async function mockUsers(amount){
@@ -47,5 +65,6 @@ export async function mockUsers(amount){
 
     console.log(`✓ Mocked ${amount} of users`);
     await mockUserPreferences(amount);
+    await mockUserRelations(amount);
 }
 
