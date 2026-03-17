@@ -140,8 +140,6 @@ function createUser(name, age, gender, country, tags){
         }
     }
     
-
-    console.log(list)
     return list
 }
 
@@ -169,11 +167,10 @@ function followUserListener(event){
 }
 
 function groupClick(event){
-    console.log(event.target)
 }
 
 function profileClick(event){
-    console.log(event.target)
+
 }
 
 function createHomePageLoggedIn(user){
@@ -213,6 +210,9 @@ function createHomePageLoggedOut(){
     registerButton.setAttribute("type", "button")
     registerButton.setAttribute("id", "register")
     registerButton.textContent = "Register"
+    registerButton.addEventListener('click', () =>{
+        window.location.href = "/html/register.html"
+    })
 
     mainDiv.append(loginButton)
     mainDiv.append(registerButton)
@@ -220,19 +220,19 @@ function createHomePageLoggedOut(){
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/api/auth/me",{
-    method: "POST",
+let me = fetch("/me",{
+    method: "GET",
     credentials: "include"
 }).then(response=>{
+    console.log(response.status)
     if(response.status===401){
-        console.log("User not logged in.")
-        //createHomePageLoggedOut()
+        createHomePageLoggedOut()
         user={
             user_id: 1,
             username: "Mikkel123",
             name: "Mikkel Dissing"
         }
-        createHomePageLoggedIn(user)
+        //createHomePageLoggedIn(user)
         //return null
     }
 })
@@ -261,13 +261,11 @@ groupQuery.then(groupResponse => {
 
 function createUserHTML(userArray){
     for(let u of userArray){
-        console.log(u.preferences)
         userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.preferences))
     }
 }
 
 function createGroups(groupArray){
-    console.log(groupArray)
     for(let t of groupArray){
         tripList.append(createTrip(t.title, t.name_first + " " + t.name_last, t.tags))
     }
