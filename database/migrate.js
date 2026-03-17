@@ -56,10 +56,8 @@ async function migrate() {
     }
   }
 
-  console.log(process.env.TESTING_MOCKDATA)
-  console.log(Number.isFinite(process.env.TESTING_MOCKDATA))
-  if (process.env.TESTING_MOCKDATA && !isNaN(Number(process.env.TESTING_MOCKDATA))) {
-    mockUsers(process.env.TESTING_MOCKDATA);
+  if (!isNaN(process.env.TESTING_MOCKDATA) && isFinite(process.env.TESTING_MOCKDATA)) {
+    await mockUsers(process.env.TESTING_MOCKDATA);
   }
 
   console.log("✓ Migrations completed");
