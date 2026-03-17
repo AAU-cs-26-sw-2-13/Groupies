@@ -5,7 +5,8 @@ import path, { relative } from "path"
 import { fileResponse, queryResponse } from "./server.js";
 import { parseJSON, setSessionCookie, getSession } from "./routerHelpers.js"
 import { getAllUsers, getAllGroups } from "./serverQueries.js";
-export { createResponse }
+export { createResponse };
+import { query } from "../database/pool.js";
 
 async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
@@ -41,24 +42,28 @@ async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": {
                                         const body = await parseJSON(req);
-                                        const { username, password, firstname, lastname, email, country, age, bio, picture } = body;
+                                        const { firstName, lastName, password, email, country, age, bio, picture } = body;
+                                        console.log(body);
 
-                                        /* check if username AND password were received in JSON */
-                                        if (!username || !password) {
+                                        /* check if password were received in JSON */
+                                        if (!password) {
                                             res.writeHead(400, { "Content-Type": "application/json" });
-                                            return res.end(JSON.stringify({ error: "Username and Password req." }))
+                                            return res.end(JSON.stringify({ error: "Password req." }))
                                         }
                                         /* query the username/password */
-                                        const exists = await query("SELECT id FROM users WHERE username=?", [username]);
+                                        const exists = await query("SELECT id FROM users WHERE email=?", [email]);
                                         if (exists.length) { //if already taken, reject
                                             res.writeHead(400, { "Content-Type": "application/json" });
-                                            return res.end(JSON.stringify({ error: "Username already taken!" }));
+                                            return res.end(JSON.stringify({ error: "Email already in use!" }));
                                         }
                                         /* If username and password received and username unique, hash a password and query insert user */
                                         const hash = await bcrypt.hash(password, 12);
-                                        await query("INSERT INTO users (username, password_hash, name)", [username, hash, name || null]);
+                                        console.log(email, hash, firstName);
+                                        await query("INSERT INTO users (email, password_hash, name_first) VALUES (?, ?, ?)",
+                                             [email, hash, firstName || null]
+                                            );
 
-                                        console.log(`✓ User registered: ${username}`); //Debug log
+                                        console.log(`✓ User registered: ${email}`); //Debug log
                                         res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
                                         return res.end(JSON.stringify({ status: "registered" }));
                                     }

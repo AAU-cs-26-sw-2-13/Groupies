@@ -21,15 +21,24 @@
             <section class="register-box" id="reg-box">
                 <ul>
                     <li>
-                        <form id="stepOne">
-                            <label for="firstName"></label>
-                            <input type="text" id="firstName" placeholder="First Name" class="reg-box-inputs">
-                            <input type="text" id="lastName" placeholder="Last Name" class="reg-box-inputs">
-                            <input type="password" id="password" placeholder="Password" class="reg-box-inputs">
-                            <input type="text" id="email" placeholder="Email" class="reg-box-inputs">
+                        <form id="form">
+                            <p id="step1">
+                                <label for="firstName"></label>
+                                <input type="text" id="firstName" name="firstName" placeholder="First Name" class="reg-box-inputs">
+                                <input type="text" id="lastName" name="lastName" placeholder="Last Name" class="reg-box-inputs">
+                                <input type="password" id="password" name="password" placeholder="Password" class="reg-box-inputs">
+                                <input type="text" id="email" name="email" placeholder="Email" class="reg-box-inputs">
+                            </p>
+                            <p hidden id="step2">
+                                stepTwo
+                            </p>
+                            <p hidden id="step3">
+                                stepThree
+                            </p>
                             <div class="center-align">
-                                <button class="trans-box-button trans-box-button1" type="submit" id="return">Back</button>
-                                <button class="box-button box-button1" type="submit" id="pageturn" name="submit button">Next</button>
+                                <button class="trans-box-button trans-box-button1" type="button" id="return">Back</button>
+                                <button class="box-button box-button1" type="button" id="next">Next</button>
+                                <button hidden class="box-button box-button11" type="submit" id="submit">Submit</button>
                             </div>
                             <div class="center-align">
                                 Step 1/3
