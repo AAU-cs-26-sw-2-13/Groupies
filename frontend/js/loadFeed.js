@@ -61,11 +61,13 @@ function createTrip(title, host, tags){
     lowerTripInfo.append(genreList)
     
     for(let t of tags){
-        let genre = document.createElement("li")
-        genre.setAttribute("class", "pref-item")
-        genre.textContent = t
+        if (t!== null){
+            let genre = document.createElement("li")
+            genre.setAttribute("class", "pref-item")
+            genre.textContent = t
 
-        genreList.append(genre)
+            genreList.append(genre)
+        }
     }
     return list
 }
