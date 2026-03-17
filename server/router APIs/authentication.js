@@ -1,3 +1,6 @@
+import { query } from '../../database/pool.js'
+import bcrypt from "bcrypt"; //password hashing
+
 // Helper functions for the authentication functions
 export async function parseJSON(req) {
   return new Promise((resolve) => {
@@ -42,24 +45,24 @@ export async function getSession(req) { //get the session for the user
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
   const body = await parseJSON(req);
-  const { username, password, firstname, lastname, email, country, age, bio, picture } = body;
+  const { password, firstname, lastname, email, country, age, bio, picture } = body;
 
   /* check if username AND password were received in JSON */
-  if (!username || !password) {
+  if (!password || !email) {
     res.writeHead(400, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Username and Password req." }))
+    return res.end(JSON.stringify({ error: "Email and Password req." }))
   }
   /* query the username/password */
-  const exists = await query("SELECT id FROM users WHERE username=?", [username]);
+  const exists = await query("SELECT id FROM users WHERE email=?", [email]);
   if (exists.length) { //if already taken, reject
     res.writeHead(400, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Username already taken!" }));
+    return res.end(JSON.stringify({ error: "Email already in use!" }));
   }
   /* If username and password received and username unique, hash a password and query insert user */
   const hash = await bcrypt.hash(password, 12);
-  await query("INSERT INTO users (username, password_hash, name)", [username, hash, name || null]);
+  await query("INSERT INTO users (email, password_hash, name_first) VALUES (?, ?, ?)", [email, hash, firstname || null]);
 
-  console.log(`✓ User registered: ${username}`); //Debug log
+  console.log(`✓ User registered: ${email}`); //Debug log
   res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
   return res.end(JSON.stringify({ status: "registered" }));
 
