@@ -8,7 +8,7 @@ async function mockUserPreferences(amount){
     let mockPreferences = [];
     for (let i=1; i <= amount; i++) {
         for (let j=0; j < n; j++) {
-            if (Math.random < 0.5) { continue; }
+            if (Math.random() < 0.5) { continue; }
             let preference = [i, result[j][`preference_id`], 1];
             mockPreferences.push(preference);
         }
@@ -19,14 +19,14 @@ async function mockUserPreferences(amount){
         [mockPreferences]
     );
     
-    console.log(`✓ Mocked preferences for ${amount} of users`);
+    console.log(`✓ Mocked ${mockPreferences.length} user preferences`);
 }
 
 async function mockUserRelations(amount){
     let mockRelations = [];
     for (let i=1; i <= amount; i++) {
         for (let j=1; j <= amount; j++) {
-            if (Math.random() < 0.95) { continue; }
+            if (Math.random() < 0.99) { continue; }
             let relation = [i, j, 1];
             mockRelations.push(relation);
         }
@@ -37,7 +37,7 @@ async function mockUserRelations(amount){
         [mockRelations]
     );
     
-    console.log(`✓ Mocked relations for ${amount} of users`);
+    console.log(`✓ Mocked ${mockRelations.length} relations`);
 }
 
 export async function mockUsers(amount){
@@ -63,7 +63,7 @@ export async function mockUsers(amount){
         [mockUsers]
     );
 
-    console.log(`✓ Mocked ${amount} of users`);
+    console.log(`✓ Mocked ${amount} users`);
     await mockUserPreferences(amount);
     await mockUserRelations(amount);
 }
