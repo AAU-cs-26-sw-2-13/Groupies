@@ -142,6 +142,7 @@ dist
 .svelte-kit
 
 ### VisualStudioCode ###
+.vscode
 .vscode/*
 .vscode/settings.json
 !.vscode/tasks.json
@@ -161,3 +162,7 @@ dist
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node
+
+#package
+package-lock.json
+package.json
