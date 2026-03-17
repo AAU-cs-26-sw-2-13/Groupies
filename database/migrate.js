@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 import { query } from "../database/pool.js";
+import { mockUsers } from "../testing/mockData.js";
 
 dotenv.config(); // ← Configure process.env to the .env settings
 
@@ -53,6 +54,10 @@ async function migrate() {
     for (const stmt of statements) {
       await query(stmt); /* Query the statement to the db server using the pool credentials */
     }
+  }
+
+  if (!isNaN(process.env.TESTING_MOCKDATA) && isFinite(process.env.TESTING_MOCKDATA)) {
+    await mockUsers(process.env.TESTING_MOCKDATA);
   }
 
   console.log("✓ Migrations completed");
