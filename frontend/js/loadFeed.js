@@ -195,14 +195,44 @@ function createHomePageLoggedIn(user){
 
 function createHomePageLoggedOut(){
     //Main div
-    let mainDiv = document.createElement("div")
-    mainDiv.setAttribute("class", "loginregDiv")
+    let mainDiv = document.createElement("div");
+    mainDiv.setAttribute("id", "loginregDiv");
+    mainDiv.style.position = "relative";
 
     //Login button
     let loginButton = document.createElement("button")
     loginButton.setAttribute("class", "button")
     loginButton.setAttribute("type", "button")
     loginButton.textContent = "Login"
+    loginButton.addEventListener("click", () => {console.log("login button clicked"); displayLoginBox();})
+
+    function displayLoginBox() {
+
+        //if the loginBox is already visible, login button click removes i
+        let existingBox = document.getElementById("login-box");
+        if (existingBox) {
+            existingBox.remove();
+            return;
+        }
+
+        //Create the login box element from the HTML generator
+        let div = document.createElement("div");
+        div.innerHTML = loginBoxHTML();
+        let loginBox = div.firstElementChild;
+
+        //Position the box
+        loginBox.style.position = "absolute";
+        loginBox.style.width = "250px";
+        loginBox.style.left = -50 + "px"; 
+        loginBox.style.top = "125%"; 
+        loginBox.style.zIndex = "1000";
+
+        
+        
+        
+        //Place the loginBox in the document body
+        mainDiv.appendChild(loginBox);
+    }
 
     //Register button
     let registerButton = document.createElement("button")
@@ -272,3 +302,16 @@ function createGroups(groupArray){
 }
  
 
+
+// -------------- HTML Generators -----------------
+function loginBoxHTML() {
+    return `<section class="register-box" id="login-box">
+        <li>
+                <form id="login_box_id">
+                        <input type="email" id="login_email_id" name="login_email" placeholder="Email" class="reg-box-inputs">
+                        <input type="password" id="login_password_id" name="login_password" placeholder="Password" class="reg-box-inputs">
+                        <button class="box-button box-button11" type="submit" id="login_submit" disabled>Enter</button>
+                </form>
+            </li>
+        </section>`
+}
