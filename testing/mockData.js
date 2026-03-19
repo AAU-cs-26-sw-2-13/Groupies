@@ -1,6 +1,8 @@
 import { query } from "../database/pool.js";
 import { faker } from '@faker-js/faker';
 
+const MIN_PREFERENCES = 1; // Constraint on minimum amount of preferences mocked per user
+
 async function genNumber(min,max){ // Returns random number within range
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -21,10 +23,21 @@ async function mockUserPreferences(amount){
 
     let preferences = [];
     for (let i=1; i <= amount; i++) {
+        let userAmount = 0;
         for (let j=0; j < n; j++) {
             if (Math.random() < 0.5) { continue; }
             const preference = [i, result[j][`preference_id`], 1];
             preferences.push(preference);
+            userAmount++;
+        }
+        if (userAmount < MIN_PREFERENCES) {
+            while (userAmount < MIN_PREFERENCES) {
+                let k = await genNumber(0,n-1)
+                if (preferences.includes([i, k, 1])) { continue; }
+                const preference = [i, result[k][`preference_id`], 1];
+                preferences.push(preference);
+                userAmount++;
+            }
         }
     }
     
