@@ -206,15 +206,13 @@ function createHomePageLoggedOut(){
     loginButton.textContent = "Login"
     loginButton.addEventListener("click", () => {console.log("login button clicked"); displayLoginBox();})
 
-    function displayLoginBox() {
-
+    async function displayLoginBox() {
         //if the loginBox is already visible, login button click removes i
         let existingBox = document.getElementById("login-box");
         if (existingBox) {
             existingBox.remove();
             return;
         }
-
         //Create the login box element from the HTML generator
         let div = document.createElement("div");
         div.innerHTML = loginBoxHTML();
@@ -227,13 +225,31 @@ function createHomePageLoggedOut(){
         loginBox.style.top = "125%"; 
         loginBox.style.zIndex = "1000";
 
-        
-        
-        
         //Place the loginBox in the document body
         mainDiv.appendChild(loginBox);
+
+        //Handle the validation and submission of entered fields values
+        let submitBtn = document.getElementById("login_submit");
+        submitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            try {
+            const email = document.getElementById("login_email_id").value.trim();
+            const password = document.getElementById("login_password_id").value.trim();
+            
+            //validate and send login creds to server, which queries db for creds and returns result and sets cookie
+            const logRes = logIn(email, password);
+            } catch (error) {
+                alert("Could not reach server. ");
+            }
+            //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
+             window.location.reload(); 
+        })
     }
 
+function logIn(email, password){
+    console.log(`Attempting to login with email input: ${email} and password input: ${password} `)
+}
     //Register button
     let registerButton = document.createElement("button")
     registerButton.setAttribute("class", "button")
@@ -310,7 +326,7 @@ function loginBoxHTML() {
                 <form id="login_box_id">
                         <input type="email" id="login_email_id" name="login_email" placeholder="Email" class="reg-box-inputs">
                         <input type="password" id="login_password_id" name="login_password" placeholder="Password" class="reg-box-inputs">
-                        <button class="box-button box-button11" type="submit" id="login_submit" disabled>Enter</button>
+                        <button class="box-button box-button11" type="submit" id="login_submit">Enter</button>
                 </form>
             </li>
         </section>`
