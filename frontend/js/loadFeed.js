@@ -1,3 +1,6 @@
+import { getCurrentUser } from "./userAPI.js";
+import { login, register } from "./loginRegister.js";
+
 //Queries to dom elements
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
@@ -238,7 +241,7 @@ function createHomePageLoggedOut(){
             const password = document.getElementById("login_password_id").value.trim();
             
             //validate and send login creds to server, which queries db for creds and returns result and sets cookie
-            const logRes = logIn(email, password);
+            const logRes = login(email, password);
             } catch (error) {
                 alert("Could not reach server. ");
             }
@@ -273,7 +276,7 @@ let me = fetch("/me",{
     console.log(response.status)
     if(response.status===401){
         createHomePageLoggedOut()
-        user={
+        let user={
             user_id: 1,
             username: "Mikkel123",
             name: "Mikkel Dissing"
