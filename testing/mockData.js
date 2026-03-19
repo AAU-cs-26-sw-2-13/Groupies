@@ -67,7 +67,7 @@ async function mockUserRelations(userAmount){
 }
 
 async function mockGroupRelations(){
-    let preferences = await query(`SELECT user_id,preference_id FROM user_prefs`); //{user_id: 2, preference_id: 'Skiing'}
+    let preferences = await query(`SELECT user_id,preference_id FROM user_prefs`);
     let groups = await query(`SELECT id,host_user_id FROM \`groups\``);
     let prefDictionary = await query(`SELECT * FROM preferences`);
     let prefAmount = prefDictionary.length;
