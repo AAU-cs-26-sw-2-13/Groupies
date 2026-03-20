@@ -55,7 +55,7 @@ export async function getGroupMembers(groupId){
         JOIN users u ON u.id = gr.user_id
         LEFT JOIN user_prefs p 
          ON gr.user_id = p.user_id
-        WHERE gr.group_id = ?
+        WHERE gr.group_id = ? AND gr.member = 1
         GROUP BY gr.id
     `, [groupId])
 }

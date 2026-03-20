@@ -9,19 +9,17 @@ function createGroup(){
    let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
 
-    // info abt the trip(left side)
-    let left = document.createElement("div")
-    left.setAttribute("class", "groupMain")
+    let tripInfo = document.createElement("div")
+    tripInfo.setAttribute("class", "groupMain")
 
+    let groupImg = document.createElement("img")
+    groupImg.setAttribute("class", "groupImg")
+    groupImg.setAttribute("src", "../img/notFound.jpg")
 
-    let img = document.createElement("img")
-    img.setAttribute("class", "groupImg")
-    img.setAttribute("src", "../img/notFound.jpg")
-
-    let Tripname = document.createElement("h2")
-    Tripname.setAttribute("class", "h2")
+    let tripName = document.createElement("h2")
+    tripName.setAttribute("class", "h2")
     const title = sessionStorage.getItem("title")
-     Tripname.textContent= title 
+     tripName.textContent= title 
 
     let hostedBy = document.createElement("p")
     hostedBy.setAttribute("class", "p1")
@@ -38,8 +36,6 @@ function createGroup(){
 
      let dates = document.createElement("p")
     dates.setAttribute("class", "p1")
-    const startDate = sessionStorage.getItem("dateStart")
-    const endDate = sessionStorage.getItem("dateEnd")
     dates.textContent = formatDate(sessionStorage.getItem("dateStart")) + " - " + formatDate(sessionStorage.getItem("dateEnd"))       
     
 let imageInfoRow = document.createElement("div")
@@ -50,36 +46,22 @@ let infoText = document.createElement("div")
 infoText.setAttribute("class", "groupInfo")
 
     infoText.append(hostedBy, aboutInfo, dates)
-    imageInfoRow.append(img, infoText)
+    imageInfoRow.append(groupImg, infoText)
 
-    left.append(Tripname, imageInfoRow)
+    tripInfo.append(tripName, imageInfoRow)
 
 
-    //trip members(right side)
-    let right = document.createElement("div")
-    right.setAttribute("class", "aside-box")
+    let membersElement = document.createElement("div")
+    membersElement.setAttribute("class", "aside-box")
 
     let membersTitle = document.createElement("h2")
     membersTitle.textContent = "Trip Members"
-    right.append(membersTitle)
-
-
-const groupId = sessionStorage.getItem("id")
-let membersList = document.createElement("div")
-
-fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
-    .then(r => r.json())
-    .then(members => {
-                createUserHTML(members,membersList)   
-                right.append(membersTitle,membersList,buttons)
-    })
-
+    membersElement.append(membersTitle)
 
 
      //buttons
     let buttons = document.createElement("div")
     buttons.setAttribute("class", "groupActions")
-
 
      let backButton = document.createElement("button")
         backButton.setAttribute("class", "buttonBack")
@@ -90,11 +72,23 @@ fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "gr
     let joinButton = document.createElement("button")
         joinButton.setAttribute("class", "button button1")
         joinButton.textContent = "Apply to join trip"
-      
+    
         buttons.append(backButton, joinButton)
 
-        container.append(left, right)
+//group members list
+const groupId = sessionStorage.getItem("id")
+let membersList = document.createElement("div")
+ membersList.setAttribute("class", "membersList")
 
+
+fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+    .then(r => r.json())
+    .then(members => {
+                createUserHTML(members,membersList)   
+    })
+    
+    membersElement.append(membersTitle,membersList,buttons)
+    container.append(tripInfo, membersElement)
     return container
 }
 

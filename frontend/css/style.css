@@ -440,4 +440,8 @@ header {
     background-color: #e8def8;
 }
 
-
+.membersList {
+    flex: 1;          
+    overflow-y: auto;
+    overflow-x: hidden;
+}
