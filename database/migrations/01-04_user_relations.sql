@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS user_relations (
   user_id INT NOT NULL,
   target_user_id INT NOT NULL,
   follow_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  follow_value BINARY NOT NULL DEFAULT 0,
+  follow_value BIT NOT NULL DEFAULT 0,
   
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE CASCADE

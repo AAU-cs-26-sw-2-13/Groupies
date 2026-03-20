@@ -71,12 +71,15 @@ export async function registerUserToDB(req, res) {
 // -----  function loginUser: Check user credentials, create session and set session cookie. ------
 export async function loginUser(req, res) {
   const body = await parseJSON(req);
-  const { username, password } = body;
+  let { email, password } = body;
+  //Sanitize inputs for bad/malicious characters
+  email = sanitize(String(email));
+  password = sanitize(String(password));
   //check the username exists
-  const rows = await query("SELECT id, password_hash FROM users WHERE username=?", [username]);
+  const rows = await query("SELECT id, password_hash FROM users WHERE email=?", [email]);
   if (!rows.length) {
     res.writeHead(401, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Wrong username!" }));
+    return res.end(JSON.stringify({ error: "Wrong email!" }));
   }
   //User exists, so compare the password hash in db with the password entered in login form
   const user = rows[0];
@@ -94,6 +97,7 @@ export async function loginUser(req, res) {
     "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)",
     [sid, user.id, expires]
   );
+  console.log(`Login recorded: ${email} , ${password} , ${sid}`)
   setSessionCookie(res, sid, ttl); //set the browser cookie with the session id and a 7 day expiration
   res.writeHead(200, { "Content-Type": "application/json" });
   return res.end(JSON.stringify({ status: "logged_in :)" }));
@@ -128,4 +132,17 @@ export async function logout(req, res) {
   res.setHeader("Set-Cookie", "sid=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax");
   res.writeHead(200, { "Content-Type": "application/json" });
   return res.end(JSON.stringify({ status: "logged_out" }));
+}
+
+function sanitize (str) {
+  str = str
+  .replace(/\//g,"")
+  .replace(/\\/g,"")
+  .replace(/\.\./g,"")
+  .replace(/</g,"")
+  .replace(/>/g,"")
+  .replace(/'/g,"")
+  .replace(/"/g,"")
+  .replace(/&/g,"");
+  return str.trim();
 }
