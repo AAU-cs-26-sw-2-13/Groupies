@@ -1,3 +1,6 @@
+import { getCurrentUser } from "./userAPI.js";
+import { login, register } from "./loginRegister.js";
+
 //Queries to dom elements
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
@@ -195,14 +198,61 @@ function createHomePageLoggedIn(user){
 
 function createHomePageLoggedOut(){
     //Main div
-    let mainDiv = document.createElement("div")
-    mainDiv.setAttribute("class", "loginregDiv")
+    let mainDiv = document.createElement("div");
+    mainDiv.setAttribute("id", "loginregDiv");
+    mainDiv.style.position = "relative";
 
     //Login button
     let loginButton = document.createElement("button")
     loginButton.setAttribute("class", "button")
     loginButton.setAttribute("type", "button")
     loginButton.textContent = "Login"
+    loginButton.addEventListener("click", () => {console.log("login button clicked"); displayLoginBox();})
+
+    async function displayLoginBox() {
+        //if the loginBox is already visible, login button click removes i
+        let existingBox = document.getElementById("login-box");
+        if (existingBox) {
+            existingBox.remove();
+            return;
+        }
+        //Create the login box element from the HTML generator
+        let div = document.createElement("div");
+        div.innerHTML = loginBoxHTML();
+        let loginBox = div.firstElementChild;
+
+        //Position the box
+        loginBox.style.position = "absolute";
+        loginBox.style.width = "250px";
+        loginBox.style.left = -50 + "px"; 
+        loginBox.style.top = "125%"; 
+        loginBox.style.zIndex = "1000";
+
+        //Place the loginBox in the document body
+        mainDiv.appendChild(loginBox);
+
+        //Handle the validation and submission of entered fields values
+        let submitBtn = document.getElementById("login_submit");
+        submitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            try {
+            const email = document.getElementById("login_email_id").value.trim();
+            const password = document.getElementById("login_password_id").value.trim();
+
+            console.log(`Login input submitted, attempting to login with: {${email} , ${password}}`)
+            
+            //validate and send login creds to server, which queries db for creds and returns result and sets cookie
+            const result = await login(email, password);
+            if (result.error) { alert(result.error); return; }
+            
+            //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
+             //window.location.reload(); 
+            } catch (error) {
+                alert("Could not reach server. " + error);
+            }
+        })
+    }
 
     //Register button
     let registerButton = document.createElement("button")
@@ -216,31 +266,24 @@ function createHomePageLoggedOut(){
 
     mainDiv.append(loginButton)
     mainDiv.append(registerButton)
-
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/me",{
+let me = fetch("/api/auth/me",{
     method: "GET",
     credentials: "include"
 }).then(response=>{
     console.log(response.status)
-    if(response.status===401){
         createHomePageLoggedOut()
-        user={
+        let user={
             user_id: 1,
             username: "Mikkel123",
             name: "Mikkel Dissing"
         }
         //createHomePageLoggedIn(user)
         //return null
-    }
+    
 })
-
-
-
-
-
 
 //Get users
 let sessionDataUser = {sessionId: "empty", query:"users"}
@@ -272,3 +315,16 @@ function createGroups(groupArray){
 }
  
 
+
+// -------------- HTML Generators -----------------
+function loginBoxHTML() {
+    return `<section class="register-box" id="login-box">
+        <li>
+                <form id="login_box_id">
+                        <input type="email" id="login_email_id" name="login_email" placeholder="Email" class="reg-box-inputs">
+                        <input type="password" id="login_password_id" name="login_password" placeholder="Password" class="reg-box-inputs">
+                        <button class="box-button box-button11" type="submit" id="login_submit">Enter</button>
+                </form>
+            </li>
+        </section>`
+}

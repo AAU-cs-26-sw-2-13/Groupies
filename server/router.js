@@ -28,7 +28,7 @@ async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
                                         break;
-                                    //The server sent a login request, we must check login is valid and create a login session
+                                    //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
                                         break;
                                     //logout request received, log the user out (delete session in DB)

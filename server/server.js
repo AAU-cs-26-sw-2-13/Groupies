@@ -31,6 +31,11 @@ function sanitizePath(userPath){
     return p;
 }
 
+function sanitizeUserInput (inputString) {
+    //TO DO: Implement sanitize string for dangerous input characters.
+    return inputString;
+}
+
 function guessMimeType(fileName){
   const fileExtension=fileName.split('.').pop().toLowerCase();
   const ext2Mime ={ //Aught to check with IANA spec
