@@ -5,43 +5,23 @@ const pagesLoaded = 10;
 
 
 const defaultGroups = `
-SELECT 
-    gp.*, 
-    hn.name_first, 
-    hn.name_last,
-    COUNT(DISTINCT gr.user_id) AS follower_count,
-    JSON_ARRAYAGG(p.tag_id) AS tags
-FROM \`groups\` gp
-JOIN users hn 
-    ON gp.host_user_id = hn.id
-LEFT JOIN group_relations gr 
-    ON gp.id = gr.group_id 
-    AND gr.follower = 1
-LEFT JOIN group_tags p
-    ON gp.id = p.group_id
-GROUP BY gp.id
-ORDER BY follower_count DESC
-LIMIT 10;
-`
-
-/*SELECT 	grp.id,
+SELECT 	grp.id,
 		grp.host_user_id,
         grp.title,
         grp.destination,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
-        COUNT(distinct gr.user_id) AS followers
-FROM `groups` AS grp
+        (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND follower = 1) AS followers
+FROM\`groups\` AS grp
 LEFT JOIN users AS u 
 	ON grp.host_user_id = u.id
 LEFT JOIN group_tags AS gt 
 	ON grp.id = gt.group_id
-LEFT JOIN group_relations AS gr
-	ON grp.id = gr.group_id AND gr.follower = 1
 GROUP BY grp.id
-ORDER BY followers DESC;
+ORDER BY followers DESC
+LIMIT 10;
+`
 
- */
 
 const sqlGetAllUsers = `
 SELECT 
@@ -92,15 +72,12 @@ SELECT 	grp.id,
 		SELECT preference_id FROM user_prefs WHERE user_id = ?
 		UNION
 		SELECT tag_id FROM group_tags WHERE group_id = grp.id) Count
-        )) AS Jaccard,
-        COUNT(distinct gr.user_id) AS followers
+        )) AS Jaccard
 FROM \`groups\` AS grp
 LEFT JOIN users AS u 
 	ON grp.host_user_id = u.id
 LEFT JOIN group_tags AS gt 
 	ON grp.id = gt.group_id
-LEFT JOIN group_relations AS gr
-	ON grp.id = gr.group_id AND gr.follower = 1
 GROUP BY grp.id
 ORDER BY Jaccard DESC
 LIMIT ?, ?;
@@ -113,5 +90,10 @@ export async function getAllUsers(){
 
 export async function getAllGroups(){
     let queryResponse =  await query(defaultGroups)
+    return queryResponse
+}
+
+export async function jaccardSorted(params){
+    let queryResponse =  await query(Jaccard, params)
     return queryResponse
 }

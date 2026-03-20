@@ -278,29 +278,38 @@ let me = fetch("/me",{
         return response.json()
     }else{
         createHomePageLoggedOut()
+        generateTrips({user_id: null})
         throw "Session not found"
     }
 }).then(jsonResponse => {
     createHomePageLoggedIn(jsonResponse)
-    console.log(jsonResponse)
+    generateUsers(jsonResponse)
+    generateTrips(jsonResponse)
 })
 
 //Get users
-let sessionDataUser = {sessionId: "empty", query:"users"}
-let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUser)})
-usersQuery.then(userResponse => {
-    return userResponse.json()
-}).then(jsonUserResponse => {
-    createUserHTML(jsonUserResponse)
-})
+async function generateUsers(user) {
+    user.query = "users"
+    let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    usersQuery.then(userResponse => {
+        return userResponse.json()
+    }).then(jsonUserResponse => {
+        createUserHTML(jsonUserResponse)
+    })
+}
+
 //Get groups
-let sessionDataTrips = {sessionId: "empty", query:"groups"}
-let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTrips)})
-groupQuery.then(groupResponse => {
-    return groupResponse.json()
-}).then(data => {
-    createGroups(data)
-})
+async function generateTrips(user) {
+    console.log(user)
+    user.query = "groups"
+    let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    groupQuery.then(groupResponse => {
+        return groupResponse.json()
+    }).then(data => {
+        createGroups(data)
+    })
+}
+
 
 function createUserHTML(userArray){
     for(let u of userArray){

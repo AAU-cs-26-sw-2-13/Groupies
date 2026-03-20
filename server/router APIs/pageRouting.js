@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { getAllUsers, getAllGroups } from "../serverQueries.js";
+import { getAllUsers, getAllGroups, jaccardSorted } from "../serverQueries.js";
 
 export function loadDiscovery (req, res) {
     let data = ""
@@ -8,11 +8,27 @@ export function loadDiscovery (req, res) {
     })
     req.on('end', () => {
         let jsonData = JSON.parse(data)
-        if (jsonData.sessionId === "empty") {
-            if (jsonData.query === "users") {
-                queryResponse(res, getAllUsers);
-            } else if (jsonData.query === "groups") {
-                queryResponse(res, getAllGroups);
+        if (jsonData.user_id !==null) {
+            console.log("User Found, query is " + jsonData.query)
+            switch(jsonData.query){
+                case "users": {
+                    queryResponse(res, getAllUsers);
+                    break
+                }
+                case "groups": {
+                    queryResponse(res, jaccardSorted, [jsonData.user_id,jsonData.user_id , 0, 10]);
+                    break
+                }
+            }
+        }else {
+           switch(jsonData.query){
+                case "users": {
+                    queryResponse(res, getAllUsers);
+                    break
+                }
+                case "groups": {
+                    queryResponse(res, getAllGroups);
+                }
             }
         }
     })
