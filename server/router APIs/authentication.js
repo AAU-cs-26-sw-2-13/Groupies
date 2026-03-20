@@ -72,6 +72,9 @@ export async function registerUserToDB(req, res) {
 export async function loginUser(req, res) {
   const body = await parseJSON(req);
   const { email, password } = body;
+  //Sanitize inputs for bad/malicious characters
+  email = sanitize(String(email));
+  password = sanitize(String(password));
   //check the username exists
   const rows = await query("SELECT id, password_hash FROM users WHERE email=?", [email]);
   if (!rows.length) {
@@ -128,4 +131,17 @@ export async function logout(req, res) {
   res.setHeader("Set-Cookie", "sid=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax");
   res.writeHead(200, { "Content-Type": "application/json" });
   return res.end(JSON.stringify({ status: "logged_out" }));
+}
+
+function sanitize (str) {
+  str = str
+  .replace(/\//g,"")
+  .replace(/</g,"")
+  .replace(/>/g,"")
+  .replace(/\\/g,"")
+  .replace(/./g,"")
+  .replace(/'/g,"")
+  .replace(/"/g,"")
+  .replace(/&/g,"");
+  return str.trim();
 }
