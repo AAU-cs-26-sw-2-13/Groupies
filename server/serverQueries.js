@@ -45,3 +45,17 @@ export async function getAllGroups(){
     let queryResponse =  await query(defaultGroups)
     return queryResponse
 }
+
+export async function getGroupMembers(groupId){
+    return query(`
+        SELECT u.id, u.name_first, u.name_last, u.age, u.country, u.gender,
+               gr.organizer, gr.member,
+        JSON_ARRAYAGG(p.preference_id) AS preferences
+        FROM group_relations gr
+        JOIN users u ON u.id = gr.user_id
+        LEFT JOIN user_prefs p 
+         ON gr.user_id = p.user_id
+        WHERE gr.group_id = ?
+        GROUP BY gr.id
+    `, [groupId])
+}

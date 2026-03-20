@@ -58,25 +58,38 @@ async function mockGroups(amount){
     const groupAmount = await genNumber(amount / 10, amount / 5);
 
     let groups = [];
+    let hostIds = [];
     for (let i=0; i < groupAmount; i++) {
         const mockDates = await genMockDateTimePair();
         const year = mockDates.startDate.slice(0,4);
         let country = faker.location.country();
         let city = faker.location.city();
+        let max_users = faker.number.int({min: 1, max: 25})
+        let hostId = await genNumber(1,amount)
         const group = [
-            await genNumber(1,amount),
+            hostId,
             country + ', ' + city + ' - ' + year,
             country + ', ' + city,
             faker.lorem.words({ min: 25, max: 100 }), // min/max is amount of lorem ipsum words to mock
             await mockDates.startDate,
             await mockDates.endDate,
+            await max_users,
         ]
         groups.push(group);
+        hostIds.push(hostId)
     }
 
-    await query(
-        `INSERT INTO \`groups\` (host_user_id, title, destination, about, date_start_at, date_end_at) VALUES ?`,
+    const insertGroups = await query(
+        `INSERT INTO \`groups\` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES ?`,
         [groups]
+    );
+
+  // Sets the host of the group to also be host & member in the group relations sql
+    const firstId = insertGroups.insertId;
+    let relations = groups.map((g, i) => [hostIds[i], firstId + i, 0, 1, 1, new Date()])
+    await query(
+        `INSERT INTO group_relations (user_id, group_id, follower, member, organizer, member_at) VALUES ?`,
+        [relations]
     );
     
     console.log(`✓ Mocked ${groups.length} groups`);
