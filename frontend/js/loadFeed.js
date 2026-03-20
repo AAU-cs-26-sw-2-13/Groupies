@@ -239,20 +239,21 @@ function createHomePageLoggedOut(){
             try {
             const email = document.getElementById("login_email_id").value.trim();
             const password = document.getElementById("login_password_id").value.trim();
+
+            console.log(`Login input submitted, attempting to login with: {${email} , ${password}}`)
             
             //validate and send login creds to server, which queries db for creds and returns result and sets cookie
-            const logRes = login(email, password);
-            } catch (error) {
-                alert("Could not reach server. ");
-            }
+            const result = await login(email, password);
+            if (result.error) { alert(result.error); return; }
+            
             //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
-             window.location.reload(); 
+             //window.location.reload(); 
+            } catch (error) {
+                alert("Could not reach server. " + error);
+            }
         })
     }
 
-function logIn(email, password){
-    console.log(`Attempting to login with email input: ${email} and password input: ${password} `)
-}
     //Register button
     let registerButton = document.createElement("button")
     registerButton.setAttribute("class", "button")
@@ -265,16 +266,14 @@ function logIn(email, password){
 
     mainDiv.append(loginButton)
     mainDiv.append(registerButton)
-
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/me",{
+let me = fetch("/api/auth/me",{
     method: "GET",
     credentials: "include"
 }).then(response=>{
     console.log(response.status)
-    if(response.status===401){
         createHomePageLoggedOut()
         let user={
             user_id: 1,
@@ -283,13 +282,8 @@ let me = fetch("/me",{
         }
         //createHomePageLoggedIn(user)
         //return null
-    }
+    
 })
-
-
-
-
-
 
 //Get users
 let sessionDataUser = {sessionId: "empty", query:"users"}
