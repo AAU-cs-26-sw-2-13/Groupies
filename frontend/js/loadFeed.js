@@ -188,7 +188,7 @@ function createHomePageLoggedIn(user){
     //Register button
     let username = document.createElement("p")
     username.setAttribute("class", "profileName")
-    username.textContent = user.name
+    username.textContent = user.username
 
     mainDiv.append(username)
     mainDiv.append(profileImage)
@@ -247,7 +247,7 @@ function createHomePageLoggedOut(){
             if (result.error) { alert(result.error); return; }
             
             //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
-             //window.location.reload(); 
+             window.location.reload(); 
             } catch (error) {
                 alert("Could not reach server. " + error);
             }
@@ -269,20 +269,20 @@ function createHomePageLoggedOut(){
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/api/auth/me",{
+let me = fetch("/me",{
     method: "GET",
     credentials: "include"
 }).then(response=>{
-    console.log(response.status)
+
+    if(response.status === 200){
+        return response.json()
+    }else{
         createHomePageLoggedOut()
-        let user={
-            user_id: 1,
-            username: "Mikkel123",
-            name: "Mikkel Dissing"
-        }
-        //createHomePageLoggedIn(user)
-        //return null
-    
+        throw "Session not found"
+    }
+}).then(jsonResponse => {
+    createHomePageLoggedIn(jsonResponse)
+    console.log(jsonResponse)
 })
 
 //Get users

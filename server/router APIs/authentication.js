@@ -29,16 +29,18 @@ export async function setSessionCookie(res, sid, maxAgeSec) { //sets the session
 
 export async function getSession(req) { //get the session for the user
   const cookie = req.headers.cookie || "";
-  const m = cookie.match(/sid=([^;]+)/);
+  const m = cookie.match(/sid=([^;]+)/); 
   if (!m) return null;
 
   const sid = m[1];
-  const rows = await query( //select the session IDs and match the session id to the user where s.id= [sid], which is saved in browser cookies.
-    "SELECT s.id, u.id AS user_id, u.username, u.name " +
-    "FROM sessions s JOIN users u ON u.id = s.user_id " +
-    "WHERE s.id=? AND s.expires_at > NOW()", //provided the session id exists and not expired, in the contrary case login/registration is needed
-    [sid]
-  );
+  //select the session IDs and match the session id to the user where s.id= [sid], which is saved in browser cookies.
+  const rows = await query(` 
+    SELECT s.id, u.id AS user_id, CONCAT(u.name_first, " ", u.name_last) AS full_name, expires_at
+    FROM sessions s JOIN users u ON u.id = s.user_id
+    WHERE s.id = ? AND s.expires_at > NOW();
+    `
+  , sid);//provided the session id exists and not expired, in the contrary case login/registration is needed
+  
   return rows[0] || null;
 }
 
@@ -114,8 +116,7 @@ export async function getLoginSession(req, res) {
     res.writeHead(200, { "Content-Type": "application/json" });
     return res.end(JSON.stringify({
       user_id: session.user_id,
-      username: session.username,
-      name: session.name
+      username: session.full_name,
     }));
   } catch (err) {
     res.writeHead(500, { "Content-Type": "application/json" });
