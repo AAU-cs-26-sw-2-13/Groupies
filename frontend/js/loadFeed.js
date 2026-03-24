@@ -6,6 +6,9 @@ import {createUserHTML} from "./User_creation.js"
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
 let header = document.querySelector("header")
+let buttons = document.querySelector(".pageButtons")
+
+//Context variables
 let discovered = 1;
 
 //Generates the HTML object for a new trip
@@ -116,6 +119,27 @@ function groupClick(event){
 }
 
 
+function createDiscoverButtons(Amount){
+    let buttonsCount = Math.ceil(Amount/10)
+    for(let i = 1; i<=buttonsCount; i++){
+        let button = document.createElement("button")
+        button.setAttribute("type","button")
+        button.setAttribute("data-pnumber",i)
+        button.textContent = i
+        if(i===1){
+            button.setAttribute("class","button3")
+            buttons.append(button)
+            continue
+        }
+        button.setAttribute("class","button3 passive")
+        button.addEventListener('click',(event)=>{
+            console.log(event.target.getAttribute("data-pnumber"))
+        })
+        buttons.append(button)
+    }
+}
+
+
 function createHomePageLoggedIn(user){
     let mainDiv = document.createElement("div")
     mainDiv.setAttribute("class", "profile")
@@ -128,7 +152,7 @@ function createHomePageLoggedIn(user){
     //Register button
     let username = document.createElement("p")
     username.setAttribute("class", "profileName")
-    username.textContent = user.name
+    username.textContent = user.username
 
     mainDiv.append(username)
     mainDiv.append(profileImage)
@@ -187,7 +211,7 @@ function createHomePageLoggedOut(){
             if (result.error) { alert(result.error); return; }
             
             //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
-             //window.location.reload(); 
+             window.location.reload(); 
             } catch (error) {
                 alert("Could not reach server. " + error);
             }
@@ -209,43 +233,58 @@ function createHomePageLoggedOut(){
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/api/auth/me",{
+let me = fetch("/me",{
     method: "GET",
     credentials: "include"
 }).then(response=>{
-    console.log(response.status)
+
+    if(response.status === 200){
+        return response.json()
+    }else{
         createHomePageLoggedOut()
-        let user={
-            user_id: 1,
-            username: "Mikkel123",
-            name: "Mikkel Dissing"
-        }
-        //createHomePageLoggedIn(user)
-        //return null
-    
+        generateTrips({user_id: null})
+        generateUsers({user_id: null})
+        throw "Session not found"
+    }
+}).then(jsonResponse => {
+    createHomePageLoggedIn(jsonResponse)
+    generateUsers(jsonResponse)
+    generateTrips(jsonResponse)
 })
 
 //Get users
-let sessionDataUser = {sessionId: "empty", query:"users"}
-let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUser)})
-usersQuery.then(userResponse => {
-    return userResponse.json()
-}).then(jsonUserResponse => {
-    createUserHTML(jsonUserResponse, userList)
-})
+async function generateUsers(user) {
+    user.query = "users"
+    let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    usersQuery.then(userResponse => {
+        return userResponse.json()
+    }).then(jsonUserResponse => {
+        createUserHTML(jsonUserResponse, userList)
+    })
+}
+
 //Get groups
-let sessionDataTrips = {sessionId: "empty", query:"groups"}
-let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTrips)})
-groupQuery.then(groupResponse => {
-    return groupResponse.json()
-}).then(data => {
-    createGroups(data)
-})
+async function generateTrips(user,offset) {
+    console.log(user)
+    user.query = "groups"
+    let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    groupQuery.then(groupResponse => {
+        return groupResponse.json()
+    }).then(data => {
+        console.log(data)
+        createGroups(data)
+        if(buttons.getAttribute("data-loaded") === "false"){
+            createDiscoverButtons(data[0].total_groups)
+            buttons.setAttribute("data-loaded", "true")
+        }
+    })
+}
+
 
 
 function createGroups(groupArray){
     for(let t of groupArray){
-        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last, t.tags, t))
+        tripList.append(createTrip(t.title, t.host_name, t.tags, t))
     }
 }
  

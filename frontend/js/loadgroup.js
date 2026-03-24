@@ -81,7 +81,7 @@ let membersList = document.createElement("div")
  membersList.setAttribute("class", "membersList")
 
 
-fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+fetch("/groupMembers", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
     .then(r => r.json())
     .then(members => {
                 createUserHTML(members,membersList)   
