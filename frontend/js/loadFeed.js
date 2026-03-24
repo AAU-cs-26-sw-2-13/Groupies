@@ -259,7 +259,7 @@ async function generateUsers(user) {
     usersQuery.then(userResponse => {
         return userResponse.json()
     }).then(jsonUserResponse => {
-        createUserHTML(jsonUserResponse)
+        createUserHTML(jsonUserResponse, userList)
     })
 }
 

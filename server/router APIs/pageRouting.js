@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { getAllUsers, getAllGroups, jaccardSorted } from "../serverQueries.js";
+import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;
@@ -26,15 +26,18 @@ export function loadDiscovery (req, res) {
         }else {
            switch(jsonData.query){
                 case "users": {
+                    console.log("Got users")
                     queryResponse(res, getAllUsers);
                     break
                 }
                 case "groups": {
                     queryResponse(res, getAllGroups);
+                    break;
                 }
-            }
-            else if (jsonData.query === "groupMembers") {
-                queryResponse(res, () => getGroupMembers(jsonData.groupId));
+                case "groupMembers": {
+                    queryResponse(res, () => getGroupMembers(jsonData.groupId));
+                    break;
+                }
             }
         }
     })
