@@ -7,6 +7,10 @@ const pagesLoaded = 10;
 const defaultGroups = `
 SELECT 	grp.id,
 		grp.host_user_id,
+        grp.about,
+        grp.max_members,
+        grp.date_start_at,
+        grp.date_end_at,
         grp.title,
         grp.destination,
         concat(u.name_first, " ", u.name_last) AS host_name,
@@ -58,6 +62,10 @@ group by u.id;
 const Jaccard = `
 SELECT 	grp.id,
 		grp.host_user_id,
+        grp.about,
+        grp.max_members,
+        grp.date_start_at,
+        grp.date_end_at,
         grp.title,
         grp.destination,
         concat(u.name_first, " ", u.name_last) AS host_name,

@@ -24,6 +24,7 @@ export function loadDiscovery (req, res) {
                 }
             }
         }else {
+            console.log("User not found, query is " + jsonData.query)
            switch(jsonData.query){
                 case "users": {
                     console.log("Got users")
@@ -32,10 +33,6 @@ export function loadDiscovery (req, res) {
                 }
                 case "groups": {
                     queryResponse(res, getAllGroups);
-                    break;
-                }
-                case "groupMembers": {
-                    queryResponse(res, () => getGroupMembers(jsonData.groupId));
                     break;
                 }
             }

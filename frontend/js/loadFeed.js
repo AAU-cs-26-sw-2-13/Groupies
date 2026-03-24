@@ -271,6 +271,7 @@ async function generateTrips(user,offset) {
     groupQuery.then(groupResponse => {
         return groupResponse.json()
     }).then(data => {
+        console.log(data)
         createGroups(data)
         if(buttons.getAttribute("data-loaded") === "false"){
             createDiscoverButtons(data[0].total_groups)
@@ -283,7 +284,7 @@ async function generateTrips(user,offset) {
 
 function createGroups(groupArray){
     for(let t of groupArray){
-        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last, t.tags, t))
+        tripList.append(createTrip(t.title, t.host_name, t.tags, t))
     }
 }
  
