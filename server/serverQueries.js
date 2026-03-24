@@ -62,7 +62,7 @@ export async function getGroupMembers(groupId){
 
 export async function getGroupTags(groupId){
     return query(`
-        SELECT gt.id, gt.group_id, gt.tag_id, gt.tag_value,
+        SELECT gt.id, gt.group_id, gt.tag_id, gt.tag_value
         FROM group_tags gt
         WHERE gt.group_id = ?
          `, [groupId])

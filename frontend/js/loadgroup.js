@@ -91,24 +91,23 @@ infoText.setAttribute("class", "groupInfo")
 
 
 let tagsList = document.createElement("div")
- tagsList.setAttribute("class", "membersList")
+ tagsList.setAttribute("class", "groupTags")
 
 //The tags display 
 fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupTags", groupId: groupId})})
     .then(r => r.json())
     .then(tags => {
 
-           for(let t of tags){
 
+           for(let t of tags){
              if (t!== null){
-            let genre = document.createElement("li")
+            let genre = document.createElement("l1")
             genre.setAttribute("class", "pref-item")
-            genre.textContent = t
+            genre.textContent = t.tag_id
             tagsList.append(genre)
         }}
      })
-       
-
+       tripInfo.append(tagsList)
 
 
     membersElement.append(membersTitle,membersList,buttons)
