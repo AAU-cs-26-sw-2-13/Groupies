@@ -167,6 +167,15 @@ export async function getGroupMembers(groupId) {
     `, [groupId])
 }
 
+export async function getGroupTags(groupId){
+    return query(`
+        SELECT gt.id, gt.group_id, gt.tag_id, gt.tag_value,
+        FROM group_tags gt
+        WHERE gt.group_id = ?
+         `, [groupId])
+}
+
+
 export async function getGroupInfo(groupId) {
     let queryResponse = await query(getGroupInfoQuery, groupId)
     return queryResponse[0]

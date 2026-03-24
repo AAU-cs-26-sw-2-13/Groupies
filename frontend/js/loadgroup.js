@@ -53,8 +53,22 @@ function createGroup(groupInfo) {
     hostedBy.setAttribute("class", "p1")
     const host = groupInfo.host_name
     const maxAllowed = groupInfo.max_members
+    let membercount = 0
 
-    hostedBy.textContent = "Organized by " + host + " with " + "1/" + maxAllowed //rewrite so the 1 is not static but reflects the proper amount of joined users
+ //group members list
+    const groupId = sessionStorage.getItem("id")
+let membersList = document.createElement("div")
+ membersList.setAttribute("class", "membersList")
+
+fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+    .then(r => r.json())
+    .then(members => {
+                createUserHTML(members,membersList) 
+                membercount = members.length
+                hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+    })
+       
+
 
     let aboutInfo = document.createElement("p")
     aboutInfo.setAttribute("class", "groupAbout")
@@ -103,18 +117,28 @@ function createGroup(groupInfo) {
 
     buttons.append(backButton, joinButton)
 
-    //group members list
-    let membersList = document.createElement("div")
-    membersList.setAttribute("class", "membersList")
+    let tagsList = document.createElement("div")
+    tagsList.setAttribute("class", "membersList")
+
+//The tags display 
+fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupTags", groupId: groupId})})
+    .then(r => r.json())
+    .then(tags => {
+
+           for(let t of tags){
+
+             if (t!== null){
+            let genre = document.createElement("li")
+            genre.setAttribute("class", "pref-item")
+            genre.textContent = t
+            tagsList.append(genre)
+        }}
+     })
+       
 
 
-    fetch("/groupMembers", { method: "POST", body: JSON.stringify({ sessionId: "empty", query: "groupMembers", groupId: groupId }) })
-        .then(r => r.json())
-        .then(members => {
-            createUserHTML(members, membersList)
-        })
 
-    membersElement.append(membersTitle, membersList, buttons)
+    membersElement.append(membersTitle,membersList,buttons)
     container.append(tripInfo, membersElement)
     return container
 }
