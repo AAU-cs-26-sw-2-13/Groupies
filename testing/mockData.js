@@ -70,6 +70,11 @@ async function mockUserRelations(userAmount){
     console.log(`✓ Mocked ${relations.length} relations`);
 }
 
+async function mockGroupActivities() {
+    const groups = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
+    const groupRelations = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
+}
+
 async function mockGroupRelations() {
     const preferences = await query(`SELECT user_id,preference_id FROM user_prefs`);
     const groups = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
@@ -78,24 +83,25 @@ async function mockGroupRelations() {
     const prefAmount = prefDictionary.length;
     
     let relations = [];
-    for (let i=1; i < groups.length-1; i++) { // Select a random user with at least 1 preference matching the group tags
-        const tags = groupTags.filter(tag => tag.group_id === i).map(tag => tag.tag_id); // Filters used tags for group and maps to {tag_id[0],...,tag_id[n]}
+    for (let i=0; i < groups.length; i++) { // Select a random user with at least 1 preference matching the group tags
+        const groupId = groups[i][`id`]
+        const tags = groupTags.filter(tag => tag.group_id === groupId).map(tag => tag.tag_id); // Filters used tags for group and maps to {tag_id[0],...,tag_id[n]}
         const userIds = preferences.filter(pref => tags.includes(pref.preference_id)).map(pref => pref.user_id); // Filters users whom share at least 1 tag and maps to {user_id[0],...,user_id[n]}
         
-        relations.push([groups[i][`host_user_id`],i,1,1,1,dateNow()]) // Add the host
+        relations.push([groups[i][`host_user_id`],groupId,1,1,1,dateNow()]) // Add the host
         let memberCount = 1; // Host
-        let goalMemberCount = genNumber(1,groups[i][`max_members`]);
+        let goalMemberCount = genNumber(2,groups[i][`max_members`]);
         let attempts = 0; // Prevent not enough eligible users in the set
         while (memberCount < goalMemberCount && attempts < 100) {
             attempts++;
             const userId = userIds[genNumber(0,userIds.length-1)]
-            if (relations.some(r => r[1] === i && r[0] === userId)) { continue; }
+            if (relations.some(r => r[1] === groupId && r[0] === userId)) { continue; }
             const member = genNumber(1, 3) === 1 ? 1 : 0; // If number is within parameter use 1 else 0
             const follower = member === 1 ? 1 : (genNumber(1, 3) === 1 ? 1 : 0);  // If member then follow, else roll a chance to follow
             if (!member && !follower) { continue; }
             const relation = [
                 userId,
-                i,
+                groupId,
                 follower,  // If member then follow, else roll a chance to follow
                 member,
                 0, // Not organizer
@@ -121,22 +127,23 @@ async function mockGroupTags() {
     const prefAmount = prefDictionary.length;
 
     let tags = [];
-    for (let i=1; i < groups.length-1; i++) {
+    for (let i=0; i < groups.length; i++) {
+        const groupId = groups[i][`id`]
         const hostId = groups[i][`host_user_id`]
         let tagAmount = 0;
         for (let j=0; j < prefAmount; j++) {
             const k = genNumber(0,prefAmount-1)
             if (!preferences.some(pref => pref.user_id === hostId && pref.preference_id === prefDictionary[k].preference_id)) { continue; }
-            if (tags.some(pref => pref[0] == i && pref[1] == prefDictionary[k].preference_id)) { continue; }
+            if (tags.some(pref => pref[0] == groupId && pref[1] == prefDictionary[k].preference_id)) { continue; }
             if (Math.random() < 0.25) { continue; }
-            tags.push([i, prefDictionary[k][`preference_id`], 1]);
+            tags.push([groupId, prefDictionary[k][`preference_id`], 1]);
             tagAmount++;
         }
         while (tagAmount < MIN_TAGS) {
             const k = genNumber(0,prefAmount-1)
             if (!preferences.some(pref => pref.user_id === hostId && pref.preference_id === prefDictionary[k].preference_id)) { continue; }
-            if (tags.some(pref => pref[0] == i && pref[1] == prefDictionary[k].preference_id)) { continue; }
-            tags.push([i, prefDictionary[k][`preference_id`], 1]);
+            if (tags.some(pref => pref[0] == groupId && pref[1] == prefDictionary[k].preference_id)) { continue; }
+            tags.push([groupId, prefDictionary[k][`preference_id`], 1]);
             tagAmount++;
         }
     }

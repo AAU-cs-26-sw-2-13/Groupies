@@ -33,6 +33,9 @@ export function loadDiscovery (req, res) {
                     queryResponse(res, getAllGroups);
                 }
             }
+            else if (jsonData.query === "groupMembers") {
+                queryResponse(res, () => getGroupMembers(jsonData.groupId));
+            }
         }
     })
 }
