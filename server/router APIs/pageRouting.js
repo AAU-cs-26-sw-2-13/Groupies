@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { getAllUsers, getAllGroups, getGroupMembers } from "../serverQueries.js";
+import { getAllUsers, getAllGroups, getGroupMembers, getGroupTags } from "../serverQueries.js";
 
 export function loadDiscovery (req, res) {
     let data = ""
@@ -16,6 +16,9 @@ export function loadDiscovery (req, res) {
             }
             else if (jsonData.query === "groupMembers") {
                 queryResponse(res, () => getGroupMembers(jsonData.groupId));
+            }
+             else if (jsonData.query === "groupTags") {
+                queryResponse(res, () => getGroupTags(jsonData.groupId));
             }
         }
     })

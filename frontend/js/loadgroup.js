@@ -25,8 +25,22 @@ function createGroup(){
     hostedBy.setAttribute("class", "p1")
     const host = sessionStorage.getItem("host")
     const maxAllowed = sessionStorage.getItem("maxusers")
+    let membercount = 0
 
-    hostedBy.textContent = "Organized by " + host + " with " + "1/" + maxAllowed //rewrite so the 1 is not static but reflects the proper amount of joined users
+ //group members list
+    const groupId = sessionStorage.getItem("id")
+let membersList = document.createElement("div")
+ membersList.setAttribute("class", "membersList")
+
+fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+    .then(r => r.json())
+    .then(members => {
+                createUserHTML(members,membersList) 
+                membercount = members.length
+                hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+    })
+       
+
 
     let aboutInfo = document.createElement("p")
     aboutInfo.setAttribute("class", "groupAbout")
@@ -75,18 +89,28 @@ infoText.setAttribute("class", "groupInfo")
     
         buttons.append(backButton, joinButton)
 
-//group members list
-const groupId = sessionStorage.getItem("id")
-let membersList = document.createElement("div")
- membersList.setAttribute("class", "membersList")
 
+let tagsList = document.createElement("div")
+ tagsList.setAttribute("class", "membersList")
 
-fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+//The tags display 
+fetch("/", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupTags", groupId: groupId})})
     .then(r => r.json())
-    .then(members => {
-                createUserHTML(members,membersList)   
-    })
-    
+    .then(tags => {
+
+           for(let t of tags){
+
+             if (t!== null){
+            let genre = document.createElement("li")
+            genre.setAttribute("class", "pref-item")
+            genre.textContent = t
+            tagsList.append(genre)
+        }}
+     })
+       
+
+
+
     membersElement.append(membersTitle,membersList,buttons)
     container.append(tripInfo, membersElement)
     return container
