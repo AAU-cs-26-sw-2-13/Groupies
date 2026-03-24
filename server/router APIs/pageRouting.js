@@ -1,6 +1,9 @@
 import {queryResponse} from "../server.js"
 import { getAllUsers, getAllGroups, jaccardSorted } from "../serverQueries.js";
 
+//Page variables
+let activePage = 1;
+
 export function loadDiscovery (req, res) {
     let data = ""
     req.on('data', chunk => {

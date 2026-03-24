@@ -67,7 +67,7 @@ function fileResponse(res, userPath){
         }else{
             res.statusCode = 200;
             res.setHeader('Content-Type', guessMimeType(sanitizedPath));
-            res.write(data);
+            res.write(data) 
             res.end('\n');
         }
     } )

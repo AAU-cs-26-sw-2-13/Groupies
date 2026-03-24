@@ -5,6 +5,9 @@ import { login, register } from "./loginRegister.js";
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
 let header = document.querySelector("header")
+let buttons = document.querySelector(".pageButtons")
+
+//Context variables
 let discovered = 1;
 
 //Generates the HTML object for a new trip
@@ -176,6 +179,27 @@ function profileClick(event){
 
 }
 
+function createDiscoverButtons(Amount){
+    let buttonsCount = Math.ceil(Amount/10)
+    for(let i = 1; i<=buttonsCount; i++){
+        let button = document.createElement("button")
+        button.setAttribute("type","button")
+        button.setAttribute("data-pnumber",i)
+        button.textContent = i
+        if(i===1){
+            button.setAttribute("class","button3")
+            buttons.append(button)
+            continue
+        }
+        button.setAttribute("class","button3 passive")
+        button.addEventListener('click',(event)=>{
+            console.log(event.target.getAttribute("data-pnumber"))
+        })
+        buttons.append(button)
+    }
+}
+
+
 function createHomePageLoggedIn(user){
     let mainDiv = document.createElement("div")
     mainDiv.setAttribute("class", "profile")
@@ -279,6 +303,7 @@ let me = fetch("/me",{
     }else{
         createHomePageLoggedOut()
         generateTrips({user_id: null})
+        generateUsers({user_id: null})
         throw "Session not found"
     }
 }).then(jsonResponse => {
@@ -299,7 +324,7 @@ async function generateUsers(user) {
 }
 
 //Get groups
-async function generateTrips(user) {
+async function generateTrips(user,offset) {
     console.log(user)
     user.query = "groups"
     let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
@@ -307,6 +332,10 @@ async function generateTrips(user) {
         return groupResponse.json()
     }).then(data => {
         createGroups(data)
+        if(buttons.getAttribute("data-loaded") === "false"){
+            createDiscoverButtons(data[0].total_groups)
+            buttons.setAttribute("data-loaded", "true")
+        }
     })
 }
 

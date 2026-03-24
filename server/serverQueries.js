@@ -11,7 +11,8 @@ SELECT 	grp.id,
         grp.destination,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
-        (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND follower = 1) AS followers
+        (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND follower = 1) AS followers,
+        (SELECT COUNT(id) FROM \`groups\`) AS total_groups
 FROM\`groups\` AS grp
 LEFT JOIN users AS u 
 	ON grp.host_user_id = u.id
@@ -72,7 +73,8 @@ SELECT 	grp.id,
 		SELECT preference_id FROM user_prefs WHERE user_id = ?
 		UNION
 		SELECT tag_id FROM group_tags WHERE group_id = grp.id) Count
-        )) AS Jaccard
+        )) AS Jaccard,
+        (SELECT COUNT(id) FROM \`groups\`) AS total_groups
 FROM \`groups\` AS grp
 LEFT JOIN users AS u 
 	ON grp.host_user_id = u.id
