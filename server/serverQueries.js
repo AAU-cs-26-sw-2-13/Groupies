@@ -94,6 +94,13 @@ ORDER BY Jaccard DESC
 LIMIT ?, ?;
 `
 
+const sqlGetPreferences = `
+SELECT
+    *
+FROM preferences
+ORDER BY id
+`
+
 export async function getAllUsers(){
     let queryResponse =  await query(sqlGetAllUsers)
     return queryResponse
@@ -122,4 +129,9 @@ export async function getGroupMembers(groupId){
         WHERE gr.group_id = ? AND gr.member = 1
         GROUP BY gr.id
     `, [groupId])
+}
+
+export async function getAllPreferences(){
+    let queryResponse = await query(sqlGetPreferences)
+    return queryResponse
 }

@@ -23,24 +23,41 @@
                     <li>
                         <form id="form">
                             <p id="step1">
-                                <label for="firstName"></label>
                                 <input type="text" id="firstName" name="firstName" placeholder="First Name" class="reg-box-inputs">
                                 <input type="text" id="lastName" name="lastName" placeholder="Last Name" class="reg-box-inputs">
                                 <input type="password" id="password" name="password" placeholder="Password" class="reg-box-inputs">
-                                <input type="text" id="email" name="email" placeholder="Email" class="reg-box-inputs">
+                                <input type="email" id="email" name="email" placeholder="Email" class="reg-box-inputs">
                             </p>
                             <p hidden id="step2">
-                                stepTwo
+                                <textarea role="textbox" id="bio" name="bio" placeholder="Bio" class="reg-box-inputs-bio"></textarea>
+                                <input 
+                                    type="file" 
+                                    id="img" 
+                                    name="picture"
+                                    accept="image/png, image/jpeg"
+                                    class="reg-box-inputs"/>
+                                <!-- <div class="preview">
+                                    
+                                </div> -->
+                                <!-- <input type="date" id="age" name="age" placeholder="DD-MM-YYYY" class="reg-box-inputs"><br> -->
+                                <input type="text" id="age" name="age" placeholder="Temp Age" class="reg-box-inputs"><br>
+                                <label>Choose your gender:</label><br>
+                                <input type="radio" id="male" name="gender" value="Male">
+                                <label for="male">Male</label><br>
+                                <input type="radio" id="female" name="gender" value="Female">
+                                <label for="female">Female</label><br>
+                                <input type="radio" id="other" name="gender" value="Other">
+                                <label for="other">Other</label><br>
                             </p>
                             <p hidden id="step3">
-                                stepThree
+                                
                             </p>
                             <div class="center-align">
                                 <button class="trans-box-button trans-box-button1" type="button" id="return">Back</button>
                                 <button class="box-button box-button1" type="button" id="next">Next</button>
                                 <button hidden class="box-button box-button11" type="submit" id="submit">Submit</button>
                             </div>
-                            <div class="center-align">
+                            <div id="page" class="center-align">
                                 Step 1/3
                             </div>
                         </form>
@@ -53,8 +70,6 @@
         </main>
 
     </body>
-
-    <!-- <script src="../src/button.js"></script> -->
-    <script src="./src/register.js"></script>
+    <script type="module" src="../src/register.js"></script>
 
     </html>
