@@ -46,29 +46,37 @@ export async function getSession(req) { //get the session for the user
 
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
-  const body = await parseJSON(req);
-  const { password, firstName, lastName, gender, email, country, age, bio, picture } = body;
+  try {
+    const body = await parseJSON(req);
+    const { password, firstName, lastName, gender, email, country, age, bio, picture } = body;
 
-  /* check if username AND password were received in JSON */
-  if (!password || !email) {
-    res.writeHead(400, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Email and Password req." }))
-  }
-  /* query the username/password */
-  const exists = await query("SELECT id FROM users WHERE email=?", [email]);
-  if (exists.length) { //if already taken, reject
-    res.writeHead(400, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Email already in use!" }));
-  }
-  /* If username and password received and username unique, hash a password and query insert user */
-  const hash = await bcrypt.hash(password, 12);
-  await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-     [email, hash, firstName || null, lastName, country, gender, age, bio || null, picture || null]);
+    if(!password || !firstName || !lastName || !gender || !email || !age || !bio || !picture){
+      const e = "Missing Requirement";
+      throw e
+    }
 
-  console.log(`✓ User registered: ${email}`); //Debug log
-  res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
-  return res.end(JSON.stringify({ status: "registered" }));
+    /* check if username AND password were received in JSON */
+    if (!password || !email) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Email and Password req." }))
+    }
+    /* query the username/password */
+    const exists = await query("SELECT id FROM users WHERE email=?", [email]);
+    if (exists.length) { //if already taken, reject
+      res.writeHead(400, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Email already in use!" }));
+    }
+    /* If username and password received and username unique, hash a password and query insert user */
+    const hash = await bcrypt.hash(password, 12);
+    await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+       [email, hash, firstName || null, lastName, country, gender, age, bio || null, picture || null]);
 
+    console.log(`✓ User registered: ${email}`); //Debug log
+    res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
+    return res.end(JSON.stringify({ status: "registered" }));
+    } catch (e) {
+      console.error(e);
+    }
 }
 
 // -----  function loginUser: Check user credentials, create session and set session cookie. ------
