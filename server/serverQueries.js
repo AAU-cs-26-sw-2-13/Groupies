@@ -24,7 +24,7 @@ LEFT JOIN group_tags AS gt
 	ON grp.id = gt.group_id
 GROUP BY grp.id
 ORDER BY followers DESC
-LIMIT 10;
+LIMIT ?, 10;
 `
 
 
@@ -98,8 +98,8 @@ export async function getAllUsers(){
     return queryResponse
 }
 
-export async function getAllGroups(){
-    let queryResponse =  await query(defaultGroups)
+export async function getAllGroups(params){
+    let queryResponse =  await query(defaultGroups, params)
     return queryResponse
 }
 

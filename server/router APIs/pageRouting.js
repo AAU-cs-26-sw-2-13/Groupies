@@ -19,12 +19,11 @@ export function loadDiscovery (req, res) {
                     break
                 }
                 case "groups": {
-                    queryResponse(res, jaccardSorted, [jsonData.user_id,jsonData.user_id , 0, 10]);
+                    queryResponse(res, jaccardSorted, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
                     break
                 }
             }
         }else {
-            console.log("User not found, query is " + jsonData.query)
            switch(jsonData.query){
                 case "users": {
                     console.log("Got users")
@@ -32,7 +31,8 @@ export function loadDiscovery (req, res) {
                     break
                 }
                 case "groups": {
-                    queryResponse(res, getAllGroups);
+                    console.log(jsonData)
+                    queryResponse(res, getAllGroups, [jsonData.offset]);
                     break;
                 }
             }

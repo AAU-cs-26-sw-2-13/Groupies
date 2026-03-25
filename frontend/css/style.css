@@ -41,6 +41,13 @@ body {
     background-color: #fef7ff;
 }
 
+
+#tripList{
+    height: 27rem;
+    overflow-y: auto;
+}
+
+
 .Discovers{
     display: flex;
     justify-content: space-around;
@@ -180,8 +187,6 @@ header {
     border-radius: 28px;
     padding: 1rem 1rem;
     gap:1rem;
-    height: 30rem;
-    overflow-y: auto;
 }
 
 .aside-box{
@@ -194,6 +199,11 @@ header {
     padding: 1rem 1rem;
     gap:1rem;
     height: 30rem;
+
+}
+
+#userList{
+    height: 27rem;
     overflow-y: auto;
     overflow-x: hidden;
 }
