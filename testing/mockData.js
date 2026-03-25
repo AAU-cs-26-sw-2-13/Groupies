@@ -16,6 +16,20 @@ function dateNow(){ // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
     return formatDate(new Date(Date.now()));
 }
 
+function dateDayDiff(date1,date2){ // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
+    let dateDiffDays = Math.round(Math.abs(date1 - date2) / 86400000); // Difference in dates, divided by 86.4 million miliseconds (1 day)
+    return dateDiffDays;
+}
+
+function genMockActivityDateTimePair(startDate,n) { // Returns YYYY-MM-DD HH:MI:SS with days progressed from startdate and random hour
+    let date1 = new Date(startDate);
+    date1.setDate(date1.getDate() + n);
+    date1.setHours(genNumber(6,23),0,0,0);
+    let date2 = new Date(date1);
+    date2.setHours(date2.getHours() + genNumber(1,12));
+    return { startDate: formatDate(date1), endDate: formatDate(date2) };
+}
+
 function genMockDateTimePair(){ // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
     const date1 = faker.date.future({ years: 5 }); // Future date, 5 yr max
     const date2 = faker.date.soon({ days: 60, refDate: date1 }); // 60 days max after date1
@@ -71,19 +85,44 @@ async function mockUserRelations(userAmount){
 }
 
 async function mockGroupActivities() {
-    const groups = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
-    const groupRelations = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
+    const groups = await query(`SELECT id,host_user_id,date_start_at,date_end_at FROM \`groups\``);
+    const groupRelations = await query(`SELECT user_id,group_id,member FROM group_relations`);
+    
+    let activities = [];
+    for (let i=0; i < groups.length; i++) {
+        let tripDayAmount = dateDayDiff(groups[i].date_start_at,groups[i].date_end_at) + 1 // Amount of days the trip spans over, +1 is including start date
+        const groupId = groups[i].id
+        const userIds = groupRelations.filter(rel => rel.group_id === groupId && rel.member[0] === 1).map(rel => rel.user_id); // Filters users whom are member of the trip and maps to {user_id[0],...,user_id[n]} - rel.member[0] === 1, because SQL bits are returned as a buffer array so the value is stored as index 0
+        for (let j=0; j < tripDayAmount; j++) {
+            if (genNumber(1,3) === 1) { continue; }
+            const mockDates = genMockActivityDateTimePair(groups[i].date_start_at,j);
+            const activity = [
+                userIds[genNumber(0,userIds.length-1)],
+                groupId,
+                faker.lorem.words({ min: 1, max: 5 }), // min/max is amount of lorem ipsum words to mock
+                faker.lorem.words({ min: 15, max: 20 }), // min/max is amount of lorem ipsum words to mock
+                mockDates.startDate,
+                mockDates.endDate,
+            ];
+            activities.push(activity);
+        }
+    }
+
+    await query(
+        `INSERT INTO group_activities (user_id, group_id, title, about, date_start_at, date_end_at) VALUES ?`,
+        [activities]
+    );
+    
+    console.log(`✓ Mocked ${activities.length} groups activities`);
 }
 
 async function mockGroupRelations() {
     const preferences = await query(`SELECT user_id,preference_id FROM user_prefs`);
     const groups = await query(`SELECT id,host_user_id,max_members FROM \`groups\``);
     const groupTags = await query(`SELECT group_id,tag_id FROM group_tags`);
-    const prefDictionary = await query(`SELECT * FROM preferences`);
-    const prefAmount = prefDictionary.length;
     
     let relations = [];
-    for (let i=0; i < groups.length; i++) { // Select a random user with at least 1 preference matching the group tags
+    for (let i=0; i < groups.length; i++) {
         const groupId = groups[i][`id`]
         const tags = groupTags.filter(tag => tag.group_id === groupId).map(tag => tag.tag_id); // Filters used tags for group and maps to {tag_id[0],...,tag_id[n]}
         const userIds = preferences.filter(pref => tags.includes(pref.preference_id)).map(pref => pref.user_id); // Filters users whom share at least 1 tag and maps to {user_id[0],...,user_id[n]}
@@ -94,10 +133,10 @@ async function mockGroupRelations() {
         let attempts = 0; // Prevent not enough eligible users in the set
         while (memberCount < goalMemberCount && attempts < 100) {
             attempts++;
-            const userId = userIds[genNumber(0,userIds.length-1)]
+            const userId = userIds[genNumber(0,userIds.length-1)]  // Select a random user with at least 1 preference matching the group tags
             if (relations.some(r => r[1] === groupId && r[0] === userId)) { continue; }
-            const member = genNumber(1, 3) === 1 ? 1 : 0; // If number is within parameter use 1 else 0
-            const follower = member === 1 ? 1 : (genNumber(1, 3) === 1 ? 1 : 0);  // If member then follow, else roll a chance to follow
+            const member = genNumber(1,3) === 1 ? 1 : 0; // Roll a chance to be member, if number is within parameter use 1 else 0
+            const follower = member === 1 ? 1 : (genNumber(1,3) === 1 ? 1 : 0);  // If member then follow, else roll a chance to follow
             if (!member && !follower) { continue; }
             const relation = [
                 userId,
@@ -106,8 +145,8 @@ async function mockGroupRelations() {
                 member,
                 0, // Not organizer
                 dateNow()
-            ]
-            relations.push(relation)
+            ];
+            relations.push(relation);
             if (member === 1) { memberCount++; }
         }
     }
@@ -170,10 +209,10 @@ async function mockGroups(userAmount){
             country + ', ' + city + ' - ' + year,
             country + ', ' + city,
             faker.lorem.words({ min: 25, max: 100 }), // min/max is amount of lorem ipsum words to mock
-            await mockDates.startDate,
-            await mockDates.endDate,
+            mockDates.startDate,
+            mockDates.endDate,
             genNumber(2,10) // Random amount of max members
-        ]
+        ];
         groups.push(group);
     }
 
@@ -213,5 +252,6 @@ export async function mockUsers(userAmount){
     await mockGroups(userAmount);
     await mockGroupTags();
     await mockGroupRelations();
+    await mockGroupActivities();
 }
 
