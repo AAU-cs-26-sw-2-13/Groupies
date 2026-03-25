@@ -1,10 +1,6 @@
 
 /*GLOBAL PROPERTIES*/
-main{
-    display: flex;
-    justify-content: space-around;
-    align-items:start;
-}
+
 
 ul {
     list-style-type: none;
@@ -43,6 +39,12 @@ body {
     margin: 0;
     padding: 0;
     background-color: #fef7ff;
+}
+
+.Discovers{
+    display: flex;
+    justify-content: space-around;
+    align-items:start;
 }
 
 .button{
@@ -140,10 +142,34 @@ header {
     min-width: 6rem;
 }
 
+.button3{
+    padding: 0.3rem 0.5rem;
+    background-color: #4f378b;
+    color: white;
+    border: 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.pageButtons{
+    margin-top: 1rem;
+    gap: 0.3rem;
+    display: flex;
+    justify-content: center;
+    align-items:center ;
+}
+
 .following{
     background-color: #e8def8;
     color: black;
 }
+
+.passive{
+    background-color: #e8def8;
+    color: black;
+}
+
 
 .section-box{
     display: flex;
@@ -337,4 +363,111 @@ header {
   justify-content: center;
   gap: 10px;
   margin-top: 10px;
+}
+
+
+/* GROUP PAGE */
+.groupPage {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    justify-content: center;
+}
+
+.groupMain {
+    display: flex;
+    gap: 1rem;
+    background-color: white;
+    border-radius: 28px;
+    padding: 1.5rem;
+    width: 60%;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.groupMain .h2{
+    font-size: 2.1rem;
+}
+
+
+.groupMain .p1{
+       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(61, 61, 61);
+    font-size: 1.2rem;
+      display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.groupImageInfo {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+      align-items: stretch;
+       justify-content: space-between;
+    height: 200px;
+    overflow: hidden;
+}
+
+.groupInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    font-family: system-ui, sans-serif;
+}
+
+.groupActions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    margin-top: auto;
+}
+
+.buttonBack {
+    padding: 0.5rem 1.5rem;
+    background-color: transparent;
+    color: #4f378b;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-family: system-ui, sans-serif;
+    font-size: 1.0rem;
+    transition-duration: 0.4s;
+}
+
+.buttonBack:hover {
+    background-color: #f3f0f8;
+}
+
+.groupActions .button1 {
+    padding: 0.5rem 1.8rem;
+}
+
+.groupAbout {
+    font-family: system-ui, sans-serif;
+    color: rgb(61, 61, 61);
+    font-size: 0.95rem;
+    line-height: 1.5;   
+       flex: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    font-size: 0.85rem;
+}
+
+.groupImg {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    background-color: #e8def8;
+}
+
+.membersList {
+    flex: 1;          
+    overflow-y: auto;
+    overflow-x: hidden;
 }

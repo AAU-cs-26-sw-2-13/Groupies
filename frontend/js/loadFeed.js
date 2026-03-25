@@ -1,14 +1,18 @@
 import { getCurrentUser } from "./userAPI.js";
 import { login, register } from "./loginRegister.js";
+import {createUserHTML} from "./User_creation.js"
 
 //Queries to dom elements
 let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
 let header = document.querySelector("header")
+let buttons = document.querySelector(".pageButtons")
+
+//Context variables
 let discovered = 1;
 
 //Generates the HTML object for a new trip
-function createTrip(title, host, tags){
+function createTrip(title, host, tags, group){
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -27,6 +31,20 @@ function createTrip(title, host, tags){
     let genreList = document.createElement("ul")
 
     article.setAttribute("class", "trip")
+
+   //saves the data of the trip, needed for showing the group page
+article.dataset.id = group.id
+article.dataset.title = title
+article.dataset.host = host
+article.dataset.destination = group.destination
+article.dataset.about = group.about
+article.dataset.picture = group.picture || ""
+article.dataset.dateStart = group.date_start_at || ""
+article.dataset.dateEnd = group.date_end_at || ""
+article.dataset.maxusers = group.max_members
+
+
+
     article.addEventListener('click', groupClick)
 
     upperTripInfo.setAttribute("class", "upperTripInfo")
@@ -74,77 +92,7 @@ function createTrip(title, host, tags){
     }
     return list
 }
-//Generates the HTML object for a new user
-function createUser(name, age, gender, country, tags){
-    let list = document.createElement("li")
-    let article = document.createElement("article")
 
-    let upperUserInfo = document.createElement("div")
-    let lowerUserInfo = document.createElement("div")
-
-    let userInformation = document.createElement("div")
-    let followButton = document.createElement("button")
-    //let plusIcon = document.createElement("i")
-
-    let userImage = document.createElement("img")
-    let userText = document.createElement("div")
-
-    let userName = document.createElement("p")
-    let userInfoText = document.createElement("p")
-
-    let genreList = document.createElement("ul")
-
-    article.setAttribute("class", "userBox")
-    article.addEventListener('click', profileClick)
-
-    upperUserInfo.setAttribute("class", "mainUserInfo")
-    lowerUserInfo.setAttribute("class", "userPrefFront")
-
-    userInformation.setAttribute("class","userInfo" )
-    followButton.setAttribute("class", "button2")
-    followButton.setAttribute("type", "button")
-    //plusIcon.setAttribute("class", "fa-regular fa-plus")
-    followButton.innerHTML = "Follow"
-    followButton.addEventListener('click', followUserListener)
-
-    userImage.setAttribute("class", "userImage")
-    userImage.setAttribute("src", "img/notFound.jpg")
-    userText.setAttribute("class","userText")
-
-    userName.setAttribute("class", "userName")
-    userName.textContent = name
-    userInfoText.setAttribute("class", "userInfoText")
-    userInfoText.textContent = age+", "+gender+", "+country
-
-    genreList.setAttribute("class", "prefListFront")
-
-    list.append(article)
-
-    article.append(upperUserInfo)
-    article.append(lowerUserInfo)
-    
-    upperUserInfo.append(userInformation)
-    upperUserInfo.append(followButton)
-
-    userInformation.append(userImage)
-    userInformation.append(userText)
-    
-    userText.append(userName)
-    userText.append(userInfoText)
-
-    lowerUserInfo.append(genreList)
-
-    for(let t of tags){
-        if(t !== null){
-            let genre = document.createElement("li")
-            genre.setAttribute("class", "pref-item")
-            genre.textContent = t
-            genreList.append(genre)
-        }
-    }
-    
-    return list
-}
 
 function followTripListener(event){
     event.stopPropagation()
@@ -158,23 +106,39 @@ function followTripListener(event){
     
 }
 
-function followUserListener(event){
-    event.stopPropagation()
-    if(event.target.classList.contains("following")){
-        event.target.classList.remove("following")
-        event.target.textContent = "Follow"
-    }else{
-        event.target.classList.add("following")
-         event.target.textContent = "Following"
+
+function groupClick(event){
+    //console.log(event.target)
+
+      let Groupdata = event.currentTarget.dataset
+    for(let key in Groupdata){
+        sessionStorage.setItem(key, Groupdata[key])
+    }
+
+    window.location.href = "/html/group.html"
+}
+
+
+function createDiscoverButtons(Amount){
+    let buttonsCount = Math.ceil(Amount/10)
+    for(let i = 1; i<=buttonsCount; i++){
+        let button = document.createElement("button")
+        button.setAttribute("type","button")
+        button.setAttribute("data-pnumber",i)
+        button.textContent = i
+        if(i===1){
+            button.setAttribute("class","button3")
+            buttons.append(button)
+            continue
+        }
+        button.setAttribute("class","button3 passive")
+        button.addEventListener('click',(event)=>{
+            console.log(event.target.getAttribute("data-pnumber"))
+        })
+        buttons.append(button)
     }
 }
 
-function groupClick(event){
-}
-
-function profileClick(event){
-
-}
 
 function createHomePageLoggedIn(user){
     let mainDiv = document.createElement("div")
@@ -188,7 +152,7 @@ function createHomePageLoggedIn(user){
     //Register button
     let username = document.createElement("p")
     username.setAttribute("class", "profileName")
-    username.textContent = user.name
+    username.textContent = user.username
 
     mainDiv.append(username)
     mainDiv.append(profileImage)
@@ -247,7 +211,7 @@ function createHomePageLoggedOut(){
             if (result.error) { alert(result.error); return; }
             
             //Refresh the page after successful submission (the cookie will hold the session and the user will be logged in)
-             //window.location.reload(); 
+             window.location.reload(); 
             } catch (error) {
                 alert("Could not reach server. " + error);
             }
@@ -269,48 +233,58 @@ function createHomePageLoggedOut(){
     header.append(mainDiv)
 }
 //Get me
-let me = fetch("/api/auth/me",{
+let me = fetch("/me",{
     method: "GET",
     credentials: "include"
 }).then(response=>{
-    console.log(response.status)
+
+    if(response.status === 200){
+        return response.json()
+    }else{
         createHomePageLoggedOut()
-        let user={
-            user_id: 1,
-            username: "Mikkel123",
-            name: "Mikkel Dissing"
-        }
-        //createHomePageLoggedIn(user)
-        //return null
-    
+        generateTrips({user_id: null})
+        generateUsers({user_id: null})
+        throw "Session not found"
+    }
+}).then(jsonResponse => {
+    createHomePageLoggedIn(jsonResponse)
+    generateUsers(jsonResponse)
+    generateTrips(jsonResponse)
 })
 
 //Get users
-let sessionDataUser = {sessionId: "empty", query:"users"}
-let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataUser)})
-usersQuery.then(userResponse => {
-    return userResponse.json()
-}).then(jsonUserResponse => {
-    createUserHTML(jsonUserResponse)
-})
-//Get groups
-let sessionDataTrips = {sessionId: "empty", query:"groups"}
-let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataTrips)})
-groupQuery.then(groupResponse => {
-    return groupResponse.json()
-}).then(data => {
-    createGroups(data)
-})
-
-function createUserHTML(userArray){
-    for(let u of userArray){
-        userList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.preferences))
-    }
+async function generateUsers(user) {
+    user.query = "users"
+    let usersQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    usersQuery.then(userResponse => {
+        return userResponse.json()
+    }).then(jsonUserResponse => {
+        createUserHTML(jsonUserResponse, userList)
+    })
 }
+
+//Get groups
+async function generateTrips(user,offset) {
+    console.log(user)
+    user.query = "groups"
+    let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
+    groupQuery.then(groupResponse => {
+        return groupResponse.json()
+    }).then(data => {
+        console.log(data)
+        createGroups(data)
+        if(buttons.getAttribute("data-loaded") === "false"){
+            createDiscoverButtons(data[0].total_groups)
+            buttons.setAttribute("data-loaded", "true")
+        }
+    })
+}
+
+
 
 function createGroups(groupArray){
     for(let t of groupArray){
-        tripList.append(createTrip(t.title, t.name_first + " " + t.name_last, t.tags))
+        tripList.append(createTrip(t.title, t.host_name, t.tags, t))
     }
 }
  

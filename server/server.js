@@ -67,13 +67,13 @@ function fileResponse(res, userPath){
         }else{
             res.statusCode = 200;
             res.setHeader('Content-Type', guessMimeType(sanitizedPath));
-            res.write(data);
+            res.write(data) 
             res.end('\n');
         }
     } )
 }
-export async function queryResponse(res, queryFunction){
-    let response = await queryFunction()
+export async function queryResponse(res, queryFunction, params){
+    let response = await queryFunction(params)
     if(response){
         res.statusCode = 200;
         res.setHeader('Content-Type', "application/json")
