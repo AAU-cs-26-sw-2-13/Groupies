@@ -150,7 +150,8 @@ header {
 }
 
 .button3{
-    padding: 0.3rem 0.5rem;
+    padding: 0.3rem 0rem;
+    min-width: 1.5rem;
     background-color: #4f378b;
     color: white;
     border: 0px;

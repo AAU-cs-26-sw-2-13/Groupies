@@ -10,7 +10,7 @@ let header = document.querySelector("header")
 let buttons = document.querySelector(".pageButtons")
 
 //Context variables
-let discovered = 1;
+let discovered = 1; //The page you are currently on in the discover feed
 let user = {user_id: null};
 let buttonAmount;
 
@@ -124,14 +124,18 @@ function groupClick(event){
 
 function createDiscoverButtons(Amount){
     let buttonsCount = Math.ceil(Amount/10)
-    for(let i = 1; i<=buttonsCount; i++){
+    let lowerBound = Math.max(1, parseInt(discovered)-2);
+    let upperBound = Math.min(buttonsCount, parseInt(discovered)+2)
+
+    console.log("Current page is: "+discovered)
+    console.log("The lower bound of button is: " + Math.max(lowerBound,Math.min(buttonsCount-4,1)) + "The upper bound of button is "+upperBound)
+    for(let i = Math.min(lowerBound,Math.max(buttonsCount-4,1)); i<=Math.max(upperBound, Math.min(buttonsCount,5)); i++){
+        console.log("1 button")
         let button = document.createElement("button")
         button.setAttribute("type","button")
         button.setAttribute("data-pnumber",i)
         button.textContent = i
-        console.log("Discovered: "+discovered)
         if(i==discovered){
-            console.log("The passive one is " + i)
             button.setAttribute("class","button3")
             buttons.append(button)
             continue
