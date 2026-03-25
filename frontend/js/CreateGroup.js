@@ -1,3 +1,4 @@
+
 let HTMLdoc = document.querySelector("#CreateGroup")
 
 
@@ -6,6 +7,45 @@ let HTMLdoc = document.querySelector("#CreateGroup")
 //Generates the HTML
 function createHTML(){
    let container = document.createElement("div")
+
+
+
+   //group creation input fields
+    let inputholder = document.createElement("div")
+
+   let groupTitle = document.createElement("input")
+    groupTitle.setAttribute("type", "text")
+    groupTitle.setAttribute("placeholder", "Enter group title")
+
+    let groupDest = document.createElement("input")
+    groupDest.setAttribute("type", "text")
+    groupDest.setAttribute("placeholder", "Enter destination")
+
+    let groupDesc = document.createElement("input")
+    groupDesc.setAttribute("type", "text")
+    groupDesc.setAttribute("placeholder", "Describe the journey (optional)")
+    
+    let tripStart = document.createElement("input")
+    tripStart.setAttribute("type", "date")
+    tripStart.setAttribute("placeholder", "Journey start date") //does not work like this
+
+     let tripEnd = document.createElement("input")
+     tripEnd.setAttribute("type", "date")
+     tripEnd.setAttribute("placeholder", "Journey end date") //does not work like this
+
+    let tripImg = document.createElement("input")
+     tripImg.setAttribute("type", "file")
+     tripImg.setAttribute("accept", "image/*")
+     tripImg.setAttribute("placeholder", "Journey picture(optional)") //does not work like this
+
+    let Members = document.createElement("input")
+     Members.setAttribute("type", "number")
+     Members.setAttribute("placeholder", "Maximum joinable members")
+
+
+     
+
+    inputholder.append(groupTitle, groupDest, groupDesc, tripStart, tripEnd, tripImg, Members)
 
      //buttons
     let buttons = document.createElement("div")
@@ -17,14 +57,57 @@ function createHTML(){
         backButton.textContent = "Back"
         backButton.addEventListener("click", ()=>{ window.location.href = "/"})
         
-
+    let submitButton = document.createElement("button")
+    submitButton.setAttribute("class", "button button1")
+    submitButton.textContent = "Create Trip"
+    submitButton.addEventListener("click", () => {
+    if(!groupTitle.value.trim()){
+        alert("Group title is required")
+        return
+    }
+    if(!groupDest.value.trim()){
+        alert("Destination is required")
+        return
+    }
+    if(!tripStart.value){
+        alert("Start date is required")
+        return
+    }
+    if(!tripEnd.value){
+        alert("End date is required")
+        return
+    }
+    if(!Members.value){
+        alert("Maximum members is required")
+        return
+    }    
+    })
     
-        buttons.append(backButton)
+        buttons.append(backButton, submitButton)
 
 
-    container.append(buttons)
+    container.append(inputholder,buttons)
     return container
 }
+
+
+
+/* THINGS from group that need to be implemented    
+CREATE TABLE IF NOT EXISTS `groups` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    host_user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    title VARCHAR(100) NOT NULL,
+    destination VARCHAR(200),
+    about TEXT, 
+    date_start_at DATETIME, 
+    date_end_at DATETIME,
+    picture BLOB,
+    max_members INT NOT NULL,
+
+    FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+*/
 
 
 
