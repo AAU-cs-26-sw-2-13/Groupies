@@ -89,7 +89,7 @@ async function mockGroupActivities() {
     const groupRelations = await query(`SELECT user_id,group_id,member FROM group_relations`);
     
     let activities = [];
-    for (let i=0; i < 2; i++) {
+    for (let i=0; i < groups.length; i++) {
         let tripDayAmount = dateDayDiff(groups[i].date_start_at,groups[i].date_end_at) + 1 // Amount of days the trip spans over, +1 is including start date
         const groupId = groups[i].id
         const userIds = groupRelations.filter(rel => rel.group_id === groupId && rel.member[0] === 1).map(rel => rel.user_id); // Filters users whom are member of the trip and maps to {user_id[0],...,user_id[n]} - rel.member[0] === 1, because SQL bits are returned as a buffer array so the value is stored as index 0
