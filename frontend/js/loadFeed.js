@@ -11,6 +11,8 @@ let createTripBtn = document.querySelector("#createTripBtn") //maybe incorporate
 
 //Context variables
 let discovered = 1;
+let user = {user_id: null};
+let buttonAmount;
 
 //Generates the HTML object for a new trip
 function createTrip(title, host, tags, group){
@@ -131,14 +133,20 @@ function createDiscoverButtons(Amount){
         button.setAttribute("type","button")
         button.setAttribute("data-pnumber",i)
         button.textContent = i
-        if(i===1){
+        console.log("Discovered: "+discovered)
+        if(i==discovered){
+            console.log("The passive one is " + i)
             button.setAttribute("class","button3")
             buttons.append(button)
             continue
         }
         button.setAttribute("class","button3 passive")
         button.addEventListener('click',(event)=>{
-            console.log(event.target.getAttribute("data-pnumber"))
+            discovered = event.target.getAttribute("data-pnumber")
+            buttons.replaceChildren()
+            tripList.replaceChildren()
+            createDiscoverButtons(buttonAmount)
+            generateTrips(user, discovered)
         })
         buttons.append(button)
     }
@@ -247,14 +255,15 @@ let me = fetch("/me",{
         return response.json()
     }else{
         createHomePageLoggedOut()
-        generateTrips({user_id: null})
+        generateTrips({user_id: null},discovered)
         generateUsers({user_id: null})
         throw "Session not found"
     }
 }).then(jsonResponse => {
+    user = jsonResponse
     createHomePageLoggedIn(jsonResponse)
     generateUsers(jsonResponse)
-    generateTrips(jsonResponse)
+    generateTrips(jsonResponse, discovered)
 })
 
 //Get users
@@ -272,6 +281,7 @@ async function generateUsers(user) {
 async function generateTrips(user,offset) {
     console.log(user)
     user.query = "groups"
+    user.offset = (offset-1)*10
     let groupQuery = fetch("/", {method: 'POST', body: JSON.stringify(user)})
     groupQuery.then(groupResponse => {
         return groupResponse.json()
@@ -279,7 +289,8 @@ async function generateTrips(user,offset) {
         console.log(data)
         createGroups(data)
         if(buttons.getAttribute("data-loaded") === "false"){
-            createDiscoverButtons(data[0].total_groups)
+            buttonAmount = data[0].total_groups
+            createDiscoverButtons(buttonAmount)
             buttons.setAttribute("data-loaded", "true")
         }
     })
