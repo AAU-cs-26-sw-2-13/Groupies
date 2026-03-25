@@ -47,7 +47,7 @@ export async function getSession(req) { //get the session for the user
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
   const body = await parseJSON(req);
-  const { password, firstName, lastName, email, country, age, bio, picture } = body;
+  const { password, firstName, lastName, gender, email, country, age, bio, picture } = body;
 
   /* check if username AND password were received in JSON */
   if (!password || !email) {

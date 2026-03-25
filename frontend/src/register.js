@@ -1,4 +1,4 @@
-import { parseTags } from "../js/parseJson";
+
 
 const form = document.querySelector("#form");
 
@@ -144,6 +144,6 @@ prefsQuery.then(prefsResponse => {
 
 function createPrefsHTML(prefsArray){
     for(let p of prefsArray){
-        step3.append(createPrefs(parseTags(p.preferences)))
+        step3.append(createPrefs(p.preferences))
     }
 }
