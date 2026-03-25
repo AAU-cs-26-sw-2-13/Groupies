@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 
 import path, { relative } from "path"
 import { fileResponse, queryResponse} from "./server.js";
-import {getGroupMembers} from "./serverQueries.js"
+import {getGroupMembers, getGroupTags} from "./serverQueries.js"
 
 import { registerUserToDB, loginUser, getLoginSession, logout } 
 from "./router APIs/authentication.js"
@@ -52,6 +52,17 @@ async function createResponse(req, res) {
                     req.on('end', () => {
                         let jsonData = JSON.parse(data)
                         queryResponse(res, () => getGroupMembers(jsonData.groupId));
+                    })
+                    break;
+                }
+                 case "groupTags":{
+                    let data = ""
+                    req.on('data', chunk => {
+                        data += chunk.toString()
+                    })
+                    req.on('end', () => {
+                        let jsonData = JSON.parse(data)
+                        queryResponse(res, () => getGroupTags(jsonData.groupId));
                     })
                     break;
                 }
