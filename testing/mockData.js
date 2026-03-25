@@ -226,7 +226,7 @@ async function mockGroups(userAmount){
 
 export async function mockUsers(userAmount){
     let users = [];
-    for (let i=0; i < userAmount; i++) {
+    for (let i=0; i < userAmount-1; i++) { // i-1 because of permanent test user
         const gender = faker.person.sexType()
         const user = [
             faker.person.firstName(gender), 
