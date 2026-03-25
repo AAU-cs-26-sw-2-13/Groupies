@@ -488,3 +488,25 @@ header {
     color: #f5edf9;
 
 }
+
+
+.discoverHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.CreateTripButton{
+    padding: 0.7rem 1.4rem;
+    background-color: #4f378b;
+    color: white;
+    border: 0px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+
+.CreateTripButton:hover {
+    background-color: #816cb7;
+}

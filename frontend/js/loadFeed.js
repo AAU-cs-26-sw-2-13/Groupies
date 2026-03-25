@@ -7,6 +7,7 @@ let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
 let header = document.querySelector("header")
 let buttons = document.querySelector(".pageButtons")
+let createTripBtn = document.querySelector("#createTripBtn") //maybe incorporate into buttons?
 
 //Context variables
 let discovered = 1;
@@ -42,8 +43,6 @@ article.dataset.picture = group.picture || ""
 article.dataset.dateStart = group.date_start_at || ""
 article.dataset.dateEnd = group.date_end_at || ""
 article.dataset.maxusers = group.max_members
-
-
 
     article.addEventListener('click', groupClick)
 
@@ -106,6 +105,12 @@ function followTripListener(event){
     
 }
 
+
+createTripBtn.addEventListener('click', CreateTripClick)
+
+function CreateTripClick(event){ //implement safeguard for needing to be logged in before being able to create trip
+  window.location.href = "/html/CreateTrip.html"
+}
 
 function groupClick(event){
     //console.log(event.target)
@@ -302,3 +307,7 @@ function loginBoxHTML() {
             </li>
         </section>`
 }
+
+
+
+
