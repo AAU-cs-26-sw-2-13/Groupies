@@ -47,7 +47,7 @@ export async function getSession(req) { //get the session for the user
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
   const body = await parseJSON(req);
-  const { password, firstname, lastname, email, country, age, bio, picture } = body;
+  const { password, firstName, lastName, email, country, age, bio, picture } = body;
 
   /* check if username AND password were received in JSON */
   if (!password || !email) {
@@ -62,7 +62,8 @@ export async function registerUserToDB(req, res) {
   }
   /* If username and password received and username unique, hash a password and query insert user */
   const hash = await bcrypt.hash(password, 12);
-  await query("INSERT INTO users (email, password_hash, name_first) VALUES (?, ?, ?)", [email, hash, firstname || null]);
+  await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+     [email, hash, firstName || null, lastName, country, gender, age, bio || null, picture || null]);
 
   console.log(`✓ User registered: ${email}`); //Debug log
   res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message

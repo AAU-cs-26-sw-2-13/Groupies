@@ -11,9 +11,9 @@
             "port": 3306,
             "driver": "MySQL",
             "name": "Groupies",
-            "database": "thirdDB",
-            "username": "localmen",
-            "password": "?"
+            "database": "Groupies",
+            "username": "root",
+            "password": "0403"
         }
     ]
 }

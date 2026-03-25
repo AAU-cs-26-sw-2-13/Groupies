@@ -1,3 +1,5 @@
+import { parseTags } from "../js/parseJson";
+
 const form = document.querySelector("#form");
 
 async function sendData() {
@@ -52,3 +54,96 @@ document.getElementById('return').addEventListener('click', function() {
         document.getElementById('submit').hidden = true;
     }
 });
+
+const input = document.querySelector("#img");
+const preview = document.querySelector(".preview");
+
+
+input.addEventListener("change", updateImageDisplay);
+
+function updateImageDisplay(){
+    while (preview.firstChild) {
+        preview.removeChild(preview.firstChild);
+    }
+
+    const curFiles = input.files;
+    if (curFiles.length === 0) {
+        const para  = document.createElement("p")
+        para.textContent = "No files selected"
+        preview.appendChild(para);
+    } else {
+        const list = document.createElement("ol");
+        preview.appendChild(list);
+
+        for (const file of curFiles) {
+            const listItem = document.createElement("li");
+            const para = document.createElement("p");
+            if (validFileType(file)) {
+                para.textContent = `File size ${returnFileSize(file.size,)}.`;
+                const image = document.createElement("img");
+                image.src = URL.createObjectURL(file);
+                image.alt = image.title = file.name;
+
+                listItem.appendChild(image);
+                listItem.appendChild(para);
+            } else {
+                para.textContent = `File ${file.name}: Not a valid file type.`
+                listItem.appendChild(para);
+            }
+
+            list.appendChild(listItem);
+        }
+    }
+}
+
+const fileTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+];
+
+function validFileType(file) {
+    return fileTypes.includes(file.type);
+}
+
+// Uses SI prefix
+function returnFileSize(number) {
+    if(number < 1e3) {
+        return `${number} bytes`;
+    } else if (number >= 1e3 && number < 1e6) {
+        return `${(number / 1e3).toFixed(1)} KB`;
+    }
+    
+    return `${(number / 1e6).toFixed(1)} MB`;
+}
+
+const step3 = document.querySelector("#step3");
+
+//Generates the HTML object for preferences
+function createPrefs(tags){
+    for(let t of tags){
+        if(t !== null){
+            const prefs = document.createElement("p")
+            prefs.textContent = `${t}`
+            step3.appendChild(prefs)
+        }
+    }
+    
+    return prefsList
+}
+
+//Get preferences
+let sessionDataPrefs = {sessionId: "empty", query:"preferences"}
+let prefsQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataPrefs)})
+prefsQuery.then(prefsResponse => {
+    return prefsResponse.json()
+}).then(jsonPrefsResponse => {
+    createPrefsHTML(jsonPrefsResponse)
+})
+
+function createPrefsHTML(prefsArray){
+    for(let p of prefsArray){
+        step3.append(createPrefs(parseTags(p.preferences)))
+    }
+}
