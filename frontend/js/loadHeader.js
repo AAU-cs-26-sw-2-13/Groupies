@@ -3,7 +3,7 @@ import { login } from "./loginRegister.js";
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
 export async function initializeHeader(headerElement, user) {
     headerElement.innerHTML = '';
-    
+
     if (user && user.user_id) {
         renderLoggedInHeader(headerElement, user);
     } else {
@@ -30,6 +30,7 @@ function renderLoggedInHeader(header, user) {
 }
 
 function renderLoggedOutHeader(header) {
+
     loadTitleElements(header);
     const mainDiv = document.createElement("div");
     mainDiv.id = "loginregDiv";
@@ -38,7 +39,7 @@ function renderLoggedOutHeader(header) {
     const loginBtn = document.createElement("button");
     loginBtn.className = "button";
     loginBtn.textContent = "Login";
-    
+
     loginBtn.addEventListener("click", () => toggleLoginBox(mainDiv));
 
     const registerBtn = document.createElement("button");
@@ -46,47 +47,52 @@ function renderLoggedOutHeader(header) {
     registerBtn.textContent = "Register";
     registerBtn.onclick = () => window.location.href = "/html/register.html";
 
-    mainDiv.append(loginBtn, registerBtn);
+    const loginBoxDiv = document.createElement("div");
+    loginBoxDiv.id = "login-box-div_id";
+
+    mainDiv.append(loginBtn, registerBtn, loginBoxDiv);
     header.append(mainDiv);
 }
 
 function toggleLoginBox(container) {
     let existingBox = document.getElementById("login-box");
-    if (existingBox) {
-        existingBox.remove();
-        return;
-    }
-
-    const loginBox = document.createElement("div");
-    loginBox.innerHTML = `
-        <section class="register-box" id="login-box" style="position:absolute; width:250px; left:-50px; top:125%; z-index:1000;">
+    if (!existingBox) {
+        const loginBox = document.getElementById("login-box-div_id");
+        loginBox.innerHTML = `
+        <div class="register-box active" id="login-box" style="position:absolute; width:250px; left:-50px; top:125%; z-index:1000;">
             <form id="login_box_id">
                 <input type="email" id="login_email_id" placeholder="Email" class="reg-box-inputs">
                 <input type="password" id="login_password_id" placeholder="Password" class="reg-box-inputs">
                 <button class="box-button" type="submit" id="login_submit">Enter</button>
             </form>
-        </section>`;
+        </div>`;
 
-    container.appendChild(loginBox);
+        container.appendChild(loginBox);
 
-    document.getElementById("login_submit").addEventListener("click", async (e) => {
-        e.preventDefault();
-        const email = document.getElementById("login_email_id").value.trim();
-        const password = document.getElementById("login_password_id").value.trim();
-        
-        const result = await login(email, password);
-        if (result.error) { 
-            alert(result.error); 
-        } else {
-            window.location.reload();
-        }
-    });
+        document.getElementById("login_submit").addEventListener("click", async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("login_email_id").value.trim();
+            const password = document.getElementById("login_password_id").value.trim();
+
+            const result = await login(email, password);
+            if (result.error) {
+                alert(result.error);
+            } else {
+                window.location.reload();
+            }
+        });
+
+    }
+
+    if (existingBox) existingBox.classList.toggle("active");
+
 }
 
-function loadTitleElements (header) {
+function loadTitleElements(header) {
+    if (document.getElementById("Groupies_title_id")) return;
     //Load title and site logo
     header.insertAdjacentHTML('afterbegin', titleElementHTML);
-    
+
     //Load discover page button
 }
 

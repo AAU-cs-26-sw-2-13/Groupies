@@ -62,6 +62,10 @@ body {
     border-radius: 50px;
     transition-duration: 0.4s;
 }
+.button:hover{
+    background-color: #7e378b;
+
+}
 
 .button1 {
     background-color: #4f378b;
@@ -99,6 +103,10 @@ body {
     border: 0px;
     border-radius: 10px;
     transition-duration: 0.6s;
+}
+
+.box-button:hover{
+    background-color: #7e378b;
 }
 
 .box-button1 {
@@ -364,7 +372,7 @@ header {
     border-radius: 15px;
     align-items: center;    
 }
-.register-box{
+.register-box{ /* actually login-box */
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -375,6 +383,17 @@ header {
     padding: 1rem 1rem;
     gap:1rem;
     align-items:center;
+    display:none; /* Hide the login box until it is clicked active */
+    outline-width: thick; 
+    outline-style:solid;
+    outline-color:#e8def8;
+}
+
+/* When the (login)-box is clicked active it should be displayed*/
+.register-box.active {
+    display: flex;
+    flex-direction: column;
+    
 }
 
 .reg-box-inputs{
