@@ -1,17 +1,21 @@
 import { login } from "./loginRegister.js";
+import { highlightActivePageButton } from "./activePage.js"
 
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
-export async function initializeHeader(headerElement, user) {
+export async function initializeHeader(headerElement, user, pageToRender) {
     headerElement.innerHTML = '';
 
     if (user && user.user_id) {
-        renderLoggedInHeader(headerElement, user);
+        renderLoggedInHeader(headerElement, user, pageToRender);
     } else {
-        renderLoggedOutHeader(headerElement);
+        renderLoggedOutHeader(headerElement, pageToRender);
     }
+
+    console.log("page to render: " + pageToRender);
+    highlightActivePageButton(pageToRender);
 }
 
-function renderLoggedInHeader(header, user) {
+function renderLoggedInHeader(header, user, pageToRender) {
     loadTitleElements(header);
 
     const mainDiv = document.createElement("div");
@@ -19,7 +23,7 @@ function renderLoggedInHeader(header, user) {
 
     const profileImage = document.createElement("img");
     profileImage.className = "profileImage";
-    profileImage.src = user.profile_picture || "img/notFound.jpg";
+    profileImage.src = user.profile_picture || "../img/notFound.jpg";
 
     const username = document.createElement("p");
     username.className = "profileName";
@@ -29,7 +33,7 @@ function renderLoggedInHeader(header, user) {
     header.append(mainDiv);
 }
 
-function renderLoggedOutHeader(header) {
+function renderLoggedOutHeader(header, pageToRender) {
 
     loadTitleElements(header);
     const mainDiv = document.createElement("div");
@@ -39,12 +43,15 @@ function renderLoggedOutHeader(header) {
     const loginBtn = document.createElement("button");
     loginBtn.className = "button";
     loginBtn.textContent = "Login";
+    loginBtn.id="login-btn_id";
 
     loginBtn.addEventListener("click", () => toggleLoginBox(mainDiv));
 
     const registerBtn = document.createElement("button");
     registerBtn.className = "button";
     registerBtn.textContent = "Register";
+    registerBtn.id = "register-btn_id";
+
     registerBtn.onclick = () => window.location.href = "/html/register.html";
 
     const loginBoxDiv = document.createElement("div");
@@ -68,6 +75,8 @@ function toggleLoginBox(container) {
         </div>`;
 
         container.appendChild(loginBox);
+        
+        document.getElementById("login-btn_id").classList.toggle("highlight-button")
 
         document.getElementById("login_submit").addEventListener("click", async (e) => {
             e.preventDefault();
@@ -84,7 +93,14 @@ function toggleLoginBox(container) {
 
     }
 
-    if (existingBox) existingBox.classList.toggle("active");
+    if (existingBox) {
+        existingBox.classList.toggle("active");
+        let logBtn = document.getElementById("login-btn_id");
+        if (logBtn.className === "button") logBtn.className = "highlight-button";
+        else logBtn.className = "button";
+        /* 
+        document.getElementById("login-btn").classList.remove("highlight-button") */
+    } 
 
 }
 
@@ -92,8 +108,6 @@ function loadTitleElements(header) {
     if (document.getElementById("Groupies_title_id")) return;
     //Load title and site logo
     header.insertAdjacentHTML('afterbegin', titleElementHTML);
-
-    //Load discover page button
 }
 
 
@@ -103,6 +117,6 @@ let titleElementHTML = `<div id="Groupies_title_id">
     <h1 id="Groupies_title_header_id">Groupies</h1> 
 </div>
 
-<button class = "button" type="button">Find your next trips</button>`
+<button class = "button" type="button" id="discover-btn_id">Find your next trips</button>`
 
 

@@ -2,6 +2,7 @@
 /*GLOBAL PROPERTIES*/
 
 
+
 ul {
     list-style-type: none;
     display: flex;
@@ -62,6 +63,16 @@ body {
     border-radius: 50px;
     transition-duration: 0.4s;
 }
+.highlight-button {
+    padding: 1rem 1.8rem;
+    background-color: #7e378b;
+    color: white;
+    border: 0px;
+    border-radius: 50px;
+    transition-duration: 0.4s;
+}
+
+
 .button:hover{
     background-color: #7e378b;
 
@@ -367,12 +378,15 @@ header {
     display: flex;
     flex-direction: column;
     background-color:#6b4fb2;
-    width: 20%;
+    width: 40%;
     margin-top: 2rem;
     border-radius: 15px;
     align-items: center;    
+    outline-width: thick; 
+    outline-style:solid;
+    outline-color:#e8def8;
 }
-.register-box{ /* actually login-box */
+.register-box{ /* also used for login-box*/
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -383,7 +397,7 @@ header {
     padding: 1rem 1rem;
     gap:1rem;
     align-items:center;
-    display:none; /* Hide the login box until it is clicked active */
+    display:none; /* Hide the login box until it is active class */
     outline-width: thick; 
     outline-style:solid;
     outline-color:#e8def8;
