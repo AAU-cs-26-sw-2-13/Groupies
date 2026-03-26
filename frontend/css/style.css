@@ -221,6 +221,24 @@ header {
     gap: 1rem;
 }
 
+#Groupies_title_id {
+    display: flex;    
+    align-items: center;
+    gap: 15px;        
+    float:left;   
+}
+
+#logo_id {
+    height: 50px;        
+    width: auto;         
+}
+
+#Groupies_title_header_id {
+    margin: 0;           
+    font-size: 40px;     
+    line-height: 1;      
+}
+
 /* HEADER PROFILE */
 .profile{
     display: flex;
