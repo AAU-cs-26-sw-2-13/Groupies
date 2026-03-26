@@ -37,12 +37,13 @@ SELECT
     u.gender,
     u.age,
     u.picture,
-    JSON_ARRAYAGG(p.preference_id) AS preferences
+    JSON_ARRAYAGG(p.preference_id) AS preferences,
+    (SELECT COUNT(id) FROM user_relations WHERE user_id = u.id) AS followers
 FROM users u
 LEFT JOIN user_prefs p 
     ON u.id = p.user_id
 GROUP BY u.id
-ORDER BY u.id
+ORDER BY followers DESC
 LIMIT 0,10;
 `
 /*
@@ -93,6 +94,13 @@ ORDER BY Jaccard DESC
 LIMIT ?, ?;
 `
 
+const sqlGetPreferences = `
+SELECT
+    *
+FROM preferences
+ORDER BY id
+`
+
 export async function getAllUsers(){
     let queryResponse =  await query(sqlGetAllUsers)
     return queryResponse
@@ -121,4 +129,9 @@ export async function getGroupMembers(groupId){
         WHERE gr.group_id = ? AND gr.member = 1
         GROUP BY gr.id
     `, [groupId])
+}
+
+export async function getAllPreferences(){
+    let queryResponse = await query(sqlGetPreferences)
+    return queryResponse
 }
