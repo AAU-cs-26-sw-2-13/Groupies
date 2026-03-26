@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
   gender ENUM('male', 'female', 'undefined') NOT NULL DEFAULT 'undefined',
   age INT,
   bio TEXT,
-  picture BLOB,
+  picture VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

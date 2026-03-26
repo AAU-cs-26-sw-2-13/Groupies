@@ -1,5 +1,8 @@
 import { query } from "../database/pool.js";
 import { faker } from '@faker-js/faker';
+import path from "path"
+import fs from "fs";
+const uploads = path.join(process.cwd(), "database", "uploads");
 
 const MIN_PREFERENCES = 1; // Constraint on minimum amount of preferences mocked per user
 const MIN_TAGS = 1; // Constraint on minimum amount of tags mocked per group
@@ -200,6 +203,8 @@ async function mockGroups(userAmount){
 
     let groups = [];
     for (let i=0; i < groupAmount; i++) {
+        const files = fs.readdirSync(path.join(uploads,"images","groupPictures"))
+        const img = files[Math.floor(Math.random() * files.length)]
         const mockDates = genMockDateTimePair();
         const year = mockDates.startDate.slice(0,4);
         const country = faker.location.country();
@@ -211,13 +216,14 @@ async function mockGroups(userAmount){
             faker.lorem.words({ min: 25, max: 100 }), // min/max is amount of lorem ipsum words to mock
             mockDates.startDate,
             mockDates.endDate,
-            genNumber(2,10) // Random amount of max members
+            genNumber(2,10), // Random amount of max members
+            path.join("images","groupPictures", img )
         ];
         groups.push(group);
     }
 
     await query(
-        `INSERT INTO \`groups\` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES ?`,
+        `INSERT INTO \`groups\` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members, picture) VALUES ?`,
         [groups]
     );
     
@@ -236,13 +242,14 @@ export async function mockUsers(userAmount){
             faker.location.countryCode(), 
             gender, 
             await genNumber(18,70), // 18 to 100 years of age, consider changing age to date of birth instead?
-            faker.person.bio()
+            faker.person.bio(),
+            faker.image.personPortrait({ sex: gender, size: '128' })
         ];
         users.push(user);
     }
 
     await query(
-        `INSERT INTO users (name_first, name_last, email, password_hash, country, gender, age, bio) VALUES ?`,
+        `INSERT INTO users (name_first, name_last, email, password_hash, country, gender, age, bio, picture) VALUES ?`,
         [users]
     );
 

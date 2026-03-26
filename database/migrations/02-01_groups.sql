@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
     about TEXT, 
     date_start_at DATETIME, 
     date_end_at DATETIME,
-    picture BLOB,
+    picture VARCHAR(255),
     max_members INT NOT NULL,
 
     FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE CASCADE
