@@ -1,5 +1,5 @@
 //Generates the HTML object for a new user
-export function createUser(id, name, age, gender, country, picture, tags) {
+export function createUser(name, age, gender, country, tags){
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -33,8 +33,8 @@ export function createUser(id, name, age, gender, country, picture, tags) {
     followButton.addEventListener('click', followUserListener)
 
     userImage.setAttribute("class", "userImage")
-    userImage.setAttribute("src", picture)
-    userText.setAttribute("class", "userText")
+    userImage.setAttribute("src", "/img/notFound.jpg")
+    userText.setAttribute("class","userText")
 
     userName.setAttribute("class", "userName")
     userName.textContent = name
@@ -82,10 +82,10 @@ export function followUserListener(event) {
     }
 }
 
-export function createUserHTML(userArray, targetList) {
-    for (let u of userArray) {
-        let prefs = u.preferences;
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs));
+export function createUserHTML(userArray, targetList){
+    for(let u of userArray){
+        let prefs = u.preferences || [] //temporary fix for tags in group change back later
+        targetList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, prefs))
     }
 }
 
