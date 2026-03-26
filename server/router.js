@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import path, { relative } from "path"
 import { fileResponse, queryResponse} from "./server.js";
 import {getGroupMembers} from "./serverQueries.js"
+import {handleImage } from "./router APIs/uploads.js"
 
 import { registerUserToDB, loginUser, getLoginSession, logout } 
 from "./router APIs/authentication.js"
@@ -60,16 +61,25 @@ async function createResponse(req, res) {
         }
         case "GET": {
             let pathElements = url.pathname.split("/")
+            console.log(pathElements)
             //Routing to different paths
             switch (pathElements[1]) {
                 case "": {
                     fileResponse(res, "html/index.html")
                     break;
                 }
+                case "group": {
+                    fileResponse(res, "html/group.html")
+                    break
+                }
                 //Server wants current user, check for active session for user from browser session cookie
                 case "me":
                     await getLoginSession (req, res);
                     break;
+                case "images":{
+                    handleImage(req, res, pathElements, decodeURIComponent(url.pathname))
+                    break;
+                }
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname)

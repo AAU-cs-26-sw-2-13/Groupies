@@ -21,7 +21,7 @@ server.listen(port, hostname, () => {
 const publicResources="frontend/";
 const cwd = process.cwd()
 
-function sanitizePath(userPath){
+export function sanitizePath(userPath){
     //Valider stien - fjenr \0 tegn
     if (userPath.indexOf('\0') !== -1) {
         return undefined;
@@ -36,7 +36,7 @@ function sanitizeUserInput (inputString) {
     return inputString;
 }
 
-function guessMimeType(fileName){
+export function guessMimeType(fileName){
   const fileExtension=fileName.split('.').pop().toLowerCase();
   const ext2Mime ={ //Aught to check with IANA spec
     "txt": "text/txt",
@@ -52,7 +52,9 @@ function guessMimeType(fileName){
     "svg": 'image/svg+xml',
     "pdf": 'application/pdf',
     "doc": 'application/msword',
-    "docx": 'application/msword'
+    "docx": 'application/msword',
+    "jpg": 'image/jpeg',
+    "webp": 'image/webp'
    };
     //incomplete
   return (ext2Mime[fileExtension]||"text/plain");

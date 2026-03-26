@@ -14,7 +14,7 @@ function createGroup(){
 
     let groupImg = document.createElement("img")
     groupImg.setAttribute("class", "groupImg")
-    groupImg.setAttribute("src", "../img/notFound.jpg")
+    groupImg.setAttribute("src", sessionStorage.getItem("picture"))
 
     let tripName = document.createElement("h2")
     tripName.setAttribute("class", "h2")
