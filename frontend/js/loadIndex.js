@@ -60,7 +60,7 @@ function createTrip(title, host, tags, group) {
     starIcon.addEventListener('click', followTripListener)
 
     tripImage.setAttribute("class", "tripImage")
-    tripImage.setAttribute("src", "img/notFound.jpg")
+    tripImage.setAttribute("src", group.picture)
     tripText.setAttribute("class", "tripText")
 
     tripTitle.setAttribute("class", "tripTittle")
@@ -127,7 +127,7 @@ function groupClick(event) {
         sessionStorage.setItem(key, Groupdata[key])
     }
 
-    window.location.href = "/html/group.html"
+    window.location.href = "/group"
 }
 
 //Generates the buttons to change page

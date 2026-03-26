@@ -13,6 +13,7 @@ SELECT 	grp.id,
         grp.date_end_at,
         grp.title,
         grp.destination,
+        grp.picture,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
         (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND follower = 1) AS followers,
@@ -69,6 +70,7 @@ SELECT 	grp.id,
         grp.date_end_at,
         grp.title,
         grp.destination,
+        grp.picture,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
         (
@@ -119,7 +121,7 @@ export async function jaccardSorted(params){
 
 export async function getGroupMembers(groupId){
     return query(`
-        SELECT u.id, u.name_first, u.name_last, u.age, u.country, u.gender,
+        SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
                gr.organizer, gr.member,
         JSON_ARRAYAGG(p.preference_id) AS preferences
         FROM group_relations gr
