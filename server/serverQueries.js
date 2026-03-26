@@ -144,6 +144,8 @@ export async function getGroupTags(groupId){
          `, [groupId])
 }
 
-export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, max_members){ //not done at all
-await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES (?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,max_members]) 
- }       
+export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, max_members){ 
+let result = await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES (?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,max_members])
+let groupID = result.insertId    
+await query("INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,1)" , [host_user_id, groupID])
+}       
