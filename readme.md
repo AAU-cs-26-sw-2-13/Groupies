@@ -14,4 +14,7 @@
 
         PORT=
         NODE_ENV=development
+
+        MYSQL_DROPALL=true ## Drops database and runs migrations from scratch
+        TESTING_MOCKDATA=1000 ## Amount of users to mock data for
 - 
