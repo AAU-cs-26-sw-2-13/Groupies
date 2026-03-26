@@ -16,7 +16,7 @@ fetch("/me", {
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data
     let user = jsonResponse;
-    initializeHeader(header, user);
+    initializeHeader(header, user, "Register");
 }).catch(err => {
     console.log("Auth Check:", err);
 });

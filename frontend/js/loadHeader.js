@@ -5,14 +5,13 @@ import { highlightActivePageButton } from "./activePage.js"
 export async function initializeHeader(headerElement, user, pageToRender) {
     headerElement.innerHTML = '';
 
-    if (user && user.user_id) {
+    loadTitleElements(headerElement); //load the base header elements (title and logo)
+
+    if (user && user.user_id) { //conditionally render the header
         renderLoggedInHeader(headerElement, user, pageToRender);
     } else {
         renderLoggedOutHeader(headerElement, pageToRender);
     }
-
-    console.log("page to render: " + pageToRender);
-    highlightActivePageButton(pageToRender);
     
     let discoverBtn = document.getElementById("discover-btn_id");
     console.log
@@ -20,10 +19,12 @@ export async function initializeHeader(headerElement, user, pageToRender) {
         console.log("in the discoverbtn click case")
         window.location.href = "../"; //go to the discover page on discover btn click
     }
+
+    console.log("page to render: " + pageToRender);
+    highlightActivePageButton(pageToRender);
 }
 
 function renderLoggedInHeader(header, user, pageToRender) {
-    loadTitleElements(header);
 
     const mainDiv = document.createElement("div");
     mainDiv.className = "profile";
@@ -42,7 +43,6 @@ function renderLoggedInHeader(header, user, pageToRender) {
 
 function renderLoggedOutHeader(header, pageToRender) {
 
-    loadTitleElements(header);
     const mainDiv = document.createElement("div");
     mainDiv.id = "loginregDiv";
     mainDiv.style.position = "relative";
@@ -112,7 +112,7 @@ function toggleLoginBox(container) {
 }
 
 function loadTitleElements(header) {
-    if (document.getElementById("Groupies_title_id")) return;
+    if (document.getElementById("Groupies_title_id")) return; //if the title elements already exist, they are already loaded.
     //Load title and site logo
     header.insertAdjacentHTML('afterbegin', titleElementHTML);
 }
