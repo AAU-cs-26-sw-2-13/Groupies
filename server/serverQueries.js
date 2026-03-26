@@ -192,3 +192,6 @@ export async function getAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
 }
+export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, max_members){ //not done at all
+await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES (?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,max_members]) 
+ }       
