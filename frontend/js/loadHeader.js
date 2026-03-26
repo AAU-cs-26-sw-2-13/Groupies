@@ -13,6 +13,13 @@ export async function initializeHeader(headerElement, user, pageToRender) {
 
     console.log("page to render: " + pageToRender);
     highlightActivePageButton(pageToRender);
+    
+    let discoverBtn = document.getElementById("discover-btn_id");
+    console.log
+    discoverBtn.onclick = () => {
+        console.log("in the discoverbtn click case")
+        window.location.href = "../"; //go to the discover page on discover btn click
+    }
 }
 
 function renderLoggedInHeader(header, user, pageToRender) {
