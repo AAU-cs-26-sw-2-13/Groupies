@@ -150,7 +150,8 @@ header {
 }
 
 .button3{
-    padding: 0.3rem 0.5rem;
+    padding: 0.3rem 0rem;
+    min-width: 1.5rem;
     background-color: #4f378b;
     color: white;
     border: 0px;
@@ -219,6 +220,24 @@ header {
     display: flex;
     justify-content: space-around;
     gap: 1rem;
+}
+
+#Groupies_title_id {
+    display: flex;    
+    align-items: center;
+    gap: 15px;        
+    float:left;   
+}
+
+#logo_id {
+    height: 50px;        
+    width: auto;         
+}
+
+#Groupies_title_header_id {
+    margin: 0;           
+    font-size: 40px;     
+    line-height: 1;      
 }
 
 /* HEADER PROFILE */

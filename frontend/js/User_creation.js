@@ -1,4 +1,4 @@
- //Generates the HTML object for a new user
+//Generates the HTML object for a new user
 export function createUser(name, age, gender, country, tags){
     let list = document.createElement("li")
     let article = document.createElement("article")
