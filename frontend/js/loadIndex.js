@@ -156,7 +156,7 @@ fetch("/me", {
         return response.json();
     } else {
         // Not logged in: Initialize header with null user and load public data
-        initializeHeader(header, null);
+        initializeHeader(header, null, "Index");
         generateTrips({ user_id: null }, discovered);
         generateUsers({ user_id: null });
         throw "Session not found";
@@ -164,7 +164,7 @@ fetch("/me", {
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data and load personalized data
     user = jsonResponse;
-    initializeHeader(header, user);
+    initializeHeader(header, user, "Index");
     generateUsers(user);
     generateTrips(user, discovered);
 }).catch(err => {
