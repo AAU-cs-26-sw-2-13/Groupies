@@ -119,32 +119,34 @@ function groupClick(event) {
     window.location.href = "/html/group.html"
 }
 
-function createDiscoverButtons(Amount) {
-    let buttonsCount = Math.ceil(Amount / 10)
-    for (let i = 1; i <= buttonsCount; i++) {
+//Generates the buttons to change page
+function createDiscoverButtons(Amount){
+    let buttonsCount = Math.ceil(Amount/10)
+    //Variables for making page shifting dynamic
+    let lowerBound = Math.max(1, parseInt(discovered)-2); //Finds lowest bound - if its below 1 it selects 1
+    let upperBound = Math.min(buttonsCount, parseInt(discovered)+2) //Find the largets boud, if its above the total button count it selecet the button count
+
+    for(let i = Math.min(lowerBound,Math.max(buttonsCount-4,1)); i<=Math.max(upperBound, Math.min(buttonsCount,5)); i++){ //Chooses the correct bounds
         let button = document.createElement("button")
-        button.setAttribute("type", "button")
-        button.setAttribute("data-pnumber", i)
+        button.setAttribute("type","button")
+        button.setAttribute("data-pnumber",i)
         button.textContent = i
-        console.log("Discovered: " + discovered)
-        if (i == discovered) {
-            console.log("The passive one is " + i)
-            button.setAttribute("class", "button3")
+        if(i==discovered){ //Makes the selected button purplbe (By not adding pasive css)
+            button.setAttribute("class","button3")
             buttons.append(button)
             continue
         }
-        button.setAttribute("class", "button3 passive")
-        button.addEventListener('click', (event) => {
-            discovered = event.target.getAttribute("data-pnumber")
-            buttons.replaceChildren()
-            tripList.replaceChildren()
-            createDiscoverButtons(buttonAmount)
-            generateTrips(user, discovered)
+        button.setAttribute("class","button3 passive")
+        button.addEventListener('click',(event)=>{ //Reloads the buttons once one is clicked
+            discovered = event.target.getAttribute("data-pnumber") //Gets the button number
+            buttons.replaceChildren() //Deletes all the current buttons
+            tripList.replaceChildren() //Deletes all the current trips
+            createDiscoverButtons(buttonAmount) //Generates the again
+            generateTrips(user, discovered) //Generates the trips again with new offset
         })
         buttons.append(button)
     }
 }
-
 // Build the header and load page content based on Auth state
 fetch("/me", {
     method: "GET",
