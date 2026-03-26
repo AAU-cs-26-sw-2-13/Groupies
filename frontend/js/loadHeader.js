@@ -89,6 +89,8 @@ function toggleLoginBox(container) {
         </div>`;
 
         container.appendChild(loginBox);
+        
+        document.getElementById("login-btn_id").classList.toggle("highlight-button")
 
         document.getElementById("login-btn_id").classList.toggle("highlight-button")
 
