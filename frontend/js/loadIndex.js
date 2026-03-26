@@ -119,22 +119,26 @@ function groupClick(event) {
     window.location.href = "/html/group.html"
 }
 
-function createDiscoverButtons(Amount) {
-    let buttonsCount = Math.ceil(Amount / 10)
-    for (let i = 1; i <= buttonsCount; i++) {
+function createDiscoverButtons(Amount){
+    let buttonsCount = Math.ceil(Amount/10)
+    let lowerBound = Math.max(1, parseInt(discovered)-2);
+    let upperBound = Math.min(buttonsCount, parseInt(discovered)+2)
+
+    console.log("Current page is: "+discovered)
+    console.log("The lower bound of button is: " + Math.max(lowerBound,Math.min(buttonsCount-4,1)) + "The upper bound of button is "+upperBound)
+    for(let i = Math.min(lowerBound,Math.max(buttonsCount-4,1)); i<=Math.max(upperBound, Math.min(buttonsCount,5)); i++){
+        console.log("1 button")
         let button = document.createElement("button")
-        button.setAttribute("type", "button")
-        button.setAttribute("data-pnumber", i)
+        button.setAttribute("type","button")
+        button.setAttribute("data-pnumber",i)
         button.textContent = i
-        console.log("Discovered: " + discovered)
-        if (i == discovered) {
-            console.log("The passive one is " + i)
-            button.setAttribute("class", "button3")
+        if(i==discovered){
+            button.setAttribute("class","button3")
             buttons.append(button)
             continue
         }
-        button.setAttribute("class", "button3 passive")
-        button.addEventListener('click', (event) => {
+        button.setAttribute("class","button3 passive")
+        button.addEventListener('click',(event)=>{
             discovered = event.target.getAttribute("data-pnumber")
             buttons.replaceChildren()
             tripList.replaceChildren()
@@ -144,7 +148,6 @@ function createDiscoverButtons(Amount) {
         buttons.append(button)
     }
 }
-
 // Build the header and load page content based on Auth state
 fetch("/me", {
     method: "GET",
