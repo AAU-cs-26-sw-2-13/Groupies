@@ -32,7 +32,7 @@ function createGroup(){
 let membersList = document.createElement("div")
  membersList.setAttribute("class", "membersList")
 
-fetch("/groupMembers", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
+fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})})
     .then(r => r.json())
     .then(members => {
                 createUserHTML(members,membersList) 
@@ -94,7 +94,7 @@ let tagsList = document.createElement("div")
  tagsList.setAttribute("class", "groupTags")
 
 //The tags display 
-fetch("/groupTags", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupTags", groupId: groupId})})
+fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
     .then(r => r.json())
     .then(tags => {
 

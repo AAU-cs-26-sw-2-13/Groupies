@@ -8,6 +8,8 @@ let tripList = document.querySelector("#tripList")
 let userList = document.querySelector("#userList")
 let header = document.querySelector("header")
 let buttons = document.querySelector(".pageButtons")
+let tripButton = document.querySelector("#createTripBtn")  // maybe add the trip button to pagebuttons?
+
 
 //Context variables
 let discovered = 1;
@@ -106,6 +108,12 @@ function followTripListener(event) {
         event.target.classList.remove("fa-solid")
     }
 
+}
+
+tripButton.addEventListener("click", createTripClick)
+
+function createTripClick(event) {
+    window.location.href = "/html/CreateTrip.html"
 }
 
 function groupClick(event) {

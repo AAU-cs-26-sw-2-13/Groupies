@@ -9,7 +9,6 @@ function createHTML(){
    let container = document.createElement("div")
 
 
-
    //group creation input fields
     let inputholder = document.createElement("div")
 
@@ -58,9 +57,10 @@ function createHTML(){
         backButton.addEventListener("click", ()=>{ window.location.href = "/"})
         
     let submitButton = document.createElement("button")
-    submitButton.setAttribute("class", "button button1")
-    submitButton.textContent = "Create Trip"
+    submitButton.setAttribute("class", "button CreateTripButton")
+    submitButton.textContent = "Finish trip creation"
     submitButton.addEventListener("click", () => {
+        
     if(!groupTitle.value.trim()){
         alert("Group title is required")
         return
@@ -81,7 +81,23 @@ function createHTML(){
         alert("Maximum members is required")
         return
     }    
-    })
+
+       submitButton.disabled = true
+
+    //insert into group db and refer the user back to main page
+     fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify({
+            host_user_id: 1, //set to current user use fetch api me
+            title: groupTitle.value,
+            destination: groupDest.value,
+            about: groupDesc.value,
+            date_start_at: tripStart.value,
+            date_end_at: tripEnd.value,
+            max_members: Members.value})}).then(r => r.json())
+            .then(() => {window.location.href = "/"})
+})
+
+
+
     
         buttons.append(backButton, submitButton)
 

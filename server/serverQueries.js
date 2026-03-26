@@ -143,3 +143,7 @@ export async function getGroupTags(groupId){
         WHERE gt.group_id = ?
          `, [groupId])
 }
+
+export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, max_members){ //not done at all
+await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, max_members) VALUES (?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,max_members]) 
+ }       
