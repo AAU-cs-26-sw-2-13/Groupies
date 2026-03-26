@@ -83,25 +83,30 @@ function createHTML(){
     }    
 
        submitButton.disabled = true
-
-    //insert into group db and refer the user back to main page
-     fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify({
-            host_user_id: 1, //set to current user use fetch api me
-            title: groupTitle.value,
-            destination: groupDest.value,
-            about: groupDesc.value,
-            date_start_at: tripStart.value,
-            date_end_at: tripEnd.value,
-            max_members: Members.value})}).then(r => r.json())
-            .then(() => {window.location.href = "/"})
-})
-
-
-
+   
+       // fetch the user, so the host id for the group can be set to the user id
+       let user = { user_id: null }
+       fetch("/me", {
+       method: "GET",
+       credentials: "include"
+       }).then(response => {
+       if (response.status === 200) {
+       return response.json()}}).then(jsonResponse => {
+        user = jsonResponse;   
+        //insert into group db and refer the user back to main page
+        fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+        host_user_id: user.user_id,
+        title: groupTitle.value,
+        destination: groupDest.value,
+        about: groupDesc.value,
+        date_start_at: tripStart.value,  
+        date_end_at: tripEnd.value,
+        max_members: Members.value})}).then(r => r.json())
+        .then(() => {window.location.href = "/"})
+        })  
+        })
     
-        buttons.append(backButton, submitButton)
-
-
+    buttons.append(backButton, submitButton)
     container.append(inputholder,buttons)
     return container
 }

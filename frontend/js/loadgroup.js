@@ -152,3 +152,8 @@ function formatDate(dateString) {
     })
 }
 
+
+
+//Needs to implement code that can recoginze the current user who is logged in and remove the follow button(and maybe display some text being like "this is you")
+//also the join trip button can recoginze if a user is already joined, so it switches depending on join state
+tripid.append(createGroup())
