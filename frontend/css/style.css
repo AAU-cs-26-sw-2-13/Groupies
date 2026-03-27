@@ -245,7 +245,8 @@ header {
     display: flex;    
     align-items: center;
     gap: 15px;        
-    float:left;   
+    float:left;  
+    cursor: pointer; 
 }
 
 #logo_id {

@@ -1,9 +1,10 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
-import { getGroupMembers } from "./serverQueries.js";
+import { getGroupMembers, getGroupInfo } from "./serverQueries.js";
 import { handleImage } from "./router APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout } from "./router APIs/authentication.js";
 import { loadDiscovery } from "./router APIs/pageRouting.js";
+import { el } from "@faker-js/faker";
 
 /**
  * CreateResponse takes the request received on the server listener and switches on the request url.
@@ -70,14 +71,17 @@ export async function createResponse(req, res) {
         }
         case "GET": {
             let pathElements = url.pathname.split("/");
-            console.log(pathElements);
             switch (pathElements[1]) {
                 case "": {
                     fileResponse(res, "html/index.html");
                     break;
                 }
                 case "group": {
-                    fileResponse(res, "html/group.html");
+                    if(pathElements[2]==="groupInfo"){
+                        queryResponse(res, getGroupInfo, [url.searchParams.get("id")])
+                    }else{
+                        fileResponse(res, "html/group.html");  
+                    }
                     break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie
@@ -85,6 +89,7 @@ export async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
+                    console.log("NeedImage")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }

@@ -103,6 +103,16 @@ FROM preferences
 ORDER BY id
 `
 
+const getGroupInfoQuery = `
+SELECT grp.created_at, grp.title, grp.destination, grp.about, 
+	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
+       (SELECT COUNT(id) FROM group_relations WHERE group_id = 37 AND member = 1) AS member_count,
+       CONCAT(u.name_first, " ",u.name_last) as host_name
+FROM \`groups\` as grp
+LEFT JOIN users as u ON u.id = grp.host_user_id
+WHERE grp.id = ?;
+`
+
 export async function getAllUsers() {
     let queryResponse = await query(sqlGetAllUsers)
     return queryResponse
@@ -131,6 +141,11 @@ export async function getGroupMembers(groupId) {
         WHERE gr.group_id = ? AND gr.member = 1
         GROUP BY gr.id
     `, [groupId])
+}
+
+export async function getGroupInfo(groupId) {
+    let queryResponse = await query(getGroupInfoQuery, groupId)
+    return queryResponse[0]
 }
 
 export async function getAllPreferences() {
