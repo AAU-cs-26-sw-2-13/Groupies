@@ -11,7 +11,23 @@ from "./router APIs/authentication.js"
 import { loadDiscovery, regPreferences } from "./router APIs/pageRouting.js"
 export { createResponse }
 
-async function createResponse(req, res) {
+/**
+ * CreateResponse takes the request received on the server listener and switches on the request url.
+ *  POST paths: (some of these are actually for data responses but are POST requests in order to get the cookies from the browser easily)
+ *      - "":  User post request was made, make JSON responses with the data from DB for users, groups according to the request parameters
+ *      - "api":  Some api call in the POST case is made. Either "auth" or "pref" is next.
+ *             .  This can be register/login/logout. Switch the specific one and make query to DB
+ *      - "pref":  query db with a new preference for a user.
+ *      - "groupMembers": query db for members of a group
+ *  GET paths: 
+ *      - "": This serves the front page (Discover page)
+ *      - "group": The 
+ *      - "me": for purposes of requesting the user object from the db from a query on the sessions made with the session id with the browser cookie
+ *              this handles serving content specific to the user ("logged in")
+ *      - "images":
+ *      - defaults to server a fileresponse corresponding to the url of the request
+ */
+export async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
     let url = new URL(req.url, baseURL);
 
@@ -87,8 +103,8 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "group": {
-                    fileResponse(res, "html/group.html")
-                    break
+                    fileResponse(res, "html/group.html");
+                    break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie
                 case "me":
@@ -107,6 +123,7 @@ async function createResponse(req, res) {
                     }
                     break;
                 //Fallback to file response
+                }
                 default: {
                     fileResponse(res, url.pathname);
                     break;
