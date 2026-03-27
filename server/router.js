@@ -10,6 +10,7 @@ from "./router APIs/authentication.js"
 
 import { loadDiscovery, regPreferences } from "./router APIs/pageRouting.js"
 export { createResponse }
+import { el } from "@faker-js/faker";
 
 /**
  * CreateResponse takes the request received on the server listener and switches on the request url.
