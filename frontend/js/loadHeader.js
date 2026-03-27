@@ -12,7 +12,7 @@ export async function initializeHeader(headerElement, user, pageToRender) {
     } else {
         renderLoggedOutHeader(headerElement, pageToRender);
     }
-    
+
     let discoverBtn = document.getElementById("discover-btn_id");
     console.log
     discoverBtn.onclick = () => {
@@ -50,7 +50,7 @@ function renderLoggedOutHeader(header, pageToRender) {
     const loginBtn = document.createElement("button");
     loginBtn.className = "button";
     loginBtn.textContent = "Login";
-    loginBtn.id="login-btn_id";
+    loginBtn.id = "login-btn_id";
 
     loginBtn.addEventListener("click", () => toggleLoginBox(mainDiv));
 
@@ -82,7 +82,7 @@ function toggleLoginBox(container) {
         </div>`;
 
         container.appendChild(loginBox);
-        
+
         document.getElementById("login-btn_id").classList.toggle("highlight-button")
 
         document.getElementById("login_submit").addEventListener("click", async (e) => {
@@ -107,7 +107,7 @@ function toggleLoginBox(container) {
         else logBtn.className = "button";
         /* 
         document.getElementById("login-btn").classList.remove("highlight-button") */
-    } 
+    }
 
 }
 

@@ -27,8 +27,8 @@ let tripid = document.querySelector("#tripid")
 
 
 //Generates the HTML object for a group
-function createGroup(){
-   let container = document.createElement("div")
+function createGroup() {
+    let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
 
     let tripInfo = document.createElement("div")
@@ -41,7 +41,7 @@ function createGroup(){
     let tripName = document.createElement("h2")
     tripName.setAttribute("class", "h2")
     const title = sessionStorage.getItem("title")
-     tripName.textContent= title 
+    tripName.textContent = title
 
     let hostedBy = document.createElement("p")
     hostedBy.setAttribute("class", "p1")
@@ -56,16 +56,16 @@ function createGroup(){
     aboutInfo.textContent = about
 
 
-     let dates = document.createElement("p")
+    let dates = document.createElement("p")
     dates.setAttribute("class", "p1")
-    dates.textContent = formatDate(sessionStorage.getItem("dateStart")) + " - " + formatDate(sessionStorage.getItem("dateEnd"))       
-    
-let imageInfoRow = document.createElement("div")
-imageInfoRow.setAttribute("class", "groupImageInfo")
+    dates.textContent = formatDate(sessionStorage.getItem("dateStart")) + " - " + formatDate(sessionStorage.getItem("dateEnd"))
+
+    let imageInfoRow = document.createElement("div")
+    imageInfoRow.setAttribute("class", "groupImageInfo")
 
 
-let infoText = document.createElement("div")
-infoText.setAttribute("class", "groupInfo")
+    let infoText = document.createElement("div")
+    infoText.setAttribute("class", "groupInfo")
 
     infoText.append(hostedBy, aboutInfo, dates)
     imageInfoRow.append(groupImg, infoText)
@@ -81,47 +81,47 @@ infoText.setAttribute("class", "groupInfo")
     membersElement.append(membersTitle)
 
 
-     //buttons
+    //buttons
     let buttons = document.createElement("div")
     buttons.setAttribute("class", "groupActions")
 
-     let backButton = document.createElement("button")
-        backButton.setAttribute("class", "buttonBack")
-        backButton.setAttribute("type", "button")
-        backButton.textContent = "Back"
-        backButton.addEventListener("click", ()=>{ window.location.href = "/"})
-        
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Back"
+    backButton.addEventListener("click", () => { window.location.href = "/" })
+
     let joinButton = document.createElement("button")
-        joinButton.setAttribute("class", "button button1")
-        joinButton.textContent = "Apply to join trip"
-    
-        buttons.append(backButton, joinButton)
+    joinButton.setAttribute("class", "button button1")
+    joinButton.textContent = "Apply to join trip"
 
-//group members list
-const groupId = sessionStorage.getItem("id")
-let membersList = document.createElement("div")
- membersList.setAttribute("class", "membersList")
+    buttons.append(backButton, joinButton)
+
+    //group members list
+    const groupId = sessionStorage.getItem("id")
+    let membersList = document.createElement("div")
+    membersList.setAttribute("class", "membersList")
 
 
-fetch("/groupMembers", {method: "POST", body: JSON.stringify({sessionId: "empty", query: "groupMembers", groupId: groupId})})
-    .then(r => r.json())
-    .then(members => {
-                createUserHTML(members,membersList)   
-    })
-    
-    membersElement.append(membersTitle,membersList,buttons)
+    fetch("/groupMembers", { method: "POST", body: JSON.stringify({ sessionId: "empty", query: "groupMembers", groupId: groupId }) })
+        .then(r => r.json())
+        .then(members => {
+            createUserHTML(members, membersList)
+        })
+
+    membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
     return container
 }
 
 //change the date format to properly display date
-function formatDate(dateString){
-    if(!dateString) return "TBD"
+function formatDate(dateString) {
+    if (!dateString) return "TBD"
     const date = new Date(dateString)
-    return date.toLocaleDateString("en-GB", { 
-        day: "numeric", 
-        month: "long", 
-        year: "numeric" 
+    return date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
     })
 }
 
