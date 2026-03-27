@@ -1,11 +1,11 @@
-export function highlightActivePageButton (pageToRender){
-    let highlightBtn ="Index";
+export function highlightActivePageButton(pageToRender) {
+    let highlightBtn = "Index";
     let deactivateBtns = ["login-btn_id", "register-btn_id", "discover-btn_id"];
 
     console.log(`Entered highlightActivePageButton function with pageToRender : ${pageToRender}`);
 
     switch (pageToRender) {
-        case "Index": 
+        case "Index":
             highlightBtn = "discover-btn_id";
             break;
         case "Register":

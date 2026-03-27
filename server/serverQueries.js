@@ -49,7 +49,7 @@ LIMIT 0,10;
 `
 /*
 SELECT 	u.id,
-		concat(name_first," ",name_last) AS full_name,
+        concat(name_first," ",name_last) AS full_name,
         u.age,
         u.gender,
         json_arrayagg(up.preference_id) AS preferences
@@ -103,23 +103,23 @@ FROM preferences
 ORDER BY id
 `
 
-export async function getAllUsers(){
-    let queryResponse =  await query(sqlGetAllUsers)
+export async function getAllUsers() {
+    let queryResponse = await query(sqlGetAllUsers)
     return queryResponse
 }
 
-export async function getAllGroups(params){
-    let queryResponse =  await query(defaultGroups, params)
+export async function getAllGroups(params) {
+    let queryResponse = await query(defaultGroups, params)
     return queryResponse
 }
 
-export async function jaccardSorted(params){
-    let queryResponse =  await query(Jaccard, params)
+export async function jaccardSorted(params) {
+    let queryResponse = await query(Jaccard, params)
     return queryResponse
 }
 
 
-export async function getGroupMembers(groupId){
+export async function getGroupMembers(groupId) {
     return query(`
         SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
                gr.organizer, gr.member,
@@ -133,7 +133,7 @@ export async function getGroupMembers(groupId){
     `, [groupId])
 }
 
-export async function getAllPreferences(){
+export async function getAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
 }
