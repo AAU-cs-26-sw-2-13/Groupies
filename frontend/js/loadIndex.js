@@ -58,7 +58,7 @@ function createTrip(title, host, tags, group) {
     starIcon.addEventListener('click', followTripListener)
 
     tripImage.setAttribute("class", "tripImage")
-    tripImage.setAttribute("src", "img/notFound.jpg")
+    tripImage.setAttribute("src", group.picture)
     tripText.setAttribute("class", "tripText")
 
     tripTitle.setAttribute("class", "tripTittle")
@@ -116,28 +116,28 @@ function groupClick(event) {
         sessionStorage.setItem(key, Groupdata[key])
     }
 
-    window.location.href = "/html/group.html"
+    window.location.href = "/group"
 }
 
 //Generates the buttons to change page
-function createDiscoverButtons(Amount){
-    let buttonsCount = Math.ceil(Amount/10)
+function createDiscoverButtons(Amount) {
+    let buttonsCount = Math.ceil(Amount / 10)
     //Variables for making page shifting dynamic
-    let lowerBound = Math.max(1, parseInt(discovered)-2); //Finds lowest bound - if its below 1 it selects 1
-    let upperBound = Math.min(buttonsCount, parseInt(discovered)+2) //Find the largets boud, if its above the total button count it selecet the button count
+    let lowerBound = Math.max(1, parseInt(discovered) - 2); //Finds lowest bound - if its below 1 it selects 1
+    let upperBound = Math.min(buttonsCount, parseInt(discovered) + 2) //Find the largets boud, if its above the total button count it selecet the button count
 
-    for(let i = Math.min(lowerBound,Math.max(buttonsCount-4,1)); i<=Math.max(upperBound, Math.min(buttonsCount,5)); i++){ //Chooses the correct bounds
+    for (let i = Math.min(lowerBound, Math.max(buttonsCount - 4, 1)); i <= Math.max(upperBound, Math.min(buttonsCount, 5)); i++) { //Chooses the correct bounds
         let button = document.createElement("button")
-        button.setAttribute("type","button")
-        button.setAttribute("data-pnumber",i)
+        button.setAttribute("type", "button")
+        button.setAttribute("data-pnumber", i)
         button.textContent = i
-        if(i==discovered){ //Makes the selected button purplbe (By not adding pasive css)
-            button.setAttribute("class","button3")
+        if (i == discovered) { //Makes the selected button purplbe (By not adding pasive css)
+            button.setAttribute("class", "button3")
             buttons.append(button)
             continue
         }
-        button.setAttribute("class","button3 passive")
-        button.addEventListener('click',(event)=>{ //Reloads the buttons once one is clicked
+        button.setAttribute("class", "button3 passive")
+        button.addEventListener('click', (event) => { //Reloads the buttons once one is clicked
             discovered = event.target.getAttribute("data-pnumber") //Gets the button number
             buttons.replaceChildren() //Deletes all the current buttons
             tripList.replaceChildren() //Deletes all the current trips
@@ -156,7 +156,7 @@ fetch("/me", {
         return response.json();
     } else {
         // Not logged in: Initialize header with null user and load public data
-        initializeHeader(header, null);
+        initializeHeader(header, null, "Index");
         generateTrips({ user_id: null }, discovered);
         generateUsers({ user_id: null });
         throw "Session not found";
@@ -164,7 +164,7 @@ fetch("/me", {
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data and load personalized data
     user = jsonResponse;
-    initializeHeader(header, user);
+    initializeHeader(header, user, "Index");
     generateUsers(user);
     generateTrips(user, discovered);
 }).catch(err => {

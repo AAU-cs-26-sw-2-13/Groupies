@@ -13,6 +13,7 @@ SELECT 	grp.id,
         grp.date_end_at,
         grp.title,
         grp.destination,
+        grp.picture,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
         (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND follower = 1) AS followers,
@@ -48,7 +49,7 @@ LIMIT 0,10;
 `
 /*
 SELECT 	u.id,
-		concat(name_first," ",name_last) AS full_name,
+        concat(name_first," ",name_last) AS full_name,
         u.age,
         u.gender,
         json_arrayagg(up.preference_id) AS preferences
@@ -69,6 +70,7 @@ SELECT 	grp.id,
         grp.date_end_at,
         grp.title,
         grp.destination,
+        grp.picture,
         concat(u.name_first, " ", u.name_last) AS host_name,
         json_arrayagg(gt.tag_id) AS tags,
         (
@@ -101,25 +103,25 @@ FROM preferences
 ORDER BY id
 `
 
-export async function getAllUsers(){
-    let queryResponse =  await query(sqlGetAllUsers)
+export async function getAllUsers() {
+    let queryResponse = await query(sqlGetAllUsers)
     return queryResponse
 }
 
-export async function getAllGroups(params){
-    let queryResponse =  await query(defaultGroups, params)
+export async function getAllGroups(params) {
+    let queryResponse = await query(defaultGroups, params)
     return queryResponse
 }
 
-export async function jaccardSorted(params){
-    let queryResponse =  await query(Jaccard, params)
+export async function jaccardSorted(params) {
+    let queryResponse = await query(Jaccard, params)
     return queryResponse
 }
 
 
-export async function getGroupMembers(groupId){
+export async function getGroupMembers(groupId) {
     return query(`
-        SELECT u.id, u.name_first, u.name_last, u.age, u.country, u.gender,
+        SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
                gr.organizer, gr.member,
         JSON_ARRAYAGG(p.preference_id) AS preferences
         FROM group_relations gr
@@ -131,7 +133,7 @@ export async function getGroupMembers(groupId){
     `, [groupId])
 }
 
-export async function getAllPreferences(){
+export async function getAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
 }
