@@ -35,7 +35,6 @@ fetch(`profileInfo?id=${profileId}`).then(response => {
 let user = { user_id: null };
 
 function createProfile(profile) {
-    console.log(profile)
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
@@ -133,7 +132,17 @@ function createProfile(profile) {
 
     // Appending
     profileContainer.append(profileImg, usernameP, infoP, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
-    tripContainer.append(tripHeader, tripList)
+    
+    if (profile.groups.length === 0) { // Text if no trips
+        let noTripsText = document.createElement("p")
+        noTripsText.setAttribute("class", "pGrey")
+        noTripsText.textContent = "This user haven't been on any trips"
+
+        tripContainer.append(tripHeader, noTripsText)
+    } else {
+        tripContainer.append(tripHeader, tripList)
+    }
+
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
 
@@ -156,7 +165,7 @@ function createTrip(data) {
     let centerRTContainer = document.createElement("div")
     let rightTContainer = document.createElement("div")
     
-    leftTContainer.setAttribute("class", "tripDateContainer")
+    leftTContainer.setAttribute("class", "  ateContainer")
     centerLTContainer.setAttribute("class", "tripConnectorImage")
     centerRTContainer.setAttribute("class", "tripImageContainer")
     rightTContainer.setAttribute("class", "tripInfoContainer")
@@ -222,7 +231,6 @@ function groupClick(event) {
 }
 
 async function generateTrips(user) {
-    console.log(user)
     for (let group of user.groups) {
         tripList.append(createTrip(group))
     }
