@@ -67,9 +67,9 @@ function createHTML(){
     groupDest.setAttribute("class", "reg-box-inputs")
     groupDest.setAttribute("placeholder", "Enter destination")
 
-    let groupDesc = document.createElement("input")
+    let groupDesc = document.createElement("textarea")
     groupDesc.setAttribute("type", "text")
-    groupDesc.setAttribute("class", "reg-box-inputs")
+    groupDesc.setAttribute("class", "description")
     groupDesc.setAttribute("placeholder", "Description (optional)")
 
     let fileIconEl = document.createElement("i")
