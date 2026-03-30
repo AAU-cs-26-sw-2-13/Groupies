@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers} from "../serverQueries.js";
+import { getPopularUsers, getSimilarUsers, getPopularGroups, getJaccardSortedGroups, getGroupMembers} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;
@@ -10,26 +10,33 @@ export function loadDiscovery (req, res) {
         data += chunk.toString()
     })
     req.on('end', () => {
-        let jsonData = JSON.parse(data)
-        if (jsonData.user_id !==null) {
+        let jsonData = JSON.parse(data);
+        if (jsonData.user_id !==null) { //If there is a login token (so we have an active user ID and want to tailor the items to the user)
+            console.log(`User found w id: ${jsonData.user_id}, query is for: "${jsonData.query}"`);
             switch(jsonData.query){
                 case "users": {
-                    queryResponse(res, getAllUsers);
-                    break
+                    queryResponse(res, getPopularUsers);
+                    break;
+                }
+                case "similar users": {
+                    queryResponse(res, getSimilarUsers);
+                    break;
                 }
                 case "groups": {
-                    queryResponse(res, jaccardSorted, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
-                    break
+                    queryResponse(res, getJaccardSortedGroups, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
+                    console.log(`getJaccardSortedGroups for active user with id: ${jsonData.user_id}`);
+                    break;
                 }
             }
-        }else {
-           switch(jsonData.query){
+        }else { //Else display most popular users/groups
+            console.log(`No user login found, query is for: "${jsonData.query}"`);
+            switch(jsonData.query){
                 case "users": {
-                    queryResponse(res, getAllUsers);
-                    break
+                    queryResponse(res, getPopularUsers);
+                    break;
                 }
                 case "groups": {
-                    queryResponse(res, getAllGroups, [jsonData.offset]);
+                    queryResponse(res, getPopularGroups, [jsonData.offset]);
                     break;
                 }
             }
