@@ -133,6 +133,7 @@ LEFT JOIN users as u ON u.id = grp.host_user_id
 WHERE grp.id = ?;
 `
 
+<<<<<<< HEAD
 const getProfileGroupsQuery = `
 SELECT 	grp.id,
 	   grp.date_start_at,
@@ -160,6 +161,19 @@ WHERE u.id = ?
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
     return queryResponse;
+=======
+const getProfileInfoQuery = `
+SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio,
+	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
+       (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
+FROM users as u
+`
+
+
+export async function getAllUsers() {
+    let queryResponse = await query(sqlGetAllUsers)
+    return queryResponse
+>>>>>>> 4629ee1 (Added id parameter functionality to profile routing)
 }
 
 export async function querySimilarUsers(params) {
