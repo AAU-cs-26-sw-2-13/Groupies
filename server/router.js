@@ -68,7 +68,7 @@ async function createResponse(req, res) {
                 }
                 case "createTrip": {
                      const body = await parseJSON(req);
-                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at,body.max_members);
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at,body.max_members, body.group_openess);
                     res.writeHead(200, {"Content-Type": "application/json"})
                     res.end(JSON.stringify({status: "created"}))
                 break;
