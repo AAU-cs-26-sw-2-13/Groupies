@@ -90,8 +90,7 @@ export function createUserHTML(userArray, targetList) {
 }
 
 export function profileClick(event) {
-    console.log("Hej")
-    console.log(event.target)
+    // console.log(event.target)
 
     let profileData = event.currentTarget.dataset
     window.location.href = `/profile/?id=${profileData["id"]}`    
