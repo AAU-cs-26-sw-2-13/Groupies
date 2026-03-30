@@ -84,7 +84,7 @@ export function followUserListener(event) {
 
 export function createUserHTML(userArray, targetList) {
     for (let u of userArray) {
-        let prefs = u.preferences || [] //temporary fix for tags in group change back later
+        let prefs = u.preferences
         targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs))
     }
 }
@@ -95,3 +95,4 @@ export function profileClick(event) {
     let profileData = event.currentTarget.dataset
     window.location.href = `/profile/?id=${profileData["id"]}`    
 }
+

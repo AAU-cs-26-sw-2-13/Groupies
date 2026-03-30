@@ -77,6 +77,7 @@ export async function createResponse(req, res) {
                     break;
                 }
                 case "group": {
+                    console.log(pathElements)
                     if(pathElements[2]==="groupInfo"){
                         queryResponse(res, getGroupInfo, [url.searchParams.get("id")])
                     }else{
@@ -86,6 +87,7 @@ export async function createResponse(req, res) {
                 }
                 case "profile": {
                     console.log("!!")
+                    console.log(pathElements)
                     if(pathElements[2]==="profileInfo"){
                         console.log("!")
                         queryResponse(res, getProfileInfo, [url.searchParams.get("id")])

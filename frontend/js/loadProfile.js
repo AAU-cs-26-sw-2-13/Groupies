@@ -3,17 +3,39 @@ import { initializeHeader } from "./loadHeader.js"
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
+
+fetch("/me", {
+    method: "GET",
+    credentials: "include"
+}).then(response => {
+    if (response.status === 200) {
+        return response.json();
+    } else {
+        // Not logged in: Initialize header with null user
+        initializeHeader(header, null, "Group");
+        throw "Session not found";
+    }
+}).then(jsonResponse => {
+    // Logged in: Initialize header with user data
+    let user = jsonResponse;
+    initializeHeader(header, user, "Group");
+}).catch(err => {
+    console.log("Auth Check:", err);
+});
+
 const pageURL = new URL(window.location.href)
 const profileId = pageURL.searchParams.get("id")
-fetch(`profileId?id=${profileId}`).then(response => {
+fetch(`profileInfo?id=${profileId}`).then(response => {
     return response.json()
 }).then(jsonResponse => {
-    tripid.append(createGroup(jsonResponse))
+    createProfile(jsonResponse)
+    generateTrips(jsonResponse)
 })
 
 let user = { user_id: null };
 
-function createProfile() {
+function createProfile(profile) {
+    console.log(profile)
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
@@ -29,15 +51,15 @@ function createProfile() {
     // Profile Container
     let profileImg = document.createElement("img")
     profileImg.setAttribute("class", "profileImage")
-    profileImg.setAttribute("src", "../img/accountPlaceholder.svg")
+    profileImg.setAttribute("src", profile.picture)
 
-    let username = document.createElement("p")
-    username.setAttribute("class", "pBold")
-    username.textContent = "John Software"
+    let usernameP = document.createElement("p")
+    usernameP.setAttribute("class", "pBold")
+    usernameP.textContent = profile.name_first + " " + profile.name_last
 
-    let profileInfo = document.createElement("p")
-    profileInfo.setAttribute("class", "pGrey")
-    profileInfo.textContent = "28, Male, USA"
+    let infoP = document.createElement("p")
+    infoP.setAttribute("class", "pGrey")
+    infoP.textContent = profile.age + ", " + profile.gender + ", " + profile.country
 
     // ProfileContainer - Follow and Message Buttons section
     let profileInteractions = document.createElement("div")
@@ -60,25 +82,36 @@ function createProfile() {
     // ProfileContainer - Followers section
     let followersAmountP = document.createElement("p")
     followersAmountP.setAttribute("class", "pMini")
-    followersAmountP.textContent = "67 followers"
+    followersAmountP.textContent = profile.follower_count + " followers"
 
     let followingAmountP = document.createElement("p")
     followingAmountP.setAttribute("class", "pMini")
-    followingAmountP.textContent = "67 following"
+    followingAmountP.textContent = profile.following_count + " following"
 
     // ProfileContainer - Preferences section
     let preferenceHeader = document.createElement("p")
     preferenceHeader.setAttribute("class", "pGrey")
-    preferenceHeader.textContent = "John's Preferences"
+    preferenceHeader.textContent = "Preferences"
+
+    let preferenceList = document.createElement("ul")
+    preferenceList.setAttribute("class", "prefList")
+    for (let t of profile.preferences) {
+        if (t !== null) {
+            let pref = document.createElement("li")
+            pref.setAttribute("class", "pref-item")
+            pref.textContent = t
+            preferenceList.append(pref)
+        }
+    }
 
     // ProfileContainer - About section
     let aboutHeader = document.createElement("p")
     aboutHeader.setAttribute("class", "pGrey")
-    aboutHeader.textContent = "About John"
+    aboutHeader.textContent = "About"
     
     let aboutP = document.createElement("p")
     aboutP.setAttribute("class", "pGrey")
-    aboutP.textContent = "Lorem ipsum dolor sit amet consectetur adipiscing elit. Consectetur adipiscing elit quisque faucibus ex sapien vitae. Ex sapien vitae pellentesque sem placerat in id. Placerat in id cursus mi pretium tellus duis. Pretium tellus duis convallis tempus leo eu aenean."
+    aboutP.textContent = profile.bio
 
     // ProfileContainer - Dividers
     let interactionD = document.createElement("div")
@@ -91,7 +124,7 @@ function createProfile() {
     // Trip Container
     let tripHeader = document.createElement("h2")
     tripHeader.setAttribute("class", "pBold")
-    tripHeader.textContent = "John's Past Trips"
+    tripHeader.textContent = "Past Trips"
 
     // TripContainer List
     let tripList = document.createElement("div")
@@ -99,14 +132,22 @@ function createProfile() {
     tripList.setAttribute("class", "tripList")
 
     // Appending
-    profileContainer.append(profileImg, username, profileInfo, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, prefsD, aboutHeader, aboutP)
+    profileContainer.append(profileImg, usernameP, infoP, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
     tripContainer.append(tripHeader, tripList)
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
+
+    
 }
 
 // Generates the HTML object for a trip
-function createTrip(title, host, tags, group) {
+function createTrip(data) {
+    const id = data.id
+    const date = new Date(data.date_start_at)
+    const title = data.title
+    const host = data.host_name
+    const memberCount = data.member_count
+    
     let list = document.createElement("li")
     list.setAttribute("class", "tripElement")
 
@@ -127,12 +168,12 @@ function createTrip(title, host, tags, group) {
     let tripMonth = document.createElement("p")
     tripYear.setAttribute("class", "tripDateP")
     tripMonth.setAttribute("class", "tripDateH")
-    tripYear.textContent = "2025"
-    tripMonth.textContent = "June"
+    tripYear.textContent = date.getFullYear()
+    tripMonth.textContent = date.toLocaleDateString('en', {month: 'long'})
 
     let tripImage = document.createElement("img")
     tripImage.setAttribute("class", "tripImage")
-    tripImage.setAttribute("src", "../img/notFound.jpg")
+    tripImage.setAttribute("src", data.picture)
 
     let profileImg = document.createElement("img")
     profileImg.setAttribute("class", "profileImage")
@@ -151,9 +192,9 @@ function createTrip(title, host, tags, group) {
     tripHost.setAttribute("class", "tripInfoP")
     tripInfo.setAttribute("class", "tripInfoP")
 
-    tripTitle.textContent = "Iceland Trip"
-    tripHost.textContent = "Hosted by Patrick"
-    tripInfo.textContent = "3 travellers went"
+    tripTitle.textContent = title
+    tripHost.textContent = "Hosted by " + host
+    tripInfo.textContent = memberCount + " travellers went"
 
     // Appending
     tripText.append(tripTitle, tripHost, tripInfo)
@@ -166,47 +207,23 @@ function createTrip(title, host, tags, group) {
 
     list.append(leftTContainer, centerLTContainer, centerRTContainer, rightTContainer)
 
+    list.dataset.id = data.id
+
+    list.addEventListener('click', groupClick)
+
     return list
 }
 
-// Build the header and load page content based on Auth state
-fetch("/me", {
-    method: "GET",
-    credentials: "include"
-}).then(response => {
-    if (response.status === 200) {
-        return response.json();
-    } else {
-        // Not logged in: Initialize header with null user and load public data
-        initializeHeader(header, null);
-        throw "Session not found";
-    }
-}).then(jsonResponse => {
-    console.log(jsonResponse);
-    // Logged in: Initialize header with user data and load personalized data
-    user = jsonResponse;
-    initializeHeader(header, user);
-}).catch(err => {
-    console.log("Auth Check:", err);
-});
+function groupClick(event) {
+    //console.log(event.target)
 
-async function generateTrips(user, offset) {
+    let groupData = event.currentTarget.dataset
+    window.location.href = `/group/?id=${groupData["id"]}`
+}
+
+async function generateTrips(user) {
     console.log(user)
-    user.query = "groups"
-    user.offset = (offset - 1) * 10
-    let groupQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) })
-    groupQuery.then(groupResponse => {
-        return groupResponse.json()
-    }).then(data => {
-        console.log(data)
-        createGroups(data)
-    })
-}
-
-function createGroups(groupArray) {
-    for (let t of groupArray) {
-        tripList.append(createTrip(t.title, t.host_name, t))
+    for (let group of user.groups) {
+        tripList.append(createTrip(group))
     }
 }
-
-createProfile()
