@@ -6,45 +6,94 @@ let HTMLdoc = document.querySelector("#CreateGroup")
 
 //Generates the HTML
 function createHTML(){
-   let container = document.createElement("div")
+    let container = document.createElement("div")
+    container.setAttribute("class", "createTripPage")
 
+    let page = document.createElement("div")
+    page.setAttribute("class", "register-box-top")
+    let pageHeader = document.createElement("h3")
+    pageHeader.textContent = "Trip Creation"
+    let inputholder = document.createElement("div")
+    inputholder.setAttribute("class", "register-box")
+
+    let infoTitle = document.createElement("p")
+    infoTitle.setAttribute("class", "p1")
+    infoTitle.textContent = "Information"
 
    //group creation input fields
-    let inputholder = document.createElement("div")
-
-   let groupTitle = document.createElement("input")
+    let groupTitle = document.createElement("input")
     groupTitle.setAttribute("type", "text")
-    groupTitle.setAttribute("placeholder", "Enter group title")
+    groupTitle.setAttribute("class", "reg-box-inputs")
+    groupTitle.setAttribute("placeholder", "Enter Trip title")
+
+    let dateRow = document.createElement("div")
+    dateRow.setAttribute("class", "center-align")
+    
+    let calendarIcon1 = document.createElement("i")
+    calendarIcon1.setAttribute("class", "fa-regular fa-calendar")
+    let calendarIcon2 = document.createElement("i")
+    calendarIcon2.setAttribute("class", "fa-regular fa-calendar")
+
+    let startLabel = document.createElement("label")
+    startLabel.setAttribute("class", "trip-interactable-boxes")
+    let startText = document.createElement("span")
+    startText.textContent = " Start Date" 
+    let tripStart = document.createElement("input")
+    tripStart.setAttribute("type", "date")
+    tripStart.setAttribute("class", "reg-box-inputs")
+    tripStart.style.display = "none" 
+    startLabel.append(calendarIcon1,startText,tripStart)
+    startLabel.addEventListener("click", () => tripStart.showPicker())
+    tripStart.addEventListener("change", () => {
+    startText.textContent = " " + tripStart.value || "🗓 Start Date"
+    startText.style.color = tripStart.value ? "#333" : "#717171"})
+
+    let endLabel = document.createElement("label")
+    endLabel.setAttribute("class", "trip-interactable-boxes")
+    let endText = document.createElement("span")
+    endText.textContent = " End Date" 
+    let tripEnd = document.createElement("input")
+    tripEnd.setAttribute("type", "date")
+    tripEnd.setAttribute("class", "reg-box-inputs")
+    tripEnd.style.display = "none" 
+    endLabel.append(calendarIcon2,endText,tripEnd)
+    endLabel.addEventListener("click", () => tripEnd.showPicker())
+    tripEnd.addEventListener("change", () => {
+    endText.textContent = " " + tripEnd.value || "🗓 End Date"
+    endText.style.color = tripEnd.value ? "#333" : "#717171"})
+
+    dateRow.append(startLabel, endLabel)
 
     let groupDest = document.createElement("input")
     groupDest.setAttribute("type", "text")
+    groupDest.setAttribute("class", "reg-box-inputs")
     groupDest.setAttribute("placeholder", "Enter destination")
 
     let groupDesc = document.createElement("input")
     groupDesc.setAttribute("type", "text")
-    groupDesc.setAttribute("placeholder", "Describe the journey (optional)")
-    
-    let tripStart = document.createElement("input")
-    tripStart.setAttribute("type", "date")
-    tripStart.setAttribute("placeholder", "Journey start date") //does not work like this
+    groupDesc.setAttribute("class", "reg-box-inputs")
+    groupDesc.setAttribute("placeholder", "Description (optional)")
 
-     let tripEnd = document.createElement("input")
-     tripEnd.setAttribute("type", "date")
-     tripEnd.setAttribute("placeholder", "Journey end date") //does not work like this
-
+    let fileIconEl = document.createElement("i")
+    fileIconEl.setAttribute("class", "fa-regular fa-image")
+    let fileLabel = document.createElement("label")
+    fileLabel.setAttribute("class", "trip-interactable-boxes")
+    let fileIcon = document.createElement("span")
+    fileIcon.textContent = " Trip Photo (optional)"
     let tripImg = document.createElement("input")
-     tripImg.setAttribute("type", "file")
-     tripImg.setAttribute("accept", "image/*")
-     tripImg.setAttribute("placeholder", "Journey picture(optional)") //does not work like this
+    tripImg.setAttribute("type", "file")
+    tripImg.setAttribute("accept", "image/*")
+    tripImg.style.display = "none"
+    fileLabel.append(fileIconEl, fileIcon, tripImg)
+
+    let MemberTitle = document.createElement("p")
+    MemberTitle.setAttribute("class", "p1")
+    MemberTitle.textContent = "Membership"
 
     let Members = document.createElement("input")
-     Members.setAttribute("type", "number")
-     Members.setAttribute("placeholder", "Maximum joinable members")
-
-
-     
-
-    inputholder.append(groupTitle, groupDest, groupDesc, tripStart, tripEnd, tripImg, Members)
+    Members.setAttribute("type", "number")
+    Members.setAttribute("class", "reg-box-inputs")
+    Members.setAttribute("placeholder", "Maximum joinable members")
 
      //buttons
     let buttons = document.createElement("div")
@@ -107,29 +156,10 @@ function createHTML(){
         })
     
     buttons.append(backButton, submitButton)
-    container.append(inputholder,buttons)
+    inputholder.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel, MemberTitle, Members, buttons)
+    page.append(pageHeader, inputholder)
+    container.append(page)
     return container
 }
-
-
-
-/* THINGS from group that need to be implemented    
-CREATE TABLE IF NOT EXISTS `groups` (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    host_user_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    title VARCHAR(100) NOT NULL,
-    destination VARCHAR(200),
-    about TEXT, 
-    date_start_at DATETIME, 
-    date_end_at DATETIME,
-    picture BLOB,
-    max_members INT NOT NULL,
-
-    FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-*/
-
-
 
 HTMLdoc.append(createHTML())

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
     date_end_at DATETIME,
     picture VARCHAR(255),
     max_members INT NOT NULL,
+    group_openess BIT,
 
     FOREIGN KEY (host_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
