@@ -12,6 +12,11 @@ function createHTML(){
     let inputholder = document.createElement("div")
     inputholder.setAttribute("class", "register-box")
 
+    let formRow = document.createElement("div")
+    formRow.setAttribute("class", "createTripFormRow")
+    let infoSide = document.createElement("div")
+    infoSide.setAttribute("class", "createTripLeft")
+
     let infoTitle = document.createElement("p")
     infoTitle.setAttribute("class", "p1")
     infoTitle.textContent = "Information"
@@ -119,7 +124,44 @@ function createHTML(){
     })
     membershipRow.append(openBtn, requestsBtn)
 
-     //buttons
+
+    //tags selection
+    let tagsSide = document.createElement("div")
+    tagsSide.setAttribute("class", "createTripRight")
+
+    let tagsTitle = document.createElement("p")
+    tagsTitle.setAttribute("class", "p1")
+    tagsTitle.textContent = "Trip Tags"
+
+    let tagsList = document.createElement("ul")
+    // Fetch possible preferences/tags to show as checkboxes
+    fetch("/preferences", {method: "GET"})
+    .then(r => r.json())
+    .then(prefs => {
+        for(let p of prefs){
+            let list = document.createElement("li")
+            let tagBtn = document.createElement("button")
+            tagBtn.setAttribute("type", "button")
+            tagBtn.setAttribute("class", "button passive")
+            tagBtn.textContent = p.preference_id
+            tagBtn.dataset.selected = "false"
+            
+            tagBtn.addEventListener("click", () => {
+                if(tagBtn.dataset.selected === "false"){
+                    tagBtn.setAttribute("class", "button button1")
+                    tagBtn.dataset.selected = "true"
+                } else {
+                    tagBtn.setAttribute("class", "button passive")
+                    tagBtn.dataset.selected = "false"
+                }
+            })
+            list.append(tagBtn)
+            tagsList.append(list)
+        }
+    })
+    tagsSide.append(tagsTitle,tagsList)
+     
+    //buttons
     let buttons = document.createElement("div")
     buttons.setAttribute("class", "groupActions")
 
@@ -154,8 +196,8 @@ function createHTML(){
         alert("Member limit is required")
         return
     }    
-
-       submitButton.disabled = true
+        const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
+        submitButton.disabled = true
    
        // fetch the user, so the host id for the group can be set to the user id
        let user = { user_id: null }
@@ -175,13 +217,16 @@ function createHTML(){
         date_start_at: tripStart.value,  
         date_end_at: tripEnd.value,
         max_members: Members.value,
-        group_openess: membershipType})}).then(r => r.json())
+        group_openess: membershipType,
+        tags_list: selectedTags})}).then(r => r.json())
         .then(() => {window.location.href = "/"})
         })  
         })
     
     buttons.append(backButton, submitButton)
-    inputholder.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel, MemberTitle, membershipRow, Members, buttons)
+    infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel)
+    formRow.append(infoSide, tagsSide)
+    inputholder.append(formRow, MemberTitle, membershipRow, Members, buttons)
     page.append(pageHeader, inputholder)
     container.append(page)
     return container
