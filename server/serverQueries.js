@@ -4,7 +4,7 @@ import { pool } from "../database/pool.js";
 const pagesLoaded = 10;
 
 
-const defaultGroups = `
+const sqlGetPopularGroups = `
 SELECT 	grp.id,
 		grp.host_user_id,
         grp.about,
@@ -29,7 +29,7 @@ LIMIT ?, 10;
 `
 
 
-const sqlGetAllUsers = `
+const sqlGetPopularUsers = `
 SELECT 
     u.id,
     u.name_first,
@@ -47,6 +47,26 @@ GROUP BY u.id
 ORDER BY followers DESC
 LIMIT 0,10;
 `
+//for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
+const sqlGetSimilarUsers = `
+SELECT 
+    u.id,
+    u.name_first,
+    u.name_last,
+    u.country,
+    u.gender,
+    u.age,
+    u.picture,
+    JSON_ARRAYAGG(p.preference_id) AS preferences,
+    (SELECT COUNT(id) FROM user_relations WHERE user_id = u.id) AS followers
+FROM users u
+LEFT JOIN user_prefs p 
+    ON u.id = p.user_id
+GROUP BY u.id
+ORDER BY followers DESC
+LIMIT 0,10;
+`
+
 /*
 SELECT 	u.id,
         concat(name_first," ",name_last) AS full_name,
@@ -61,7 +81,7 @@ group by u.id;
 
 */
 
-const Jaccard = `
+const sqlJaccardSortedGroups = `
 SELECT 	grp.id,
 		grp.host_user_id,
         grp.about,
@@ -113,19 +133,25 @@ LEFT JOIN users as u ON u.id = grp.host_user_id
 WHERE grp.id = ?;
 `
 
-export async function getAllUsers() {
-    let queryResponse = await query(sqlGetAllUsers)
-    return queryResponse
+export async function getPopularUsers() {
+    let queryResponse = await query(sqlGetPopularUsers);
+    return queryResponse;
 }
 
-export async function getAllGroups(params) {
-    let queryResponse = await query(defaultGroups, params)
-    return queryResponse
+export async function getSimilarUsers() {
+    let queryResponse = await query(sqlGetSimilarUsers);
+    return queryResponse;
 }
 
-export async function jaccardSorted(params) {
-    let queryResponse = await query(Jaccard, params)
-    return queryResponse
+export async function getPopularGroups(params) {
+    console.log("Got groups ordered by #followers");
+    let queryResponse = await query(sqlGetPopularGroups, params);
+    return queryResponse;
+}
+
+export async function getJaccardSortedGroups(params) {
+    let queryResponse = await query(sqlJaccardSortedGroups, params);
+    return queryResponse;
 }
 
 
