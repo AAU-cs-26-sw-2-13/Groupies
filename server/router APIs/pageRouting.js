@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { getPopularUsers, getSimilarUsers, getPopularGroups, getJaccardSortedGroups, getGroupMembers} from "../serverQueries.js";
+import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;
@@ -15,11 +15,11 @@ export function loadDiscovery (req, res) {
             console.log(`User found w id: ${jsonData.user_id}, query is for: "${jsonData.query}"`);
             switch(jsonData.query){
                 case "users": {
-                    await queryResponse(res, getPopularUsers);
+                    await queryResponse(res, queryPopularUsers);
                     break;
                 }
                 case "similar users": {
-                    await queryResponse(res, getSimilarUsers, [jsonData.user_id, jsonData.user_id]);
+                    await queryResponse(res, querySimilarUsers, [jsonData.user_id, jsonData.user_id]);
                     console.log("IN THE SIMILAR USERS LIST CASE");
                     if (!queryResponse) console.log("No queryResponse in similar users case");
                     console.log(queryResponse);
@@ -27,8 +27,8 @@ export function loadDiscovery (req, res) {
                     break;
                 }
                 case "groups": {
-                    queryResponse(res, getJaccardSortedGroups, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
-                    console.log(`getJaccardSortedGroups for active user with id: ${jsonData.user_id}`);
+                    queryResponse(res, queryJaccardSortedGroups, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
+                    console.log(`queryJaccardSortedGroups for active user with id: ${jsonData.user_id}`);
                     console.table(queryResponse);
                     break;
                 }
@@ -37,12 +37,12 @@ export function loadDiscovery (req, res) {
            switch(jsonData.query){
                 case "users": {
                     console.log("Got users ordered by # followers");
-                    queryResponse(res, getPopularUsers);
+                    queryResponse(res, queryPopularUsers);
                     break;
                 }
                 case "groups": {
                     console.log(jsonData)
-                    queryResponse(res, getPopularGroups, [jsonData.offset]);
+                    queryResponse(res, queryPopularGroups, [jsonData.offset]);
                     break;
                 }
             }

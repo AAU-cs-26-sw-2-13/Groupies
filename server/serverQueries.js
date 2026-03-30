@@ -123,7 +123,7 @@ FROM preferences
 ORDER BY id
 `
 
-const getGroupInfoQuery = `
+const sqlGetGroupInfoQuery = `
 SELECT grp.created_at, grp.title, grp.destination, grp.about, 
 	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
        (SELECT COUNT(id) FROM group_relations WHERE group_id = 37 AND member = 1) AS member_count,
@@ -133,28 +133,28 @@ LEFT JOIN users as u ON u.id = grp.host_user_id
 WHERE grp.id = ?;
 `
 
-export async function getPopularUsers() {
+export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
     return queryResponse;
 }
 
-export async function getSimilarUsers(params) {
+export async function querySimilarUsers(params) {
     let queryResponse = await query(sqlGetSimilarUsers, params);
     return queryResponse;
 }
 
-export async function getPopularGroups(params) {
+export async function queryPopularGroups(params) {
     let queryResponse = await query(sqlGetPopularGroups, params);
     return queryResponse;
 }
 
-export async function getJaccardSortedGroups(params) {
+export async function queryJaccardSortedGroups(params) {
     let queryResponse = await query(sqlJaccardSortedGroups, params);
     return queryResponse;
 }
 
 
-export async function getGroupMembers(groupId) {
+export async function queryGroupMembers(groupId) {
     return query(`
         SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
                gr.organizer, gr.member,
@@ -168,12 +168,12 @@ export async function getGroupMembers(groupId) {
     `, [groupId])
 }
 
-export async function getGroupInfo(groupId) {
-    let queryResponse = await query(getGroupInfoQuery, groupId)
+export async function queryGroupInfo(groupId) {
+    let queryResponse = await query(sqlGetGroupInfoQuery, groupId)
     return queryResponse[0]
 }
 
-export async function getAllPreferences() {
+export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
 }

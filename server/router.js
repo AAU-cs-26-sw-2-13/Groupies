@@ -1,6 +1,6 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
-import { getGroupMembers, getGroupInfo } from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo } from "./serverQueries.js";
 import { handleImage } from "./router APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout } from "./router APIs/authentication.js";
 import { loadDiscovery } from "./router APIs/pageRouting.js";
@@ -62,7 +62,7 @@ export async function createResponse(req, res) {
                     })
                     req.on('end', () => {
                         let jsonData = JSON.parse(data);
-                        queryResponse(res, () => getGroupMembers(jsonData.groupId));
+                        queryResponse(res, () => queryGroupMembers(jsonData.groupId));
                     })
                     break;
                 }
@@ -78,7 +78,7 @@ export async function createResponse(req, res) {
                 }
                 case "group": {
                     if(pathElements[2]==="groupInfo"){
-                        queryResponse(res, getGroupInfo, [url.searchParams.get("id")])
+                        queryResponse(res, queryGroupInfo, [url.searchParams.get("id")])
                     }else{
                         fileResponse(res, "html/group.html");  
                     }
