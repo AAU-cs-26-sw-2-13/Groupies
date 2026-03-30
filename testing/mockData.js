@@ -34,7 +34,9 @@ function genMockActivityDateTimePair(startDate, n) { // Returns YYYY-MM-DD HH:MI
 }
 
 function genMockDateTimePair() { // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
-    const date1 = faker.date.future({ years: 5 }); // Future date, 5 yr max
+    const past = faker.date.past({years: 5}); // Past date, 5 yr max
+    const future = faker.date.future({years: 5}); // Future date, 5 yr max
+    const date1 = faker.date.between({from: past, to: future});
     const date2 = faker.date.soon({ days: 60, refDate: date1 }); // 60 days max after date1
     return { startDate: formatDate(date1), endDate: formatDate(date2) };
 }

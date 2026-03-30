@@ -113,6 +113,30 @@ LEFT JOIN users as u ON u.id = grp.host_user_id
 WHERE grp.id = ?;
 `
 
+const getProfileGroupsQuery = `
+SELECT 	grp.id,
+	   grp.date_start_at,
+	   grp.title,
+       grp.picture,
+	   CONCAT(hu.name_first, " ",hu.name_last) AS host_name,
+	   (SELECT COUNT(id) FROM group_relations WHERE group_id = grp.id AND member = 1) AS member_count
+FROM \`groups\` grp
+JOIN group_relations as grp_r ON grp.id = grp_r.group_id AND grp_r.user_id = ? AND member = 1 AND date_end_at < NOW()
+LEFT JOIN users as hu ON hu.id = grp.host_user_id;
+`
+
+
+const getProfileInfoQuery = `
+SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
+       (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
+       JSON_ARRAYAGG(p.preference_id) AS preferences
+FROM users as u
+LEFT JOIN user_prefs p ON u.id = p.user_id
+WHERE u.id = ?
+`
+
+
 export async function getAllUsers() {
     let queryResponse = await query(sqlGetAllUsers)
     return queryResponse
@@ -145,6 +169,13 @@ export async function getGroupMembers(groupId) {
 
 export async function getGroupInfo(groupId) {
     let queryResponse = await query(getGroupInfoQuery, groupId)
+    return queryResponse[0]
+}
+
+export async function getProfileInfo(userId) {
+    let queryResponse = await query(getProfileInfoQuery, [userId, userId, userId])
+    let queryResponseGroups = await query(getProfileGroupsQuery, userId) // Past groups
+    queryResponse[0].groups = queryResponseGroups;
     return queryResponse[0]
 }
 

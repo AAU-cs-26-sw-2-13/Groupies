@@ -62,6 +62,7 @@ body {
     border: 0px;
     border-radius: 50px;
     transition-duration: 0.4s;
+    cursor: pointer;
 }
 .highlight-button {
     padding: 1rem 1.8rem;
@@ -70,6 +71,7 @@ body {
     border: 0px;
     border-radius: 50px;
     transition-duration: 0.4s;
+    cursor: pointer;
 }
 
 
@@ -95,16 +97,19 @@ body {
     border: 0px;
     border-radius: 10px;
     transition-duration: 0.4s;
+    cursor: pointer;
 }
 
 .-trans-box-button1 {
     background-color: white;
     color: #6b4fb2;
+    cursor: pointer;
 }
 
 .trans-box-button1:hover {
     background-color: #6b4fb2;
     color: white;
+    cursor: pointer;
 }
 
 .box-button{
@@ -114,21 +119,25 @@ body {
     border: 0px;
     border-radius: 10px;
     transition-duration: 0.6s;
+    cursor: pointer;
 }
 
 .box-button:hover{
     background-color: #7e378b;
+    cursor: pointer;
 }
 
 .box-button1 {
     background-color: #6b4fb2;
     color: white;
+    cursor: pointer;
 
 }
 
 .box-button1:hover {
     background-color: #4f378b;
     color: white;
+    cursor: pointer;
 }
 
 header {
@@ -177,6 +186,39 @@ header {
     border-radius: 5px;
     cursor: pointer;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.button4{
+    padding: 0.1rem 0rem;
+    background-color: #4f378b;
+    color: white;
+    border: 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 30px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-width: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button5{
+    padding: 0.1rem 0rem;
+    color: #4f378b;
+    box-sizing: border-box;
+    border: 2px;
+    border-style: solid;
+    border-color: #4f378b;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 30px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-width: 6rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .pageButtons{
@@ -454,12 +496,12 @@ header {
 
 
 .groupMain .p1{
-       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: rgb(61, 61, 61);
     font-size: 1.2rem;
-      display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -467,8 +509,8 @@ header {
     display: flex;
     flex-direction: row;
     gap: 1.5rem;
-      align-items: stretch;
-       justify-content: space-between;
+    align-items: stretch;
+    justify-content: space-between;
     height: 200px;
     overflow: hidden;
 }
@@ -513,7 +555,7 @@ header {
     color: rgb(61, 61, 61);
     font-size: 0.95rem;
     line-height: 1.5;   
-       flex: 1;
+    flex: 1;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 4;
@@ -533,4 +575,214 @@ header {
     flex: 1;          
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+/* PROFILE PAGE */
+.profilePage {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem;
+    justify-content: center;
+}
+
+.profileMain {
+    display: flex;
+    gap: 1rem;
+    background-color: white;
+    border-radius: 28px;
+    padding: 1.5rem;
+    width: 60%;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.profileContainer {
+    display: flex;
+    gap: 0.2rem;
+    border-radius: 28px;
+    padding: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    width: 50%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profileButtons {
+    display: flex;
+    gap: 0.8rem;
+    border-radius: 28px;
+    padding: 0.7rem;
+    width: 50%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.profileImage{
+    width: 6rem;
+    height: 6rem;
+}
+
+.profileMain .h2{
+    font-size: 2.1rem;
+}
+
+.profileMain .p{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileMain .pGrey{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(66, 66, 66);
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileMain .pMini{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(66, 66, 66);
+    font-size: 0.65rem;
+    font-weight: 475;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileMain .pBold{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileMain .divider{
+    color: white;
+    height: px;
+    width: 70%;
+    border-bottom: 2px solid #E0E0E0;
+}
+
+.profileMain .tripList{
+    height: 80%;
+    overflow-y: auto;
+}
+
+.profileMain .tripElement{
+    padding: 0.5rem 0rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    /*border-bottom: 1px solid #E0E0E0;*/
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.profileMain .tripInfo{
+    padding: 0.2rem 0rem;
+    height: 30%;
+    gap: 30%;
+    display: center;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.profileMain .prefList{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.profileMain .tripInfoH{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: 1.1rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.profileMain .tripInfoP{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(66, 66, 66);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.profileMain .tripDateH{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(0, 0, 0);
+    font-size: 1.1rem;
+    font-weight: 450;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.profileMain .tripDateP{
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: rgb(66, 66, 66);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+
+.profileMain .tripImage{
+    width: 90%;
+    height: 90%;
+}
+
+.profileMain .connectorImage{
+    width: 60%;
+    height: 60%;
+}
+
+.profileMain .tripImageContainer{
+    display: flex;
+    width: 20%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.profileMain .tripConnectorImage{
+    display: flex;
+    width: 10%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profileMain .tripDateContainer{
+    display: flex;
+    width: 25%;
+    flex-direction: column;
+    align-items: left;
+    justify-content: left;
+}
+
+.profileMain .tripInfoContainer{
+    display: flex;
+    width: 55%;
+    flex-direction: column;
+    align-items: left;
+    justify-content: left;
 }
