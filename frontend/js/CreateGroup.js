@@ -1,8 +1,4 @@
-
 let HTMLdoc = document.querySelector("#CreateGroup")
-
-
-
 
 //Generates the HTML
 function createHTML(){
@@ -40,12 +36,13 @@ function createHTML(){
     startText.textContent = " Start Date" 
     let tripStart = document.createElement("input")
     tripStart.setAttribute("type", "date")
-    tripStart.setAttribute("class", "reg-box-inputs")
-    tripStart.style.display = "none" 
+    tripStart.setAttribute("class", "tripDisplayCreate")
     startLabel.append(calendarIcon1,startText,tripStart)
-    startLabel.addEventListener("click", () => tripStart.showPicker())
+    startLabel.addEventListener("click", (e) => {
+        e.preventDefault()
+        tripStart.showPicker()})
     tripStart.addEventListener("change", () => {
-    startText.textContent = " " + tripStart.value || "🗓 Start Date"
+    startText.textContent = " " + tripStart.value || " Start Date"
     startText.style.color = tripStart.value ? "#333" : "#717171"})
 
     let endLabel = document.createElement("label")
@@ -54,12 +51,13 @@ function createHTML(){
     endText.textContent = " End Date" 
     let tripEnd = document.createElement("input")
     tripEnd.setAttribute("type", "date")
-    tripEnd.setAttribute("class", "reg-box-inputs")
-    tripEnd.style.display = "none" 
+    tripEnd.setAttribute("class", "tripDisplayCreate")
     endLabel.append(calendarIcon2,endText,tripEnd)
-    endLabel.addEventListener("click", () => tripEnd.showPicker())
+    endLabel.addEventListener("click", (e) => {
+        e.preventDefault()
+        tripEnd.showPicker()})
     tripEnd.addEventListener("change", () => {
-    endText.textContent = " " + tripEnd.value || "🗓 End Date"
+    endText.textContent = " " + tripEnd.value || " End Date"
     endText.style.color = tripEnd.value ? "#333" : "#717171"})
 
     dateRow.append(startLabel, endLabel)
@@ -95,6 +93,32 @@ function createHTML(){
     Members.setAttribute("class", "reg-box-inputs")
     Members.setAttribute("placeholder", "Maximum joinable members")
 
+    let membershipRow = document.createElement("div")
+    membershipRow.setAttribute("class", "center-align")
+
+    let openBtn = document.createElement("button")
+    openBtn.setAttribute("type", "button")
+    openBtn.setAttribute("class", "button button1")
+    openBtn.textContent = "Open"
+    let requestsBtn = document.createElement("button")
+    requestsBtn.setAttribute("type", "button")
+    requestsBtn.setAttribute("class", "button passive")
+    requestsBtn.textContent = "Requests"
+
+    let membershipType = 0  // 0 = open, 1 = requests
+
+    openBtn.addEventListener("click", () => {
+    membershipType = 0
+    openBtn.setAttribute("class", "button button1")
+    requestsBtn.setAttribute("class", "button passive")
+    })
+    requestsBtn.addEventListener("click", () => {
+    membershipType = 1
+    requestsBtn.setAttribute("class", "button button1")
+    openBtn.setAttribute("class", "button passive")
+    })
+    membershipRow.append(openBtn, requestsBtn)
+
      //buttons
     let buttons = document.createElement("div")
     buttons.setAttribute("class", "groupActions")
@@ -127,7 +151,7 @@ function createHTML(){
         return
     }
     if(!Members.value){
-        alert("Maximum members is required")
+        alert("Member limit is required")
         return
     }    
 
@@ -150,13 +174,14 @@ function createHTML(){
         about: groupDesc.value,
         date_start_at: tripStart.value,  
         date_end_at: tripEnd.value,
-        max_members: Members.value})}).then(r => r.json())
+        max_members: Members.value,
+        group_openess: membershipType})}).then(r => r.json())
         .then(() => {window.location.href = "/"})
         })  
         })
     
     buttons.append(backButton, submitButton)
-    inputholder.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel, MemberTitle, Members, buttons)
+    inputholder.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel, MemberTitle, membershipRow, Members, buttons)
     page.append(pageHeader, inputholder)
     container.append(page)
     return container
