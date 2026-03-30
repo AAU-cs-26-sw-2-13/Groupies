@@ -48,8 +48,7 @@ ORDER BY followers DESC
 LIMIT 0,10;
 `
 //for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
-const sqlGetSimilarUsers = `
-SELECT 
+const sqlGetSimilarUsers = `SELECT 
     u.id,
     u.name_first,
     u.name_last,
@@ -58,28 +57,29 @@ SELECT
     u.age,
     u.picture,
     JSON_ARRAYAGG(p.preference_id) AS preferences,
-    (SELECT COUNT(id) FROM user_relations WHERE target_user_id = u.id) AS followers
-FROM users u
-LEFT JOIN user_prefs p 
-    ON u.id = p.user_id
-GROUP BY u.id
-ORDER BY followers DESC
-LIMIT 0,10;
-`
 
-/*
-SELECT 	u.id,
-        concat(name_first," ",name_last) AS full_name,
-        u.age,
-        u.gender,
-        json_arrayagg(up.preference_id) AS preferences
-        
+    (SELECT COUNT(*) FROM user_relations WHERE user_id = u.id) AS followers,
+    (    
+		(
+    SELECT COUNT(*) FROM user_prefs AS a
+    INNER JOIN user_prefs AS b ON a.preference_id = b.preference_id AND b.user_id = u.id
+    WHERE a.user_id = ?
+    )     /    (
+    SELECT COUNT(*) FROM (
+    SELECT preference_id FROM user_prefs WHERE user_id = ?
+    UNION 
+    SELECT preference_id FROM user_prefs WHERE user_id = u.id
+    ) Count
+    )    )
+    AS Jaccard
 FROM users AS u
-JOIN user_prefs AS up
-ON u.id = up.user_id
-group by u.id;
-
-*/
+LEFT JOIN user_prefs p 
+ ON u.id = p.user_id
+GROUP BY u.id
+ORDER BY Jaccard DESC, followers DESC 
+LIMIT 0, 100;
+`
+//[jsonData.user_id, jsonData.user_id, ]
 
 const sqlJaccardSortedGroups = `
 SELECT 	grp.id,
@@ -162,8 +162,8 @@ export async function getPopularUsers() {
     return queryResponse;
 }
 
-export async function getSimilarUsers() {
-    let queryResponse = await query(sqlGetSimilarUsers);
+export async function getSimilarUsers(params) {
+    let queryResponse = await query(sqlGetSimilarUsers, params);
     return queryResponse;
 }
 
