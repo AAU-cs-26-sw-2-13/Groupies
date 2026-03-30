@@ -106,7 +106,7 @@ ORDER BY id
 const getGroupInfoQuery = `
 SELECT grp.created_at, grp.title, grp.destination, grp.about, 
 	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
-       (SELECT COUNT(id) FROM group_relations WHERE group_id = 37 AND member = 1) AS member_count,
+       (SELECT COUNT(id) FROM group_relations WHERE group_id = ? AND member = 1) AS member_count,
        CONCAT(u.name_first, " ",u.name_last) as host_name
 FROM \`groups\` as grp
 LEFT JOIN users as u ON u.id = grp.host_user_id

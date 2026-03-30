@@ -12,5 +12,5 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users(name_first, name_last, email, password_hash, country, gender, age, bio) VALUES
-('John', 'Software', 'admin', '$2b$12$AkolFVdSCbw5hygxfGvCfe7UuRGt1rUQqtK2rlhkIXCx6./QrrfDe', 'DK', 'male', 25, 'I like to travel')
+INSERT INTO users(name_first, name_last, email, password_hash, country, gender, age, bio, picture) VALUES
+('John', 'Software', 'admin', '$2b$12$AkolFVdSCbw5hygxfGvCfe7UuRGt1rUQqtK2rlhkIXCx6./QrrfDe', 'DK', 'male', 25, 'I like to travel', "\\images\\profilePictures\\johnSoftware.webp")

@@ -12,7 +12,6 @@ export function loadDiscovery (req, res) {
     req.on('end', () => {
         let jsonData = JSON.parse(data)
         if (jsonData.user_id !==null) {
-            console.log("User Found, query is " + jsonData.query)
             switch(jsonData.query){
                 case "users": {
                     queryResponse(res, getAllUsers);
@@ -26,12 +25,10 @@ export function loadDiscovery (req, res) {
         }else {
            switch(jsonData.query){
                 case "users": {
-                    console.log("Got users")
                     queryResponse(res, getAllUsers);
                     break
                 }
                 case "groups": {
-                    console.log(jsonData)
                     queryResponse(res, getAllGroups, [jsonData.offset]);
                     break;
                 }
