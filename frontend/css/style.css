@@ -145,6 +145,7 @@ body {
     border: 0px;
     border-radius: 10px;
     transition-duration: 0.6s;
+    cursor: pointer;
 }
 
 .highlight-box-button2 {

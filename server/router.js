@@ -88,6 +88,7 @@ export async function createResponse(req, res) {
                     break;
                 }
                 case "group": {
+                    console.log(pathElements)
                     if(pathElements[2]==="groupInfo"){
                         queryResponse(res, queryGroupInfo, url.searchParams.get("id"))
                     }else{

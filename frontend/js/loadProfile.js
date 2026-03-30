@@ -131,7 +131,6 @@ function createProfile(profile) {
     let aboutHeader = document.createElement("p")
     aboutHeader.setAttribute("class", "pGrey")
     aboutHeader.textContent = "About"
-
     let aboutP = document.createElement("p")
     aboutP.setAttribute("class", "pGrey")
     aboutP.textContent = profile.bio
@@ -180,7 +179,6 @@ function createTrip(data) {
     const title = data.title
     const host = data.host_name
     const memberCount = data.member_count
-
     let list = document.createElement("li")
     list.setAttribute("class", "tripElement")
 
