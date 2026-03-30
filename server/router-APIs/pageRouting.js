@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers} from "../serverQueries.js";
+import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, getAllPreferences} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;

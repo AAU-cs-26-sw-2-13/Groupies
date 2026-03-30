@@ -3,6 +3,7 @@
 /* ---- The elements for event listeners by ID ----- */
 let popularUsersListButton = document.getElementById("Pop-users-btn_id");
 let similarUsersListButton = document.getElementById("Similar-users-btn_id");
+let userListHeader = document.getElementById("userListHeader_id");
 
 /* Other elements to manipulate in the event handlers */
 let popularUserList = document.getElementById("userList");
