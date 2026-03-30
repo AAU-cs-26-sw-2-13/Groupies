@@ -37,16 +37,6 @@ function createTrip(title, host, tags, group) {
 
     //saves the data of the trip, needed for showing the group page
     article.dataset.id = group.id
-    article.dataset.title = title
-    article.dataset.host = host
-    article.dataset.destination = group.destination
-    article.dataset.about = group.about
-    article.dataset.picture = group.picture || ""
-    article.dataset.dateStart = group.date_start_at || ""
-    article.dataset.dateEnd = group.date_end_at || ""
-    article.dataset.maxusers = group.max_members
-
-
 
     article.addEventListener('click', groupClick)
 
@@ -112,11 +102,7 @@ function groupClick(event) {
     //console.log(event.target)
 
     let Groupdata = event.currentTarget.dataset
-    for (let key in Groupdata) {
-        sessionStorage.setItem(key, Groupdata[key])
-    }
-
-    window.location.href = "/group"
+    window.location.href = `/group/?id=${Groupdata["id"]}`
 }
 
 //Generates the buttons to change page

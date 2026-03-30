@@ -24,10 +24,16 @@ fetch("/me", {
 
 
 let tripid = document.querySelector("#tripid")
+const pageURL = new URL(window.location.href)
+const groupId = pageURL.searchParams.get("id")
+fetch(`groupInfo?id=${groupId}`).then(response => {
+    return response.json()
+}).then(jsonResponse => {
+    tripid.append(createGroup(jsonResponse))
+})
 
 
-//Generates the HTML object for a group
-function createGroup() {
+function createGroup(groupInfo) {
     let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
 
@@ -36,29 +42,29 @@ function createGroup() {
 
     let groupImg = document.createElement("img")
     groupImg.setAttribute("class", "groupImg")
-    groupImg.setAttribute("src", sessionStorage.getItem("picture"))
+    groupImg.setAttribute("src", groupInfo.picture)
 
     let tripName = document.createElement("h2")
     tripName.setAttribute("class", "h2")
-    const title = sessionStorage.getItem("title")
+    const title = groupInfo.title
     tripName.textContent = title
 
     let hostedBy = document.createElement("p")
     hostedBy.setAttribute("class", "p1")
-    const host = sessionStorage.getItem("host")
-    const maxAllowed = sessionStorage.getItem("maxusers")
+    const host = groupInfo.host_name
+    const maxAllowed = groupInfo.max_members
 
     hostedBy.textContent = "Organized by " + host + " with " + "1/" + maxAllowed //rewrite so the 1 is not static but reflects the proper amount of joined users
 
     let aboutInfo = document.createElement("p")
     aboutInfo.setAttribute("class", "groupAbout")
-    const about = sessionStorage.getItem("about")
+    const about = groupInfo.about
     aboutInfo.textContent = about
 
 
     let dates = document.createElement("p")
     dates.setAttribute("class", "p1")
-    dates.textContent = formatDate(sessionStorage.getItem("dateStart")) + " - " + formatDate(sessionStorage.getItem("dateEnd"))
+    dates.textContent = formatDate(groupInfo.date_start_at) + " - " + formatDate(groupInfo.date_end_at)
 
     let imageInfoRow = document.createElement("div")
     imageInfoRow.setAttribute("class", "groupImageInfo")
@@ -98,7 +104,6 @@ function createGroup() {
     buttons.append(backButton, joinButton)
 
     //group members list
-    const groupId = sessionStorage.getItem("id")
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
 
@@ -125,7 +130,3 @@ function formatDate(dateString) {
     })
 }
 
-
-
-
-tripid.append(createGroup())
