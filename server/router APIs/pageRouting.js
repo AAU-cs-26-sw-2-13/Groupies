@@ -19,13 +19,17 @@ export function loadDiscovery (req, res) {
                     break;
                 }
                 case "similar users": {
-                    await queryResponse(res, getSimilarUsers);
-                    console.log("IN THE SIMILAR USERS LIST CASE")
+                    await queryResponse(res, getSimilarUsers, [jsonData.user_id, jsonData.user_id]);
+                    console.log("IN THE SIMILAR USERS LIST CASE");
+                    if (!queryResponse) console.log("No queryResponse in similar users case");
+                    console.log(queryResponse);
+                    console.table(queryResponse);
                     break;
                 }
                 case "groups": {
                     queryResponse(res, getJaccardSortedGroups, [jsonData.user_id,jsonData.user_id , jsonData.offset, 10]);
                     console.log(`getJaccardSortedGroups for active user with id: ${jsonData.user_id}`);
+                    console.table(queryResponse);
                     break;
                 }
             }
