@@ -1,7 +1,7 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
 import path, { relative } from "path"
-import { getGroupMembers, getGroupInfo, getProfileInfo,getGroupTags,addTripToDB } from "./serverQueries.js";
+import { getGroupMembers, getGroupInfo, getProfileInfo,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
 import { handleImage } from "./router APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON } from "./router APIs/authentication.js";
 import { loadDiscovery } from "./router APIs/pageRouting.js";
@@ -82,8 +82,8 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "createTrip": {
-                     const body = await parseJSON(req);
-                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at,body.max_members, body.group_openess);
+                    const body = await parseJSON(req);
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at,body.max_members, body.group_openess, body.tags_list);
                     res.writeHead(200, {"Content-Type": "application/json"})
                     res.end(JSON.stringify({status: "created"}))
                 break;
@@ -124,6 +124,9 @@ async function createResponse(req, res) {
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }
+                case "preferences":
+                    queryResponse(res, getAllPreferences)
+                    break;
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname);

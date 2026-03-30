@@ -625,11 +625,11 @@ header {
     width: 35%;
 }
     .createTripPage .reg-box-inputs{
-        width: 50%;
+        width: 75%;
         margin-bottom: 5px;
     }
     .createTripPage .description{
-        width: 50%;
+        width: 75%;
         margin-bottom: 5px;
         box-sizing: border-box;
         padding: 8px;
@@ -643,7 +643,7 @@ header {
     }
 
 .trip-interactable-boxes{
-    width:50%;
+    width:75%;
     box-sizing: border-box;
     padding: 8px;
     margin-bottom: 5px;
@@ -657,7 +657,7 @@ header {
     color: #717171 ;
 }
 .createTripPage .center-align{
-  width: 50%;
+  width: 75%;
   margin-top: 0;
 }
 
@@ -671,6 +671,44 @@ header {
     display: none;
 }
 
+.createTripFormRow {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+}
+
+.createTripLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+    align-items: center;
+}
+
+.createTripRight {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 40%;
+}
+
+.createTripCheckRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: system-ui, sans-serif;
+    font-size: 0.9rem;
+}
+.createTripPage .p1{
+ text-align: center;
+ width: 100%;
+}
+.createTripRight ul {
+    height: 250px;
+    overflow-y: auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
 /* PROFILE PAGE */
 .profilePage {
     display: flex;
