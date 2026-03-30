@@ -3,6 +3,7 @@
 /* ---- The elements for event listeners by ID ----- */
 let popularUsersListButton = document.getElementById("Pop-users-btn_id");
 let similarUsersListButton = document.getElementById("Similar-users-btn_id");
+let userListHeader = document.getElementById("userListHeader_id");
 
 /* Other elements to manipulate in the event handlers */
 let popularUserList = document.getElementById("userList");
@@ -28,6 +29,9 @@ function userListsButtonsClick (event) {
         popularUserList.classList.add("active");
         similarUserList.classList.remove("active");
         similarUserList.classList.add("inactive");
+
+        //Change the header to the corresponding active userlist
+        userListHeader.innerText = "Popular Users";
     }
     else{
         popularUsersListButton.classList.add("box-button2");
@@ -40,5 +44,8 @@ function userListsButtonsClick (event) {
         popularUserList.classList.add("inactive");
         similarUserList.classList.remove("inactive");
         similarUserList.classList.add("active");
+
+        
+        userListHeader.innerText = "Similar Users";
     }
 }

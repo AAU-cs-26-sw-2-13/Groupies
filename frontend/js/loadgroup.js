@@ -111,8 +111,12 @@ function createGroup(groupInfo) {
     fetch("/groupMembers", { method: "POST", body: JSON.stringify({ sessionId: "empty", query: "groupMembers", groupId: groupId }) })
         .then(r => r.json())
         .then(members => {
+            console.log("attempting to create memberslist...")
             createUserHTML(members, membersList)
         })
+         .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
 
     membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
