@@ -80,6 +80,10 @@ export async function createResponse(req, res) {
                     fileResponse(res, "html/group.html");
                     break;
                 }
+                case "profile": {
+                    fileResponse(res, "html/profile.html");
+                    break;
+                }
                 //Server wants current user, check for active session for user from browser session cookie
                 case "me":
                     await getLoginSession(req, res);

@@ -1,24 +1,21 @@
 import { followUserListener } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js"
 
-let profileContainer = document.querySelector("#main")
+let main = document.querySelector("#main")
 let header = document.querySelector("header")
 
 let user = { user_id: null };
 
 function createProfile() {
     // Containers
-    let container = document.createElement("div")
-    container.setAttribute("class", "profilePage")
-
-    let backgroundContainer = document.createElement("div")
+    let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
 
-    let profileContainer = document.createElement("div")
+    let profileContainer = document.createElement("section")
     profileContainer.setAttribute("class", "profileContainer")
     profileContainer.setAttribute("id", "about")
 
-    let tripContainer = document.createElement("div")
+    let tripContainer = document.createElement("section")
     tripContainer.setAttribute("class", "profileContainer")
     tripContainer.setAttribute("id", "trips")
 
@@ -98,9 +95,7 @@ function createProfile() {
     profileContainer.append(profileImg, username, profileInfo, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, prefsD, aboutHeader, aboutP)
     tripContainer.append(tripHeader, tripList)
     backgroundContainer.append(profileContainer, tripContainer)
-    container.append(backgroundContainer)
-
-    return container;
+    main.append(backgroundContainer)
 }
 
 // Generates the HTML object for a trip
@@ -177,7 +172,6 @@ fetch("/me", {
     } else {
         // Not logged in: Initialize header with null user and load public data
         initializeHeader(header, null);
-        generateTrips({ user_id: null }, 1);
         throw "Session not found";
     }
 }).then(jsonResponse => {
@@ -185,7 +179,6 @@ fetch("/me", {
     // Logged in: Initialize header with user data and load personalized data
     user = jsonResponse;
     initializeHeader(header, user);
-    generateTrips(user, 1);
 }).catch(err => {
     console.log("Auth Check:", err);
 });
@@ -209,4 +202,4 @@ function createGroups(groupArray) {
     }
 }
 
-profileContainer.append(createProfile())
+createProfile()

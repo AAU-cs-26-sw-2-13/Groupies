@@ -545,7 +545,7 @@ header {
     color: rgb(61, 61, 61);
     font-size: 0.95rem;
     line-height: 1.5;   
-       flex: 1;
+    flex: 1;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 4;
