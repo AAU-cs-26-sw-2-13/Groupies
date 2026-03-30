@@ -217,7 +217,7 @@ async function mockGroups(userAmount) {
             mockDates.startDate,
             mockDates.endDate,
             genNumber(2, 10), // Random amount of max members
-            path.join("images", "groupPictures", img)
+            path.join("/", "images", "groupPictures", img)
         ];
         groups.push(group);
     }

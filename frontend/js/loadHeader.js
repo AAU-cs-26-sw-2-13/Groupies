@@ -115,6 +115,10 @@ function loadTitleElements(header) {
     if (document.getElementById("Groupies_title_id")) return; //if the title elements already exist, they are already loaded.
     //Load title and site logo
     header.insertAdjacentHTML('afterbegin', titleElementHTML);
+    document.querySelector("#Groupies_title_id").addEventListener('click', ()=>{
+        console.log("Header click")
+        window.location.href = "/"
+    })
 }
 
 
