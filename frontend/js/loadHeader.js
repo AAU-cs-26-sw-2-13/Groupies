@@ -1,5 +1,6 @@
 import { login } from "./loginRegister.js";
 import { highlightActivePageButton } from "./activePage.js"
+import { profileClick } from "./User_creation.js"
 
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
 export async function initializeHeader(headerElement, user, pageToRender) {
@@ -30,12 +31,18 @@ function renderLoggedInHeader(header, user, pageToRender) {
     mainDiv.className = "profile";
 
     const profileImage = document.createElement("img");
-    profileImage.className = "profileImage";
+    profileImage.className = "profileImageClickable";
     profileImage.src = user.picture || "../img/notFound.jpg";
 
     const username = document.createElement("p");
-    username.className = "profileName";
+    username.className = "profileNameClickable";
     username.textContent = user.username;
+
+    profileImage.dataset.id = user.user_id
+    profileImage.addEventListener('click', profileClick)
+
+    username.dataset.id = user.user_id
+    username.addEventListener('click', profileClick)
 
     mainDiv.append(username, profileImage);
     header.append(mainDiv);
