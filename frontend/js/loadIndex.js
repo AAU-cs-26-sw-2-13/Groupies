@@ -162,21 +162,25 @@ fetch("/me", {
 
 //Get users sorted by # followers
 async function generateUsers(user) {
+    console.log("attempting to generate users...");
     user.query = "users";
     let usersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
     usersQuery.then(userResponse => {
         return userResponse.json();
     }).then(jsonUserResponse => {
+        console.log("received json User list response");
         createUserHTML(jsonUserResponse, userList);
     })
 }
 
 async function generateSimilarUsers(user) {
+    console.log("attempting to generate similar users...");
     user.query = "similar users";
     let similarUsersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
     similarUsersQuery.then(similarUsersResponse => {
         return similarUsersResponse.json();
     }).then(jsonSimilarUsersResponse => {
+        console.log("received json similar user list response");
         createUserHTML(jsonSimilarUsersResponse, similarUserList);
     })
 

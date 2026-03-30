@@ -24,8 +24,10 @@ function userListsButtonsClick (event) {
         similarUsersListButton.classList.remove("highlight-box-button2");
 
         //Display only the active button userList:
+        popularUserList.classList.remove("inactive");
         popularUserList.classList.add("active");
         similarUserList.classList.remove("active");
+        similarUserList.classList.add("inactive");
     }
     else{
         popularUsersListButton.classList.add("box-button2");
@@ -34,7 +36,9 @@ function userListsButtonsClick (event) {
         similarUsersListButton.classList.add("highlight-box-button2");
         similarUsersListButton.classList.remove("box-button2");
 
-        similarUserList.classList.add("active");
         popularUserList.classList.remove("active");
+        popularUserList.classList.add("inactive");
+        similarUserList.classList.remove("inactive");
+        similarUserList.classList.add("active");
     }
 }

@@ -9,17 +9,18 @@ export function loadDiscovery (req, res) {
     req.on('data', chunk => {
         data += chunk.toString()
     })
-    req.on('end', () => {
+    req.on('end', async () => {
         let jsonData = JSON.parse(data);
         if (jsonData.user_id !==null) { //If there is a login token (so we have an active user ID and want to tailor the items to the user)
             console.log(`User found w id: ${jsonData.user_id}, query is for: "${jsonData.query}"`);
             switch(jsonData.query){
                 case "users": {
-                    queryResponse(res, getPopularUsers);
+                    await queryResponse(res, getPopularUsers);
                     break;
                 }
                 case "similar users": {
-                    queryResponse(res, getSimilarUsers);
+                    await queryResponse(res, getSimilarUsers);
+                    console.log("IN THE SIMILAR USERS LIST CASE")
                     break;
                 }
                 case "groups": {
