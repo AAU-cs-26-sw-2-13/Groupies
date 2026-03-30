@@ -101,8 +101,8 @@ function followTripListener(event) {
 function groupClick(event) {
     //console.log(event.target)
 
-    let Groupdata = event.currentTarget.dataset
-    window.location.href = `/group/?id=${Groupdata["id"]}`
+    let groupData = event.currentTarget.dataset
+    window.location.href = `/group/?id=${groupData["id"]}`
 }
 
 //Generates the buttons to change page

@@ -1,5 +1,5 @@
 //Generates the HTML object for a new user
-export function createUser(name, age, gender, country, picture, tags) {
+export function createUser(id, name, age, gender, country, picture, tags) {
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -19,6 +19,7 @@ export function createUser(name, age, gender, country, picture, tags) {
     let genreList = document.createElement("ul")
 
     article.setAttribute("class", "userBox")
+    article.dataset.id = id
     article.addEventListener('click', profileClick)
 
     upperUserInfo.setAttribute("class", "mainUserInfo")
@@ -84,10 +85,14 @@ export function followUserListener(event) {
 export function createUserHTML(userArray, targetList) {
     for (let u of userArray) {
         let prefs = u.preferences || [] //temporary fix for tags in group change back later
-        targetList.append(createUser(u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs))
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs))
     }
 }
 
 export function profileClick(event) {
+    console.log("Hej")
+    console.log(event.target)
 
+    let profileData = event.currentTarget.dataset
+    window.location.href = `/profile/?id=${profileData["id"]}`    
 }

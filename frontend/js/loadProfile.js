@@ -1,8 +1,15 @@
 import { followUserListener } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js"
 
-let main = document.querySelector("#main")
+let main = document.querySelector("main")
 let header = document.querySelector("header")
+const pageURL = new URL(window.location.href)
+const profileId = pageURL.searchParams.get("id")
+fetch(`profileId?id=${profileId}`).then(response => {
+    return response.json()
+}).then(jsonResponse => {
+    tripid.append(createGroup(jsonResponse))
+})
 
 let user = { user_id: null };
 
