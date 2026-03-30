@@ -31,7 +31,7 @@ function renderLoggedInHeader(header, user, pageToRender) {
 
     const profileImage = document.createElement("img");
     profileImage.className = "profileImage";
-    profileImage.src = user.profile_picture || "../img/notFound.jpg";
+    profileImage.src = user.picture || "../img/notFound.jpg";
 
     const username = document.createElement("p");
     username.className = "profileName";

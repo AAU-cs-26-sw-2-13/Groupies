@@ -78,7 +78,8 @@ export async function createResponse(req, res) {
                 }
                 case "group": {
                     if(pathElements[2]==="groupInfo"){
-                        queryResponse(res, getGroupInfo, [url.searchParams.get("id")])
+                        let groupInfoId = url.searchParams.get("id")
+                        queryResponse(res, getGroupInfo, [groupInfoId,groupInfoId])
                     }else{
                         fileResponse(res, "html/group.html");  
                     }

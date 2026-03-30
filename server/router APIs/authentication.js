@@ -35,7 +35,7 @@ export async function getSession(req) { //get the session for the user
   const sid = m[1];
   //select the session IDs and match the session id to the user where s.id= [sid], which is saved in browser cookies.
   const rows = await query(` 
-    SELECT s.id, u.id AS user_id, CONCAT(u.name_first, " ", u.name_last) AS full_name, expires_at
+    SELECT s.id, u.id AS user_id, CONCAT(u.name_first, " ", u.name_last) AS full_name, expires_at, u.picture
     FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.id = ? AND s.expires_at > NOW();
     `
@@ -118,6 +118,7 @@ export async function getLoginSession(req, res) {
     return res.end(JSON.stringify({
       user_id: session.user_id,
       username: session.full_name,
+      picture: session.picture
     }));
   } catch (err) {
     res.writeHead(500, { "Content-Type": "application/json" });

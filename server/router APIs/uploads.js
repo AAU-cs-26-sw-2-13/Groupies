@@ -20,6 +20,20 @@ export function handleImage(req, res, APIPath, userPath) {
             })
             break;
         }
+        case "profilePictures": {
+            let sanitizedPath = securePath(userPath)
+             fs.readFile(sanitizedPath, (err, data) => {
+                if (err) {
+                    res.statusCode = 404;
+                    res.end('\n')
+                } else {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', guessMimeType(sanitizedPath));
+                    res.end(data);
+                }
+            })
+            break;
+        }
     }
 }
 
