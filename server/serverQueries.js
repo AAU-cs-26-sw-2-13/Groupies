@@ -168,7 +168,6 @@ export async function getSimilarUsers() {
 }
 
 export async function getPopularGroups(params) {
-    console.log("Got groups ordered by #followers");
     let queryResponse = await query(sqlGetPopularGroups, params);
     return queryResponse;
 }
