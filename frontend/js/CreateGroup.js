@@ -77,17 +77,39 @@ function createHTML(){
     groupDesc.setAttribute("class", "description")
     groupDesc.setAttribute("placeholder", "Description (optional)")
 
-    let fileIconEl = document.createElement("i")
-    fileIconEl.setAttribute("class", "fa-regular fa-image")
+    let fileIcon = document.createElement("i")
+    fileIcon.setAttribute("class", "fa-regular fa-image")
     let fileLabel = document.createElement("label")
     fileLabel.setAttribute("class", "trip-interactable-boxes")
-    let fileIcon = document.createElement("span")
-    fileIcon.textContent = " Trip Photo (optional)"
+    let fileText = document.createElement("span")
+    fileText.textContent = " Trip Photo"
     let tripImg = document.createElement("input")
     tripImg.setAttribute("type", "file")
     tripImg.setAttribute("accept", "image/*")
     tripImg.style.display = "none"
-    fileLabel.append(fileIconEl, fileIcon, tripImg)
+    let preview = document.createElement("img")
+    preview.setAttribute("class", "groupImg")
+    preview.style.display = "none" //hide preview until a picture is uploaded
+    let validImageData = null
+    tripImg.addEventListener("change", () => {
+    const file = tripImg.files[0]    
+    if(file){
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"]
+        if(!allowedTypes.includes(file.type)){
+            alert("Unsupported file format")  
+            tripImg.value = ""
+            return
+        }
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = (e) => {
+        validImageData = e.target.result
+        preview.setAttribute("src", validImageData)
+        preview.style.display = "block"
+        fileText.textContent = " Change Photo"
+    }}})
+
+    fileLabel.append(fileIcon, fileText, tripImg,preview)
 
     let MemberTitle = document.createElement("p")
     MemberTitle.setAttribute("class", "p1")
@@ -192,10 +214,23 @@ function createHTML(){
         alert("End date is required")
         return
     }
-    if(!Members.value){
-        alert("Member limit is required")
+    const today = new Date().toISOString().split("T")[0]  
+    if(tripStart.value < today){
+    alert("Start date cannot be in the past")
+    return
+    }
+    if(tripEnd.value < tripStart.value){
+    alert("End date cannot be before start date")
+    return
+    }
+    if(!Members.value || Members.value < 1 || Members.value >= 1000){
+        alert("Member limit is required or has to atleast equal 1 and less than 1000")
         return
-    }    
+    }
+    if(!validImageData){
+        alert("A trip picture is required")
+        return
+    }   
         const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
         submitButton.disabled = true
    
@@ -209,6 +244,7 @@ function createHTML(){
        return response.json()}}).then(jsonResponse => {
         user = jsonResponse;   
         //insert into group db and refer the user back to main page
+        const sendFetchImage = (imageData) => {
         fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
         host_user_id: user.user_id,
         title: groupTitle.value,
@@ -216,12 +252,15 @@ function createHTML(){
         about: groupDesc.value,
         date_start_at: tripStart.value,  
         date_end_at: tripEnd.value,
+        picture: imageData || null,
         max_members: Members.value,
         group_openess: membershipType,
         tags_list: selectedTags})}).then(r => r.json())
-        .then(() => {window.location.href = "/"})
-        })  
-        })
+        .then(() => {window.location.href = "/"})}
+    
+        if(validImageData)sendFetchImage(validImageData)
+        else sendFetchImage(null)
+    })})
     
     buttons.append(backButton, submitButton)
     infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel)

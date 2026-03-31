@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt"; //for password hashing purposes
 import crypto from "node:crypto";
-
+import {writeFileSync} from "fs"
 import path, { relative } from "path"
 import { fileResponse, queryResponse} from "./server.js";
 import {getGroupMembers, getGroupTags, addTripToDB, getAllPreferences} from "./serverQueries.js"
@@ -68,7 +68,15 @@ async function createResponse(req, res) {
                 }
                 case "createTrip": {
                     const body = await parseJSON(req);
-                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at,body.max_members, body.group_openess, body.tags_list);
+                    let picturePath = null
+                if(body.picture){
+                const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
+                const fileName = crypto.randomUUID() + ".jpg"
+                const filePath = path.join("frontend/img", fileName)
+                writeFileSync(filePath, Buffer.from(base64Data, "base64"))
+                picturePath = "img/" + fileName
+                }
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
                     res.writeHead(200, {"Content-Type": "application/json"})
                     res.end(JSON.stringify({status: "created"}))
                 break;

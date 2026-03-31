@@ -631,3 +631,9 @@ header {
     flex-direction: column;
     flex-wrap: nowrap;
 }
+
+.createTripPage .groupImg{
+ width: 100%;
+ object-fit: "cover";
+ margin-top: 5px;
+}
