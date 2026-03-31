@@ -129,6 +129,10 @@ async function createResponse(req, res) {
                     }
                     break;
                 }
+                case "chat": {
+                    fileResponse(res, "html/chat.html")
+                    break;
+                }
                 //Server wants current user, check for active session for user from browser session cookie
                 case "me":
                     await getLoginSession(req, res);
