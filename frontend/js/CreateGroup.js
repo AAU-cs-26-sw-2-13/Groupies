@@ -47,8 +47,8 @@ function createHTML(){
         e.preventDefault()
         tripStart.showPicker()})
     tripStart.addEventListener("change", () => {
-    startText.textContent = " " + tripStart.value || " Start Date"
-    startText.style.color = tripStart.value ? "#333" : "#717171"})
+        startText.textContent = " " + tripStart.value || " Start Date"
+        startText.style.color = tripStart.value ? "#333" : "#717171"})
 
     let endLabel = document.createElement("label")
     endLabel.setAttribute("class", "trip-interactable-boxes")

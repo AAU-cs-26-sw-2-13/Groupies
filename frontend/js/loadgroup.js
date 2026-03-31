@@ -56,7 +56,6 @@ function createGroup(groupInfo) {
     let membercount = 0
 
  //group members list
-    const groupId = sessionStorage.getItem("id")
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
 

@@ -84,8 +84,8 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "createTrip": {
-                    const body = await parseJSON(req);
-                    let picturePath = null
+                const body = await parseJSON(req);
+                let picturePath = null
                 if(body.picture){
                 const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
                 const fileName = crypto.randomUUID() + ".jpg"

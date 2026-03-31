@@ -102,10 +102,10 @@ function followTripListener(event) {
 
 tripButton.addEventListener("click", createTripClick)
 
-function createTripClick(event) {
+function createTripClick() {
     if(user.user_id){   //if the user has an id, i.e. is logged in, redirect them to the html file
          window.location.href = "/html/CreateTrip.html"}
-    else {alert("You need to be logged in to create a trip.")} 
+    else alert("You need to be logged in to create a trip.")
     }
    
 
