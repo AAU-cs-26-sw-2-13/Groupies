@@ -79,6 +79,35 @@ export async function registerUserToDB(req, res) {
     }
 }
 
+// -----  function registerPreferences
+export async function registerPreferences(req, res){
+  try {
+    const body = await parseJSON(req);
+    const { preference, email } = body;
+
+    const user = await query("SELECT id FROM users WHERE email=?", [email]);
+    if(!user || user.length ===0){
+      res.writeHead(404, { "Content-Type": "application/json"});
+      return res.end(JSON.stringify({status: "User not found"}));
+    }
+
+    for (let v of preference){
+      await query(`
+        INSERT INTO user_prefs (user_id, preference_id, preference_value) 
+        VALUES (?, ?, 1)
+        ON DUPLICATE KEY UPDATE
+          preference_value = IF(preference_value = 1, 0, 1)`,
+        [user[0].id, v]
+      );
+    }
+    res.writeHead(201, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({status: "Preferences Added"}));
+  } catch(e) {
+    console.error(e);
+  }
+
+}
+
 // -----  function loginUser: Check user credentials, create session and set session cookie. ------
 export async function loginUser(req, res) {
   const body = await parseJSON(req);

@@ -532,6 +532,12 @@ header {
     margin-top: 10px;
 }
 
+#prefList{
+    height: 27rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 
 /* GROUP PAGE */
 .groupPage {

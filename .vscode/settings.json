@@ -11,9 +11,9 @@
             "port": 3306,
             "driver": "MySQL",
             "name": "Groupies",
-            "database": "myapp",
+            "database": "Groupies",
             "username": "root",
-            "password": "password"
+            "password": "0403"
         }
     ]
 }

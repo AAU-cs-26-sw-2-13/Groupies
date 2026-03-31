@@ -1,4 +1,4 @@
-
+import { parseTags } from '../js/parseJson.js';
 
 const form = document.querySelector("#form");
 
@@ -6,6 +6,9 @@ async function sendData() {
     const fromData = new FormData(form);
     const body = Object.fromEntries(fromData);
 
+    body.preference = fromData.getAll("preference");
+
+    console.log(body);
     try {
         const response = await fetch("http://localhost:3000/api/auth/register", {
             method: "POST",
@@ -13,17 +16,38 @@ async function sendData() {
             body: JSON.stringify(body),
         });
         const data = await response.json();
-
         console.log(data);
+
+        const response2 = await fetch("http://localhost:3000/api/auth/regPrefs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+        const data2 = await response2.json();
+        console.log(data2);
+        
     } catch(e) {
         console.error(e);
     }
+    /* try {
+            const response = await fetch("http://localhost:3000/api/auth/regPrefs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+            const data = await response.json();
+
+            console.log(data);
+        } catch(e) {
+            console.error(e);
+        } */
+
 };
 
 //listens for submit
 form.addEventListener("submit", (event) => {
     event.preventDefault();
-    sendData();
+    sendData(1);
 });
 
 //document.querySelectorAll('a').forEach(a => a.style.display = 'none');
@@ -119,31 +143,33 @@ function returnFileSize(number) {
 }
 
 const step3 = document.querySelector("#step3");
+function createPrefs(pref){
+    for(let t of pref){
+        let genre = document.createElement("input");
+        genre.setAttribute("class", "pref-item");
+        genre.setAttribute("type", "checkbox");
+        genre.setAttribute("name", "preference");
+        genre.setAttribute("value", `${t.preference_id}`);
 
-//Generates the HTML object for preferences
-function createPrefs(tags){
-    for(let t of tags){
-        if(t !== null){
-            const prefs = document.createElement("p")
-            prefs.textContent = `${t}`
-            step3.appendChild(prefs)
-        }
+        let label = document.createElement("label");
+        label.setAttribute("for", `${t.preference_id}`);
+        label.textContent = `${t.preference_id}`;
+
+        step3.append(genre);
+        step3.append(label);
     }
-    
-    return prefsList
 }
+
 
 //Get preferences
-let sessionDataPrefs = {sessionId: "empty", query:"preferences"}
-let prefsQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataPrefs)})
-prefsQuery.then(prefsResponse => {
-    return prefsResponse.json()
-}).then(jsonPrefsResponse => {
-    createPrefsHTML(jsonPrefsResponse)
-})
-
-function createPrefsHTML(prefsArray){
-    for(let p of prefsArray){
-        step3.append(createPrefs(p.preferences))
-    }
+function run(){
+    let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
+    let prefsQuery = fetch("/regPrefs", {method: 'POST', body: JSON.stringify(sessionDataPrefs)});
+    prefsQuery.then(prefsResponse => {
+        return prefsResponse.json();
+    }).then(jsonPrefsResponse => {
+        console.log(jsonPrefsResponse);
+        createPrefs(jsonPrefsResponse);
+    })
 }
+run();
