@@ -61,13 +61,13 @@ async function createResponse(req, res) {
                     }
                     break;
                 }
-                case "groupMembers": {
-                    let data = "";
+                case "groupMembers":{
+                    let data = ""
                     req.on('data', chunk => {
-                        data += chunk.toString();
+                        data += chunk.toString()
                     })
                     req.on('end', () => {
-                        let jsonData = JSON.parse(data);
+                        let jsonData = JSON.parse(data)
                         queryResponse(res, () => getGroupMembers(jsonData.groupId));
                     })
                     break;
@@ -84,8 +84,8 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "createTrip": {
-                const body = await parseJSON(req);
-                let picturePath = null
+                    const body = await parseJSON(req);
+                    let picturePath = null
                 if(body.picture){
                 const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
                 const fileName = crypto.randomUUID() + ".jpg"
