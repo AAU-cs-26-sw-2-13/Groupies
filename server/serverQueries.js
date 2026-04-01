@@ -136,6 +136,20 @@ LEFT JOIN user_prefs p ON u.id = p.user_id
 WHERE u.id = ?
 `
 
+const getUserContactsQuery = `
+SELECT
+DISTINCT
+u.id,
+concat(u.name_first, " ", u.name_last) AS contact_name
+FROM users u
+JOIN chat_users cu ON u.id = CASE
+WHEN cu.sender_id = ? THEN cu.target_id
+WHEN cu.target_id = ? THEN cu.sender_id
+END
+
+`
+
+
 
 export async function getAllUsers() {
     let queryResponse = await query(sqlGetAllUsers)
@@ -181,5 +195,10 @@ export async function getProfileInfo(userId) {
 
 export async function getAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
+    return queryResponse
+}
+
+export async function getUserContacts(params) {
+    let queryResponse = await query(getUserContactsQuery, params)
     return queryResponse
 }

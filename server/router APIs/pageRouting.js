@@ -1,8 +1,5 @@
-import {queryResponse} from "../server.js"
-import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers} from "../serverQueries.js";
-
-//Page variables
-let activePage = 1;
+import {queryResponse, fileResponse} from "../server.js"
+import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers, getUserContacts} from "../serverQueries.js";
 
 export function loadDiscovery (req, res) {
     let data = ""
@@ -37,3 +34,7 @@ export function loadDiscovery (req, res) {
     })
 }
 
+export function loadChat(req, res) {
+    console.log("Load Chat")
+    fileResponse(res, "html/chat.html")
+}

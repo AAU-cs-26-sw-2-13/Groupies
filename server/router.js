@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import { getGroupMembers, getGroupInfo, getProfileInfo } from "./serverQueries.js";
 import { handleImage } from "./router APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout } from "./router APIs/authentication.js";
-import { loadDiscovery } from "./router APIs/pageRouting.js";
+import { loadChat, loadDiscovery } from "./router APIs/pageRouting.js";
 import { el } from "@faker-js/faker";
 
 /**
@@ -94,7 +94,7 @@ export async function createResponse(req, res) {
                     break;
                 }
                 case "chat": {
-                    fileResponse(res, "html/chat.html")
+                    loadChat(req, res);
                     break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie
