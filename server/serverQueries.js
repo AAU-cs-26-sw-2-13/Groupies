@@ -210,3 +210,23 @@ export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse;
 }
+
+export async function queryUpdateUserPreferences(user_id, preferenceList) {
+    try {
+        // Clear existing prefs first to avoid duplicates
+        await query('DELETE FROM user_prefs WHERE user_id = ?', [user_id]);
+        //for each preference in the list insert a row in the db.
+        if (preferenceList && preferenceList.length > 0) {
+            for (let pref of preferenceList) {
+                await query(
+                    'INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES (?, ?, ?)',
+                    [user_id, pref, 1]
+                );
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Database error in updateUserPreferences:", e);
+        throw e;
+    }
+}
