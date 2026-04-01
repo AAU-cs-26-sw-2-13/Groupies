@@ -1,5 +1,6 @@
 import { followUserListener } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js"
+import { parseTags } from "./parseJson.js";
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
@@ -112,10 +113,10 @@ function createProfile(profile) {
     preferenceHeader.setAttribute("class", "pGrey")
     preferenceHeader.textContent = "Preferences"
 
-    let preferenceList = document.createElement("ul");
-    preferenceList.setAttribute("class", "prefList");
+    let preferenceList = document.createElement("ul")
+    preferenceList.setAttribute("class", "prefList")
     preferenceList.setAttribute("id", "preferenceList_id");
-    for (let t of profile.preferences) {
+    for (let t of parseTags(profile.preferences)) {
         if (t !== null) {
             let pref = document.createElement("li")
             let button = document.createElement("button")
