@@ -6,7 +6,7 @@ import path, { relative } from "path"
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
-import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
+import { loadChat, loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
@@ -130,7 +130,7 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "chat": {
-                    fileResponse(res, "html/chat.html")
+                    loadChat(req, res);
                     break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie

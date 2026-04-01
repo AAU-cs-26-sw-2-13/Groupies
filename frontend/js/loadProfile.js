@@ -83,7 +83,7 @@ function createProfile(profile) {
     messageButton.textContent = "message"
     messageButton.addEventListener('click', ()=>{
         console.log(profile)
-        window.location.href = `/chat/?id=${profile.id}`
+        window.location.href = `/chat/users/?id=${profile.id}`
     })
 
     let editPrefsButton = document.createElement("button");

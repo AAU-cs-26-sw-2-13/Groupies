@@ -133,7 +133,7 @@ function loadTitleElements(header) {
 
 //HTML Generators
 let titleElementHTML = `<div id="Groupies_title_id"> 
-    <img src="../img/favicon.svg" alt="Groupies logo of a compass" id="logo_id"> 
+    <img src="/img/favicon.svg" alt="Groupies logo of a compass" id="logo_id"> 
     <h1 id="Groupies_title_header_id">Groupies</h1> 
 </div>
 
