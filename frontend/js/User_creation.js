@@ -1,3 +1,5 @@
+import { parseTags } from "./parseJson.js"
+
 //Generates the HTML object for a new user
 export function createUser(name, age, gender, country, tags){
     let list = document.createElement("li")

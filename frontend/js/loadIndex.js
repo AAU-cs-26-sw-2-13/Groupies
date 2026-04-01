@@ -1,6 +1,8 @@
 import { createUserHTML } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js";
 import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
+import { parseTags } from "./parseJson.js"
+import  "./indexHelpers/indexListeners.js";
 
 //Queries to dom elements
 let tripList = document.querySelector("#tripList");
@@ -206,6 +208,6 @@ async function generateTrips(user, offset) {
 
 function createGroups(groupArray) {
     for (let t of groupArray) {
-        tripList.append(createTrip(t.title, t.host_name, t.tags, t))
+        tripList.append(createTrip(t.title, t.host_name, parseTags(t.tags), t))
     }
 }

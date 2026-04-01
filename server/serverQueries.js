@@ -155,7 +155,10 @@ FROM users as u
 LEFT JOIN user_prefs p ON u.id = p.user_id
 WHERE u.id = ?
 `
-
+export async function getAllPreferences() {
+    let queryResponse = await query(sqlGetPreferences);
+    return queryResponse;
+}
 
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
