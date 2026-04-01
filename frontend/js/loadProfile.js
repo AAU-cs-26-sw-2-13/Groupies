@@ -3,6 +3,7 @@ import { initializeHeader } from "./loadHeader.js"
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
+let activeUserId = 0;
 
 fetch("/me", {
     method: "GET",
@@ -18,6 +19,7 @@ fetch("/me", {
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data
     let user = jsonResponse;
+    activeUserId = user.user_id;
     initializeHeader(header, user, "Profile");
 }).catch(err => {
     console.log("Auth Check:", err);
@@ -35,6 +37,9 @@ fetch(`profileInfo?id=${profileId}`).then(response => {
 let user = { user_id: null };
 
 function createProfile(profile) {
+    
+    let ownProfile = (profileId == activeUserId) ? true : false; //if id returned from db matches profile page to build, user visited own profile
+    console.log(`The profile build for user id ${profile.id} commencing with own profile variable value: ${ownProfile}`);
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
@@ -145,7 +150,6 @@ function createProfile(profile) {
 
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
-
     
 }
 
