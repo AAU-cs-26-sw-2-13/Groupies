@@ -97,14 +97,13 @@ export async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("NeedImage")
+                    console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }
                 case "prefs": {
                     try {
                         await queryResponse(res, queryAllPreferences);
-                        console.log(queryResponse);
                     } catch (error) {
                         console.error(error);
                     }
