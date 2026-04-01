@@ -1,5 +1,5 @@
 import {queryResponse, fileResponse} from "../server.js"
-import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers, getUserContacts} from "../serverQueries.js";
+import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers, getUserContacts, getChatHistory} from "../serverQueries.js";
 
 export function loadDiscovery (req, res) {
     let data = ""
@@ -34,7 +34,39 @@ export function loadDiscovery (req, res) {
     })
 }
 
-export function loadChat(req, res) {
-    console.log("Load Chat")
-    fileResponse(res, "html/chat.html")
+export function loadChat(req, res, pathElements, searchParams) {
+    switch(pathElements[2]){
+        //All logic for users
+        case "users":{
+            switch(pathElements[3]){
+                case "getUserContacs": {
+                    let userId = searchParams.get("ownUser")
+                    if(userId){
+                        queryResponse(res, getUserContacts,[userId, userId])
+                        return
+                    }else{
+                        res.statusCode = 400
+                        res.end('\n');
+                    }
+                    return
+                    break;
+                }
+                case "getChatHistory":{
+                    let userId = searchParams.get("ownUser")
+                    let otherChatterId = searchParams.get("chatUser")
+                    if(userId && otherChatterId){
+                        queryResponse(res, getChatHistory,[userId, otherChatterId, otherChatterId, userId])
+                        return
+                    }else{
+                        res.statusCode = 400
+                        res.end('\n');
+                    }
+                    break
+                }
+            }
+            break
+        }
+    }
+    console.log("GetFile")
+    fileResponse(res, "html/chat.html");
 }
