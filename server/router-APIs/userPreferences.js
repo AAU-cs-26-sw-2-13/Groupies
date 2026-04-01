@@ -14,7 +14,7 @@ export async function setUserPreferences(req, res) {
             return res.end(JSON.stringify({ status: "error", message: "Missing data" }));
         }
 
-        await queryUpdateUserPreferences(user_id, preferenceList);
+        await queryUpdateUserPreferences(user_id, preferenceList); //query the db with an update with the array of preferences to save
 
         console.log(`Successfully added ${preferenceList.length} items for user ${user_id}`);
 
