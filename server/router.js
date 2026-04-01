@@ -94,7 +94,7 @@ export async function createResponse(req, res) {
                     break;
                 }
                 case "chat": {
-                    loadChat(req, res);
+                    loadChat(req, res, pathElements, url.searchParams);
                     break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie

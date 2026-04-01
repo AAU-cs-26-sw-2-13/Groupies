@@ -140,6 +140,7 @@ const getUserContactsQuery = `
 SELECT
 DISTINCT
 u.id,
+u.picture,
 concat(u.name_first, " ", u.name_last) AS contact_name
 FROM users u
 JOIN chat_users cu ON u.id = CASE
@@ -148,7 +149,8 @@ WHEN cu.target_id = ? THEN cu.sender_id
 END
 
 `
-
+const getChatHistoryQuery = `SELECT sender_id, target_id, chat_text FROM chat_users 
+WHERE (sender_id = ? AND target_id = ?) OR (sender_id = ? AND target_id = ?);`
 
 
 export async function getAllUsers() {
@@ -200,5 +202,11 @@ export async function getAllPreferences() {
 
 export async function getUserContacts(params) {
     let queryResponse = await query(getUserContactsQuery, params)
+    return queryResponse
+}
+
+export async function getChatHistory(params) {
+    let queryResponse = await query(getChatHistoryQuery, params)
+    console.log(queryResponse)
     return queryResponse
 }
