@@ -101,6 +101,14 @@ export async function createResponse(req, res) {
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }
+                case "prefs": {
+                    try {
+                        await queryResponse(res, queryAllPreferences);
+                        console.log(queryResponse);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname);
