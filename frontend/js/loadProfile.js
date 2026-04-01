@@ -123,7 +123,7 @@ function createProfile(profile) {
             button.textContent = t
             pref.append(button);
             preferenceList.append(pref)
-            button.addEventListener('click', togglePreferenceHandler);
+            if (ownProfile) button.addEventListener('click', togglePreferenceHandler);
         }
     }
 
