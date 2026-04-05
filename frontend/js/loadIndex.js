@@ -1,5 +1,3 @@
-import { getCurrentUser } from "./userAPI.js";
-import { login, register } from "./loginRegister.js";
 import { createUserHTML } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js";
 import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
