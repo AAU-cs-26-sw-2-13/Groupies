@@ -147,7 +147,7 @@ LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 
 
 const getProfileInfoQuery = `
-SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture, u.id,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -209,4 +209,24 @@ export async function queryProfileInfo(userId) {
 export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse;
+}
+
+export async function queryUpdateUserPreferences(user_id, preferenceList) {
+    try {
+        // Clear existing prefs first to avoid duplicates
+        await query('DELETE FROM user_prefs WHERE user_id = ?', [user_id]);
+        //for each preference in the list insert a row in the db.
+        if (preferenceList && preferenceList.length > 0) {
+            for (let pref of preferenceList) {
+                await query(
+                    'INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES (?, ?, ?)',
+                    [user_id, pref, 1]
+                );
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Database error in updateUserPreferences:", e);
+        throw e;
+    }
 }

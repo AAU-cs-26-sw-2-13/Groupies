@@ -1,9 +1,10 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
-import { handleImage } from "./router APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout } from "./router APIs/authentication.js";
-import { loadDiscovery } from "./router APIs/pageRouting.js";
+import { handleImage } from "./router-APIs/uploads.js";
+import { registerUserToDB, loginUser, getLoginSession, logout } from "./router-APIs/authentication.js";
+import { loadDiscovery } from "./router-APIs/pageRouting.js";
+import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
 
 /**
@@ -50,7 +51,7 @@ export async function createResponse(req, res) {
                             }
                             break;
                         }
-                        case "pref": await setUserPreference(req, res);
+                        case "pref": await setUserPreferences(req, res);
                             break;
                     }
                     break;
@@ -97,8 +98,16 @@ export async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("NeedImage")
+                    console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
+                    break;
+                }
+                case "prefs": {
+                    try {
+                        await queryResponse(res, queryAllPreferences);
+                    } catch (error) {
+                        console.error(error);
+                    }
                     break;
                 }
                 //Fallback to file response
