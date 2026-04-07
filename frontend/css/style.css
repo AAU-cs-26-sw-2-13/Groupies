@@ -1,4 +1,3 @@
-
 /*GLOBAL PROPERTIES*/
 
 
@@ -8,6 +7,21 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.userLists {
+    display:none;
+    list-style-type: none;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.userLists.active { /* When the corresponding userList button is active (popular or similar) then it is active and should be visible */
+    display:flex;
+}
+
+.userLists.inactive {
+    display:none;
 }
 
 h2 {
@@ -30,7 +44,7 @@ h3 {
 }
 
 
-h1{
+h1 {
     margin: 0;
     color: black;
     font-family: Arial, Verdana, sans-serif;
@@ -43,19 +57,20 @@ body {
 }
 
 
-#tripList{
+#tripList {
     height: 27rem;
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 
-.Discovers{
+.Discovers {
     display: flex;
     justify-content: space-around;
-    align-items:start;
+    align-items: start;
 }
 
-.button{
+.button {
     padding: 1rem 1.8rem;
     background-color: #4f378b;
     color: white;
@@ -64,6 +79,7 @@ body {
     transition-duration: 0.4s;
     cursor: pointer;
 }
+
 .highlight-button {
     padding: 1rem 1.8rem;
     background-color: #7e378b;
@@ -75,22 +91,12 @@ body {
 }
 
 
-.button:hover{
+.button:hover {
     background-color: #7e378b;
 
 }
 
-.button1 {
-    background-color: #4f378b;
-    color: white;
-}
-
-.button1:hover {
-    background-color: #3a2c5e;
-    color: white;
-}
-
-.trans-box-button{
+.trans-box-button {
     padding: 0.5rem 1.2rem;
     background-color: white;
     color: #6b4fb2;
@@ -100,7 +106,7 @@ body {
     cursor: pointer;
 }
 
-.-trans-box-button1 {
+.trans-box-button1 {
     background-color: white;
     color: #6b4fb2;
     cursor: pointer;
@@ -112,7 +118,7 @@ body {
     cursor: pointer;
 }
 
-.box-button{
+.box-button {
     padding: 0.5rem 1.2rem;
     background-color: #6b4fb2;
     color: white;
@@ -122,7 +128,7 @@ body {
     cursor: pointer;
 }
 
-.box-button:hover{
+.box-button:hover {
     background-color: #7e378b;
     cursor: pointer;
 }
@@ -131,10 +137,33 @@ body {
     background-color: #6b4fb2;
     color: white;
     cursor: pointer;
+}
 
+.box-button2 {
+    padding: 0.5rem 1.2rem;
+    background-color: #6b4fb2;
+    color: white;
+    border: 0px;
+    border-radius: 10px;
+    transition-duration: 0.6s;
+}
+
+.highlight-box-button2 {
+    padding: 0.5rem 1.2rem;
+    background-color: #7e378b;
+    color: white;
+    border: 0px;
+    border-radius: 10px;
+    transition-duration: 0.6s;
 }
 
 .box-button1:hover {
+    background-color: #4f378b;
+    color: white;
+    cursor: pointer;
+}
+
+.box-button2:hover {
     background-color: #4f378b;
     color: white;
     cursor: pointer;
@@ -151,11 +180,7 @@ header {
 
 }
 
-
-
-
-/* GENERAL ITEMS*/
-.button1{
+.button1 {
     padding: 1rem 1.8rem;
     background-color: #4f378b;
     color: white;
@@ -163,10 +188,15 @@ header {
     border-radius: 50px;
     cursor: pointer;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    
+
 }
 
-.button2{
+.button1:hover {
+    background-color: #3a2c5e;
+    color: white;
+}
+
+.button2 {
     padding: 0.1rem 0rem;
     background-color: #4f378b;
     color: white;
@@ -177,7 +207,7 @@ header {
     min-width: 6rem;
 }
 
-.button3{
+.button3 {
     padding: 0.3rem 0rem;
     min-width: 1.5rem;
     background-color: #4f378b;
@@ -226,21 +256,21 @@ header {
     gap: 0.3rem;
     display: flex;
     justify-content: center;
-    align-items:center ;
+    align-items: center;
 }
 
-.following{
+.following {
     background-color: #e8def8;
     color: black;
 }
 
-.passive{
+.passive {
     background-color: #e8def8;
     color: black;
 }
 
 
-.section-box{
+.section-box {
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -248,26 +278,44 @@ header {
     margin-top: 1rem;
     border-radius: 28px;
     padding: 1rem 1rem;
-    gap:1rem;
+    gap: 1rem;
 }
 
-.aside-box{
+.aside-box {
     display: flex;
     flex-direction: column;
+    align-items: center;
     background-color: white;
     width: 25%;
     margin-top: 1rem;
     border-radius: 28px;
     padding: 1rem 1rem;
-    gap:1rem;
-    height: 30rem;
+    gap: 1rem;
+    height: 36rem;
+    overflow-y:auto;
+    overflow-x:hidden;
 
 }
 
-#userList{
+.userLists-buttons {
+    display: flex;
+    margin: 0 -20px;
+}
+
+.divider {
+    width: 5px;
+    height: auto;
+}
+
+.userLists {
+    width:100%;
     height: 27rem;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
+    display:none;
+    flex-direction: column;
+    gap:1rem;
+    padding: 0 0 5rem;
 }
 
 .p1 {
@@ -276,94 +324,95 @@ header {
     font-size: 0.9rem;
 }
 
-
-#loginregDiv{
+#loginregDiv {
     display: flex;
     justify-content: space-around;
     gap: 1rem;
 }
 
 #Groupies_title_id {
-    display: flex;    
+    display: flex;
     align-items: center;
-    gap: 15px;        
-    float:left;  
-    cursor: pointer; 
+    gap: 15px;
+    float: left;
+    cursor: pointer;
 }
 
 #logo_id {
-    height: 50px;        
-    width: auto;         
+    height: 50px;
+    width: auto;
 }
 
 #Groupies_title_header_id {
-    margin: 0;           
-    font-size: 40px;     
-    line-height: 1;      
+    margin: 0;
+    font-size: 40px;
+    line-height: 1;
 }
 
 /* HEADER PROFILE */
-.profile{
+.profile {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    
+
 }
 
-.profileImageClickable{
+.profileImageClickable {
     width: 4rem;
     height: 4em;
     border-radius: 50px;
     cursor: pointer;
 }
 
-.profileNameClickable{
+.profileNameClickable {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: 600;
     font-size: 1.5rem;
     cursor: pointer;
 }
+
 /* DISCROVER TRIP CSS */
-.tripImage{
+.tripImage {
     width: 4rem;
     height: 4 rem;
 }
 
-.tripText{
+.tripText {
     display: flex;
-    justify-content:start ;
+    justify-content: start;
     flex-direction: column;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    
+
 }
 
+/* DISCOVER TRIP CSS */
 .trip{
     padding: 0.5rem 0rem;
     display: flex;
-    flex-direction: column;
+    height: 4rem;
     justify-content: space-between;
     border-bottom: 1px solid #E0E0E0;
     gap: 0.5rem;
     cursor: pointer;
 }
 
-.upperTripInfo{
+.upperTripInfo {
     display: flex;
     justify-content: space-between;
 }
 
-.TripInformation{
+.TripInformation {
     display: flex;
-    gap: 1rem   ;
+    gap: 1rem;
 }
 
-.followb{
+.followb {
     cursor: pointer;
 }
 
 /*USER DISCOVER PAGE*/
-.userBox{
+.userBox {
     padding: 0.5rem 0rem;
     display: flex;
     flex-direction: column;
@@ -373,65 +422,75 @@ header {
     cursor: pointer;
 }
 
-.mainUserInfo{
+.mainUserInfo {
     display: flex;
     justify-content: space-between;
     align-items: start;
 }
 
-.prefListFront{
+.prefListFront {
     display: flex;
     flex-direction: row;
 }
 
-.pref-item{
-    background-color: #e8def8;
+.pref-item {
+    background-color: #e0cffc;
     border-radius: 4px;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     padding: 0.1rem 0.3rem;
     font-size: 0.8rem;
 }
 
-.userText{
+.unselected-pref-item {
+    background-color: #ffffff;
+    border-radius: 4px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.8rem;
+}
+
+.userText {
     display: flex;
-    justify-content:start ;
+    justify-content: start;
     flex-direction: column;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-.userInfoText{
+.userInfoText {
     color: rgb(74, 74, 74);
 }
 
-.userInfo{
+.userInfo {
     display: flex;
-    gap: 1rem   ;
+    gap: 1rem;
 }
 
-.userImage{
+.userImage {
     width: 3rem;
     height: 3rem;
 }
 
-.userPrefFront{
+.userPrefFront {
     display: flex;
     justify-content: space-between;
     align-items: start;
 }
 
-.register-box-top{
+.register-box-top {
     display: flex;
     flex-direction: column;
-    background-color:#6b4fb2;
+    background-color: #6b4fb2;
     width: 40%;
     margin-top: 2rem;
     border-radius: 15px;
-    align-items: center;    
-    outline-width: thick; 
-    outline-style:solid;
-    outline-color:#e8def8;
+    align-items: center;
+    outline-width: thick;
+    outline-style: solid;
+    outline-color: #e8def8;
 }
-.register-box{ /* also used for login-box*/
+
+.register-box {
+    /* also used for login-box*/
     display: flex;
     flex-direction: column;
     background-color: white;
@@ -440,23 +499,24 @@ header {
     border-bottom-right-radius: 14px;
     border-bottom-left-radius: 14px;
     padding: 1rem 1rem;
-    gap:1rem;
-    align-items:center;
-    display:none; /* Hide the login box until it is active class */
-    outline-width: thick; 
-    outline-style:solid;
-    outline-color:#e8def8;
+    gap: 1rem;
+    align-items: center;
+    display: none;
+    /* Hide the login box until it is active class */
+    outline-width: thick;
+    outline-style: solid;
+    outline-color: #e8def8;
 }
 
 /* When the (login)-box is clicked active it should be displayed*/
 .register-box.active {
     display: flex;
     flex-direction: column;
-    
+
 }
 
-.reg-box-inputs{
-    width:100%;
+.reg-box-inputs {
+    width: 100%;
     box-sizing: border-box;
     padding: 8px;
     margin-bottom: 15px;
@@ -466,10 +526,10 @@ header {
 }
 
 .center-align {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 
@@ -492,10 +552,9 @@ header {
     align-items: flex-start;
 }
 
-.groupMain .h2{
+.groupMain .h2 {
     font-size: 2.1rem;
 }
-
 
 .groupMain .p1{
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -505,7 +564,6 @@ header {
     justify-content: center;
     align-items: center;
 }
-
 
 .groupImageInfo {
     display: flex;
@@ -574,9 +632,12 @@ header {
 }
 
 .membersList {
-    flex: 1;          
+    flex: 1;
+    width: 100%;
+    min-width: 0;
     overflow-y: auto;
     overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .groupTags {
@@ -831,7 +892,6 @@ header {
     padding: 0.2rem 0rem;
     height: 30%;
     gap: 30%;
-    display: center;
     align-items: center;
     flex-direction: column;
     cursor: pointer;
@@ -845,7 +905,7 @@ header {
 }
 
 .profileMain .tripInfoH{
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: flex;
     color: rgb(0, 0, 0);
     font-size: 1.1rem;
     font-weight: 450;

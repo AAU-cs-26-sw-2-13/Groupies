@@ -62,10 +62,13 @@ function createGroup(groupInfo) {
 fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})})
     .then(r => r.json())
     .then(members => {
+                console.log("attempting to create memberslist...")
                 createUserHTML(members,membersList) 
                 membercount = members.length
                 hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
-    })
+    }).catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
        
 
 

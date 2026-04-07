@@ -3,10 +3,11 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { getGroupMembers, getGroupInfo, getProfileInfo,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
-import { handleImage } from "./router APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON } from "./router APIs/authentication.js";
-import { loadDiscovery } from "./router APIs/pageRouting.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
+import { handleImage } from "./router-APIs/uploads.js";
+import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON } from "./router-APIs/authentication.js";
+import { loadDiscovery } from "./router-APIs/pageRouting.js";
+import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
 
@@ -56,7 +57,7 @@ async function createResponse(req, res) {
                             }
                             break;
                         }
-                        case "pref": await setUserPreference(req, res);
+                        case "pref": await setUserPreferences(req, res);
                             break;
                     }
                     break;
@@ -67,8 +68,8 @@ async function createResponse(req, res) {
                         data += chunk.toString()
                     })
                     req.on('end', () => {
-                        let jsonData = JSON.parse(data)
-                        queryResponse(res, () => getGroupMembers(jsonData.groupId));
+                        let jsonData = JSON.parse(data);
+                        queryResponse(res, () => queryGroupMembers(jsonData.groupId));
                     })
                     break;
                 }
@@ -110,8 +111,7 @@ async function createResponse(req, res) {
                 }
                 case "group": {
                     if(pathElements[2]==="groupInfo"){
-                        let groupInfoId = url.searchParams.get("id")
-                        queryResponse(res, getGroupInfo, [groupInfoId,groupInfoId])
+                        queryResponse(res, queryGroupInfo, url.searchParams.get("id"))
                     }else{
                         fileResponse(res, "html/group.html");  
                     }
@@ -119,7 +119,7 @@ async function createResponse(req, res) {
                 }
                 case "profile": {
                     if(pathElements[2]==="profileInfo"){
-                        queryResponse(res, getProfileInfo, [url.searchParams.get("id")])
+                        queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
                     }else{
                         fileResponse(res, "html/profile.html");  
                     }
@@ -130,13 +130,18 @@ async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("NeedImage")
+                    console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }
-                case "preferences":
-                    queryResponse(res, getAllPreferences)
+                case "prefs": {
+                    try {
+                        await queryResponse(res, queryAllPreferences);
+                    } catch (error) {
+                        console.error(error);
+                    }
                     break;
+                }
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname);
