@@ -30,13 +30,14 @@ const profileId = pageURL.searchParams.get("id")
 fetch(`profileInfo?id=${profileId}`).then(response => {
     return response.json()
 }).then(jsonResponse => {
-    createProfile(jsonResponse)
+    createEditProfile(jsonResponse)
     generateTrips(jsonResponse)
 })
 
 let user = { user_id: null };
 
 function createProfile(profile) {
+    document.getElementById("mainContainer")?.remove()
     console.table(profile);
 
     let ownProfile = (profileId == activeUserId) ? true : false; //if id returned from db matches profile page to build, user visited own profile
@@ -44,6 +45,7 @@ function createProfile(profile) {
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
+    backgroundContainer.setAttribute("id", "mainContainer")
 
     let profileContainer = document.createElement("section")
     profileContainer.setAttribute("class", "profileContainer")
@@ -155,12 +157,30 @@ function createProfile(profile) {
     tripList.setAttribute("id", "tripList")
     tripList.setAttribute("class", "tripList")
 
-    // Options if user is equal to the profile userid
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Back"
+    backButton.addEventListener("click", () => { window.location.href = "/" })
+
     let optionsContainer = document.createElement("section")
     optionsContainer.setAttribute("class", "optionsContainer")
 
+    if (ownProfile) {
+        let editButton = document.createElement("button")
+        editButton.setAttribute("class", "box-button2")
+        editButton.setAttribute("type", "button")
+        editButton.textContent = "Edit Profile"
+        editButton.addEventListener('click', () => {
+            createEditProfile(profile)
+        })
+        optionsContainer.append(backButton, editButton)
+    } else {
+        optionsContainer.append(backButton)
+    }
+
     // Appending
-    profileContainer.append(profileImg, usernameP, infoP, followersAmountP, followingAmountP, interactionD, profileInteractions, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
+    profileContainer.append(profileImg, usernameP, infoP, followersAmountP, followingAmountP, interactionD, profileInteractions, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP, optionsContainer)
 
     if (profile.groups.length === 0) { // Text if no trips
         let noTripsText = document.createElement("p")
@@ -174,6 +194,16 @@ function createProfile(profile) {
 
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
+}
+
+function createEditProfile(profile) {
+    let ownProfile = (profileId == activeUserId) ? true : false;
+    if (!ownProfile) { console.log(`User ${activeUserId} tried to access edit page of user ${profileId}`); return }
+    document.getElementById("mainContainer")?.remove()
+
+    let backgroundContainer = document.createElement("section")
+    backgroundContainer.setAttribute("class", "profileMain")
+    backgroundContainer.setAttribute("id", "mainContainer")
 }
 
 // Generates the HTML object for a trip
@@ -313,7 +343,6 @@ function insertNewPrefButtons(filteredPrefs) {
     newPreferenceList.setAttribute("id", "newPreferenceList_id")
 
     let allNewPrefs = filteredPrefs.map(pref => pref.preference_id);
-
 
     for (let prefName of allNewPrefs) {
         if (prefName !== null) {
