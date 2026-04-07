@@ -157,7 +157,7 @@ function createHTML(){
 
     let tagsList = document.createElement("ul")
     // Fetch possible preferences/tags to show as checkboxes
-    fetch("/preferences", {method: "GET"})
+    fetch("/prefs", {method: "GET"})
     .then(r => r.json())
     .then(prefs => {
         for(let p of prefs){
