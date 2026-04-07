@@ -2,7 +2,7 @@ import { getCurrentUser } from "./userAPI.js";
 import { login, register } from "./loginRegister.js";
 import { createUserHTML } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js";
-import  "./indexHelpers/indexListeners.js";
+import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
 
 //Queries to dom elements
 let tripList = document.querySelector("#tripList");
@@ -156,6 +156,7 @@ fetch("/me", {
     generateUsers(user);
     generateSimilarUsers(user);
     generateTrips(user, discovered);
+    generateUserListButtons(user);
 }).catch(err => {
     console.log("Auth Check:", err);
 });

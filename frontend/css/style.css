@@ -149,7 +149,7 @@ body {
 
 .highlight-box-button2 {
     padding: 0.5rem 1.2rem;
-    background-color: #4f378b;
+    background-color: #7e378b;
     color: white;
     border: 0px;
     border-radius: 10px;
@@ -384,6 +384,7 @@ header {
 }
 
 /* DISCOVER TRIP CSS */
+.trip{
     padding: 0.5rem 0rem;
     display: flex;
     height: 4rem;
