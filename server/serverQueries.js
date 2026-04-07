@@ -170,7 +170,9 @@ END
 
 `
 const getChatHistoryQuery = `SELECT sender_id, target_id, chat_text FROM chat_users 
-WHERE (sender_id = ? AND target_id = ?) OR (sender_id = ? AND target_id = ?);`
+WHERE (sender_id = ? AND target_id = ?) OR (sender_id = ? AND target_id = ?)
+ORDER BY created_at;`
+
 
 
 export async function getAllUsers() {
@@ -273,6 +275,5 @@ export async function getUserContacts(params) {
 
 export async function getChatHistory(params) {
     let queryResponse = await query(getChatHistoryQuery, params)
-    console.log(queryResponse)
     return queryResponse
 }

@@ -1,12 +1,16 @@
 import { initializeHeader } from "./loadHeader.js"
+//The socket connection
+let socket = io()
 
 //HTML ELEMENTS
 let header = document.querySelector("header")
 let userContacts = document.querySelector(".userContactList")
 let groupContacts = document.querySelector(".groupContactList")
 let chatList = document.querySelector(".chatHistoryList")
-
-
+let sendMessage = document.querySelector(".sendMessageButton")
+let messageInput = document.querySelector(".messageInputBox")
+let activeChatName = document.querySelector(".activeChatName")
+let activeChatImage = document.querySelector(".activeChatImage")
 
 let user = await fetch("/me", {
     method: "GET",
@@ -27,6 +31,12 @@ let user = await fetch("/me", {
 }).catch(err => {
     window.location.href = "/"
 });
+
+//Listens for update of contact information
+socket.on('updateChatInfo', (data)=>{
+    activeChatImage.setAttribute("src", data[0].picture) 
+    activeChatName.textContent =  data[0].full_name
+})
 
 //Load user contacts
 fetch(`getUserContacs/?ownUser=${user.user_id}`).then(response => {
@@ -49,6 +59,7 @@ function loadChat(){
     let activeChat = new URL(window.location.href)
     let chatId = activeChat.searchParams.get("id")
     if(chatId){
+        //Get the old chat history
         fetch(`getChatHistory/?ownUser=${user.user_id}&chatUser=${chatId}`).then(response=>{
             if(response.status === 200){
                 return response.json()
@@ -64,18 +75,51 @@ function loadChat(){
                     createOpponenMessage(m.chat_text)
                 }
             }
+             //Joins the socket room
+            socket.emit('join-chat', {
+                userId: user.user_id,
+                targetId: chatId
+            })
+            //Scroll to the buttom
+            chatList.scrollTo(0, chatList.scrollHeight)
+
+            //Removes possible old active listeners
+            socket.off('messageClient')
+            //Listens for new chats
+            socket.on('messageClient', data=>{
+                console.log(data)
+                if(data.sender === user.user_id){
+                    createOwnMessage(data.message)
+                }else{
+                    createOpponenMessage(data.message)
+                }
+                chatList.scrollTo(0, chatList.scrollHeight)
+            })
         })
     }else{
         console.log("No active chats")
     }
 }
 loadChat()
-
+//Add event listener for sending a message
+sendMessage.addEventListener('click', ()=>{
+    let activeChat = new URL(window.location.href)
+    let chatId = activeChat.searchParams.get("id")
+    if(messageInput.value !== ""){
+        socket.emit('message', {
+                userId: user.user_id,
+                targetId: chatId,
+                message: messageInput.value
+            })
+        messageInput.value = ""
+    }
+})
 
 
 
 //HTML FOR GENERATING USER CONTACT
 function generateUserContact(uc){
+    console.log(uc)
     //List item
     let listItem = document.createElement("li")
     userContacts.append(listItem)
@@ -83,12 +127,16 @@ function generateUserContact(uc){
     //Contact Div
     let contactDiv = document.createElement("div")
     contactDiv.setAttribute("class", "userContactElement")
-    contactDiv.addEventListener('click', () =>{
+
+    listItem.append(contactDiv)
+
+    //Event listener for loading new chat
+     contactDiv.addEventListener('click', () =>{
         window.history.pushState(null,"", `/chat/users/?id=${uc.id}`)
+        activeChatImage.setAttribute("src",uc.picture)
+        activeChatName.textContent = uc.contact_name
         loadChat()
     })
-    contactDiv.dataset.id = uc.id
-    listItem.append(contactDiv)
 
     //User contact info
     let contactInfo = document.createElement("div")

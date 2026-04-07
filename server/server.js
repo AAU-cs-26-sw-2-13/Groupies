@@ -2,6 +2,9 @@ import http from "http";
 import path from "path";
 import fs from "fs";
 import { createResponse } from "./router.js"
+import {Server} from "socket.io"
+import { da } from "@faker-js/faker";
+import {chatSocket} from "./router APIs/chat.js"
 
 const hostname = 'localhost';
 const port = 3000;
@@ -12,9 +15,19 @@ const server = http.createServer((req, res) => {
     createResponse(req, res);
 });
 
+const ioSocketServer = new Server(server, {
+    cors: {
+        origin: false
+    }
+})
+
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });
+
+ioSocketServer.on('connection', socket =>{
+    chatSocket(socket, ioSocketServer)
+})
 
 export function sanitizePath(userPath) {
     //Valider stien - fjenr \0 tegn

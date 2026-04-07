@@ -3,7 +3,7 @@
     <head>
         <title>Groupies</title>
         <link rel="stylesheet" href="/css/style.css">
-
+        <script src="/socket.io/socket.io.js"></script> <!--SocketIO - used for websocket logic-->
     </head>
     <body>
         <header></header> <!-- The navigation header will go here -->
@@ -44,8 +44,8 @@
             </div>
             <section class="chatBox">
                 <div class="chatBoxTop">
-                    <img src="/img/accountPlaceholder.svg">
-                    <h2>Julie Roberts</h2>
+                    <img class="activeChatImage activeChatImage" src="/img/accountPlaceholder.svg">
+                    <h2 class="activeChatName">Julie Roberts</h2>
                 </div>
                 <section class="chatHistory">
                     <ul class="chatHistoryList">
