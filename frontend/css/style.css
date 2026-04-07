@@ -60,7 +60,6 @@ body {
 #tripList {
     height: 27rem;
     overflow-y: auto;
-    overflow-x: auto;
 }
 
 
@@ -390,8 +389,9 @@ header {
 .trip{
     padding: 0.5rem 0rem;
     display: flex;
-    height: 4rem;
-    justify-content: space-between;
+    /*height: 4rem;  Der var nogle der tilføjet dette*/
+    flex-direction: column; /*og slettede dette, som breakede den måde trips bliver lavet*/
+    justify-content: space-between; /*readdede den gamle format, ved ikke om det breaker noget andet */
     border-bottom: 1px solid #E0E0E0;
     gap: 0.5rem;
     cursor: pointer;
