@@ -44,7 +44,7 @@ function createProfile(profile) {
     profileContainer.setAttribute("id", "about")
 
     let tripContainer = document.createElement("section")
-    tripContainer.setAttribute("class", "profileContainer")
+    tripContainer.setAttribute("class", "tripContainer")
     tripContainer.setAttribute("id", "trips")
 
     // Profile Container
@@ -130,6 +130,10 @@ function createProfile(profile) {
     tripList.setAttribute("id", "tripList")
     tripList.setAttribute("class", "tripList")
 
+    // Options if user is equal to the profile userid
+    let optionsContainer = document.createElement("section")
+    optionsContainer.setAttribute("class", "optionsContainer")
+
     // Appending
     profileContainer.append(profileImg, usernameP, infoP, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
     
@@ -145,8 +149,6 @@ function createProfile(profile) {
 
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
-
-    
 }
 
 // Generates the HTML object for a trip
