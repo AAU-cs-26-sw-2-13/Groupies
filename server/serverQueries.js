@@ -39,7 +39,7 @@ SELECT
     u.age,
     u.picture,
     JSON_ARRAYAGG(p.preference_id) AS preferences,
-    (SELECT COUNT(id) FROM user_relations WHERE user_id = u.id) AS followers
+    (SELECT COUNT(id) FROM user_relations WHERE target_user_id = u.id) AS followers
 FROM users u
 LEFT JOIN user_prefs p 
     ON u.id = p.user_id
