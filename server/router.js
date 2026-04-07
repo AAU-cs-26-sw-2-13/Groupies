@@ -1,11 +1,12 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
-import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout } from "./router-APIs/authentication.js";
-import { loadDiscovery } from "./router-APIs/pageRouting.js";
-import { setUserPreferences } from "./router-APIs/userPreferences.js"
+import { handleImage } from "./router APIs/uploads.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences } from "./router APIs/authentication.js";
+import { loadDiscovery, regPreferences } from "./router APIs/pageRouting.js";
+export { createResponse }
 import { el } from "@faker-js/faker";
+
 
 /**
  * CreateResponse takes the request received on the server listener and switches on the request url.
@@ -23,7 +24,9 @@ import { el } from "@faker-js/faker";
  *      - "images":
  *      - defaults to server a fileresponse corresponding to the url of the request
  */
-export async function createResponse(req, res) {
+
+
+async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
     let url = new URL(req.url, baseURL);
 
@@ -41,6 +44,8 @@ export async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
                                         break;
+                                    case "regPrefs": await registerPreferences(req, res);
+                                        break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
                                         break;
@@ -51,7 +56,7 @@ export async function createResponse(req, res) {
                             }
                             break;
                         }
-                        case "pref": await setUserPreferences(req, res);
+                        case "pref": await setUserPreference(req, res);
                             break;
                     }
                     break;
@@ -67,6 +72,8 @@ export async function createResponse(req, res) {
                     })
                     break;
                 }
+                case "regPrefs": await regPreferences(req, res);
+                    break;
             }
             break;
         }
@@ -98,16 +105,8 @@ export async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("Image request received...")
+                    console.log("NeedImage")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
-                    break;
-                }
-                case "prefs": {
-                    try {
-                        await queryResponse(res, queryAllPreferences);
-                    } catch (error) {
-                        console.error(error);
-                    }
                     break;
                 }
                 //Fallback to file response

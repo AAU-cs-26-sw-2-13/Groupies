@@ -1,3 +1,6 @@
+import { getCurrentUser } from "./userAPI.js";
+
+
 export async function login(email, password) {
   const res = await fetch("/api/auth/login", {
     method: "POST",

@@ -1,3 +1,5 @@
+import { parseTags } from "./parseJson.js"
+
 //Generates the HTML object for a new user
 export function createUser(id, name, age, gender, country, picture, tags) {
     let list = document.createElement("li")
@@ -85,7 +87,7 @@ export function followUserListener(event) {
 export function createUserHTML(userArray, targetList) {
     for (let u of userArray) {
         let prefs = u.preferences;
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs));
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, parseTags(prefs)));
     }
 }
 
