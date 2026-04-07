@@ -84,8 +84,8 @@ export function followUserListener(event) {
 
 export function createUserHTML(userArray, targetList) {
     for (let u of userArray) {
-        let prefs = u.preferences
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs))
+        let prefs = u.preferences;
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs));
     }
 }
 

@@ -4,7 +4,7 @@ import { pool } from "../database/pool.js";
 const pagesLoaded = 10;
 
 
-const defaultGroups = `
+const sqlGetPopularGroups = `
 SELECT 	grp.id,
 		grp.host_user_id,
         grp.about,
@@ -29,7 +29,7 @@ LIMIT ?, 10;
 `
 
 
-const sqlGetAllUsers = `
+const sqlGetPopularUsers = `
 SELECT 
     u.id,
     u.name_first,
@@ -47,21 +47,41 @@ GROUP BY u.id
 ORDER BY followers DESC
 LIMIT 0,10;
 `
-/*
-SELECT 	u.id,
-        concat(name_first," ",name_last) AS full_name,
-        u.age,
-        u.gender,
-        json_arrayagg(up.preference_id) AS preferences
-        
+//for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
+const sqlGetSimilarUsers = `SELECT 
+    u.id,
+    u.name_first,
+    u.name_last,
+    u.country,
+    u.gender,
+    u.age,
+    u.picture,
+    JSON_ARRAYAGG(p.preference_id) AS preferences,
+
+    (SELECT COUNT(*) FROM user_relations WHERE user_id = u.id) AS followers,
+    (    
+		(
+    SELECT COUNT(*) FROM user_prefs AS a
+    INNER JOIN user_prefs AS b ON a.preference_id = b.preference_id AND b.user_id = u.id
+    WHERE a.user_id = ?
+    )     /    (
+    SELECT COUNT(*) FROM (
+    SELECT preference_id FROM user_prefs WHERE user_id = ?
+    UNION 
+    SELECT preference_id FROM user_prefs WHERE user_id = u.id
+    ) Count
+    )    )
+    AS Jaccard
 FROM users AS u
-JOIN user_prefs AS up
-ON u.id = up.user_id
-group by u.id;
+LEFT JOIN user_prefs p 
+ ON u.id = p.user_id
+GROUP BY u.id
+ORDER BY Jaccard DESC, followers DESC 
+LIMIT 0, 100;
+`
+//[jsonData.user_id, jsonData.user_id, ]
 
-*/
-
-const Jaccard = `
+const sqlJaccardSortedGroups = `
 SELECT 	grp.id,
 		grp.host_user_id,
         grp.about,
@@ -103,7 +123,7 @@ FROM preferences
 ORDER BY id
 `
 
-const getGroupInfoQuery = `
+const sqlGetGroupInfoQuery = `
 SELECT grp.created_at, grp.title, grp.destination, grp.about, 
 	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
        (SELECT COUNT(id) FROM group_relations WHERE group_id = ? AND member = 1) AS member_count,
@@ -127,7 +147,7 @@ LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 
 
 const getProfileInfoQuery = `
-SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture, u.id,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -137,23 +157,28 @@ WHERE u.id = ?
 `
 
 
-export async function getAllUsers() {
-    let queryResponse = await query(sqlGetAllUsers)
-    return queryResponse
+export async function queryPopularUsers() {
+    let queryResponse = await query(sqlGetPopularUsers);
+    return queryResponse;
 }
 
-export async function getAllGroups(params) {
-    let queryResponse = await query(defaultGroups, params)
-    return queryResponse
+export async function querySimilarUsers(params) {
+    let queryResponse = await query(sqlGetSimilarUsers, params);
+    return queryResponse;
 }
 
-export async function jaccardSorted(params) {
-    let queryResponse = await query(Jaccard, params)
-    return queryResponse
+export async function queryPopularGroups(params) {
+    let queryResponse = await query(sqlGetPopularGroups, params);
+    return queryResponse;
+}
+
+export async function queryJaccardSortedGroups(params) {
+    let queryResponse = await query(sqlJaccardSortedGroups, params);
+    return queryResponse;
 }
 
 
-export async function getGroupMembers(groupId) {
+export async function queryGroupMembers(groupId) {
     return query(`
         SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
                gr.organizer, gr.member,
@@ -167,19 +192,41 @@ export async function getGroupMembers(groupId) {
     `, [groupId])
 }
 
-export async function getGroupInfo(groupId) {
-    let queryResponse = await query(getGroupInfoQuery, groupId)
+export async function queryGroupInfo(groupId) {
+    const normalizedGroupId = Array.isArray(groupId) ? groupId[0] : groupId;
+    let queryResponse = await query(sqlGetGroupInfoQuery, [normalizedGroupId, normalizedGroupId])
     return queryResponse[0]
 }
 
-export async function getProfileInfo(userId) {
-    let queryResponse = await query(getProfileInfoQuery, [userId, userId, userId])
-    let queryResponseGroups = await query(getProfileGroupsQuery, userId) // Past groups
+export async function queryProfileInfo(userId) {
+    const normalizedUserId = Array.isArray(userId) ? userId[0] : userId;
+    let queryResponse = await query(getProfileInfoQuery, [normalizedUserId, normalizedUserId, normalizedUserId])
+    let queryResponseGroups = await query(getProfileGroupsQuery, [normalizedUserId]) // Past groups
     queryResponse[0].groups = queryResponseGroups;
     return queryResponse[0]
 }
 
-export async function getAllPreferences() {
+export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
-    return queryResponse
+    return queryResponse;
+}
+
+export async function queryUpdateUserPreferences(user_id, preferenceList) {
+    try {
+        // Clear existing prefs first to avoid duplicates
+        await query('DELETE FROM user_prefs WHERE user_id = ?', [user_id]);
+        //for each preference in the list insert a row in the db.
+        if (preferenceList && preferenceList.length > 0) {
+            for (let pref of preferenceList) {
+                await query(
+                    'INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES (?, ?, ?)',
+                    [user_id, pref, 1]
+                );
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Database error in updateUserPreferences:", e);
+        throw e;
+    }
 }

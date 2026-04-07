@@ -3,6 +3,7 @@ import { initializeHeader } from "./loadHeader.js"
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
+let activeUserId = 0;
 
 fetch("/me", {
     method: "GET",
@@ -18,6 +19,7 @@ fetch("/me", {
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data
     let user = jsonResponse;
+    activeUserId = user.user_id;
     initializeHeader(header, user, "Profile");
 }).catch(err => {
     console.log("Auth Check:", err);
@@ -35,6 +37,10 @@ fetch(`profileInfo?id=${profileId}`).then(response => {
 let user = { user_id: null };
 
 function createProfile(profile) {
+    console.table(profile);
+
+    let ownProfile = (profileId == activeUserId) ? true : false; //if id returned from db matches profile page to build, user visited own profile
+    console.log(`The profile build for user id ${profile.id} commencing with own profile variable value: ${ownProfile}`);
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
@@ -60,7 +66,7 @@ function createProfile(profile) {
     infoP.setAttribute("class", "pGrey")
     infoP.textContent = profile.age + ", " + profile.gender + ", " + profile.country
 
-    // ProfileContainer - Follow and Message Buttons section
+    // ProfileContainer - Follow and Message Buttons section (not needed if user is loading their own profile)
     let profileInteractions = document.createElement("div")
     profileInteractions.setAttribute("class", "profileButtons")
 
@@ -76,7 +82,21 @@ function createProfile(profile) {
     messageButton.textContent = "message"
     //messageButton.addEventListener('click', followUserListener)
 
-    profileInteractions.append(followButton, messageButton)
+    let editPrefsButton = document.createElement("button");
+    editPrefsButton.setAttribute("id", "edit-prefs-button_id");
+    editPrefsButton.setAttribute("class", "box-button2");
+    editPrefsButton.setAttribute("type", "button");
+    editPrefsButton.textContent = "Edit your preferences";
+    editPrefsButton.addEventListener('click', (event) => {
+        editPrefsHandler(profile, event);
+    });
+
+    if (!ownProfile) {
+        profileInteractions.append(followButton, messageButton)
+    }
+    else {
+        profileInteractions.append(editPrefsButton);
+    }
 
     // ProfileContainer - Followers section
     let followersAmountP = document.createElement("p")
@@ -92,14 +112,18 @@ function createProfile(profile) {
     preferenceHeader.setAttribute("class", "pGrey")
     preferenceHeader.textContent = "Preferences"
 
-    let preferenceList = document.createElement("ul")
-    preferenceList.setAttribute("class", "prefList")
+    let preferenceList = document.createElement("ul");
+    preferenceList.setAttribute("class", "prefList");
+    preferenceList.setAttribute("id", "preferenceList_id");
     for (let t of profile.preferences) {
         if (t !== null) {
             let pref = document.createElement("li")
-            pref.setAttribute("class", "pref-item")
-            pref.textContent = t
+            let button = document.createElement("button")
+            button.setAttribute("class", "pref-item")
+            button.textContent = t
+            pref.append(button);
             preferenceList.append(pref)
+            if (ownProfile) button.addEventListener('click', togglePreferenceHandler);
         }
     }
 
@@ -107,7 +131,7 @@ function createProfile(profile) {
     let aboutHeader = document.createElement("p")
     aboutHeader.setAttribute("class", "pGrey")
     aboutHeader.textContent = "About"
-    
+
     let aboutP = document.createElement("p")
     aboutP.setAttribute("class", "pGrey")
     aboutP.textContent = profile.bio
@@ -119,6 +143,7 @@ function createProfile(profile) {
     interactionD.setAttribute("class", "divider")
     metricsD.setAttribute("class", "divider")
     prefsD.setAttribute("class", "divider")
+    prefsD.setAttribute("id", "newPrefsListTarget_id")
 
     // Trip Container
     let tripHeader = document.createElement("h2")
@@ -135,8 +160,8 @@ function createProfile(profile) {
     optionsContainer.setAttribute("class", "optionsContainer")
 
     // Appending
-    profileContainer.append(profileImg, usernameP, infoP, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
-    
+    profileContainer.append(profileImg, usernameP, infoP, followersAmountP, followingAmountP, interactionD, profileInteractions, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
+
     if (profile.groups.length === 0) { // Text if no trips
         let noTripsText = document.createElement("p")
         noTripsText.setAttribute("class", "pGrey")
@@ -158,7 +183,7 @@ function createTrip(data) {
     const title = data.title
     const host = data.host_name
     const memberCount = data.member_count
-    
+
     let list = document.createElement("li")
     list.setAttribute("class", "tripElement")
 
@@ -166,7 +191,7 @@ function createTrip(data) {
     let centerLTContainer = document.createElement("div")
     let centerRTContainer = document.createElement("div")
     let rightTContainer = document.createElement("div")
-    
+
     leftTContainer.setAttribute("class", "  ateContainer")
     centerLTContainer.setAttribute("class", "tripConnectorImage")
     centerRTContainer.setAttribute("class", "tripImageContainer")
@@ -180,7 +205,7 @@ function createTrip(data) {
     tripYear.setAttribute("class", "tripDateP")
     tripMonth.setAttribute("class", "tripDateH")
     tripYear.textContent = date.getFullYear()
-    tripMonth.textContent = date.toLocaleDateString('en', {month: 'long'})
+    tripMonth.textContent = date.toLocaleDateString('en', { month: 'long' })
 
     let tripImage = document.createElement("img")
     tripImage.setAttribute("class", "tripImage")
@@ -192,7 +217,7 @@ function createTrip(data) {
     let connectorImage = document.createElement("img")
     connectorImage.setAttribute("class", "connectorImage")
     connectorImage.setAttribute("src", "../img/radioButtonChecked.svg")
-    
+
     let tripText = document.createElement("div")
     tripText.setAttribute("class", "tripInfo")
 
@@ -235,5 +260,130 @@ function groupClick(event) {
 async function generateTrips(user) {
     for (let group of user.groups) {
         tripList.append(createTrip(group))
+    }
+}
+
+async function editPrefsHandler(profile, event) {
+    const prefsButton = event.target;
+
+    if (prefsButton.innerText === "Edit your preferences") {
+        console.log("Entering edit preferences case");
+        prefsButton.innerText = "Save preferences";
+        prefsButton.classList.replace("box-button2", "highlight-box-button2");
+
+        fetch("/prefs").then((response) => {
+            if (response.status === 200) {
+                return response.json();
+            }
+        }).then(jsonResponse => {
+            let possiblePrefs = jsonResponse;
+            let filteredPrefs = possiblePrefs.filter(pref => {
+                return !profile.preferences.includes(pref.preference_id); //return each preference that is not already selected to an array
+            })
+            console.log("Adding the following unselected preferences:")
+            console.log(filteredPrefs);
+            return filteredPrefs;
+        }).catch(err => {
+            console.error("Error fetching all prefs:", err);
+        }).then(filteredPrefs => {
+            insertNewPrefButtons(filteredPrefs);
+        });
+    }
+    else {
+        console.log("Saving Preferences...");
+        await savePrefsHandler(profile, event);
+
+        // Reset button state to edit your preferences
+        prefsButton.innerText = "Edit your preferences";
+        prefsButton.classList.replace("highlight-box-button2", "box-button2");
+    }
+}
+
+function insertNewPrefButtons(filteredPrefs) {
+    document.getElementById("newPreferenceHeader_id")?.remove();
+    document.getElementById("newPreferenceList_id")?.remove();
+    
+    let newPreferenceHeader = document.createElement("p")
+    newPreferenceHeader.setAttribute("class", "pGrey")
+    newPreferenceHeader.textContent = "Select new preferences"
+    newPreferenceHeader.setAttribute("id", "newPreferenceHeader_id")
+
+    let newPreferenceList = document.createElement("ul");
+    newPreferenceList.setAttribute("class", "prefList");
+    newPreferenceList.setAttribute("id", "newPreferenceList_id")
+
+    let allNewPrefs = filteredPrefs.map(pref => pref.preference_id);
+
+
+    for (let prefName of allNewPrefs) {
+        if (prefName !== null) {
+            let pref = document.createElement("li");
+            let button = document.createElement("button");
+            button.setAttribute("class", "unselected-pref-item");
+            button.textContent = prefName;
+            pref.append(button);
+            newPreferenceList.append(pref);
+            button.addEventListener('click', togglePreferenceHandler);
+        }
+    }
+
+    let newPrefsInsertTarget = document.getElementById("newPrefsListTarget_id");
+    newPrefsInsertTarget.after(newPreferenceHeader, newPreferenceList);
+}
+
+async function savePrefsHandler(profile, event) {
+    //logic to save preferences
+    console.log("profile id in savePrefsHandler: " + profile.id);
+    let newPreferenceHeader = document.getElementById("newPreferenceHeader_id");
+    let newPreferenceList = document.getElementById("newPreferenceList_id");
+    let preferenceList = document.getElementById("preferenceList_id")
+
+    //Get the current prefs buttons state in the existing prefs list and make an array for a post request to query the DB for update
+    const currentPrefs = Array.from(preferenceList.querySelectorAll('button'))
+                              .map(btn => btn.textContent.trim());
+    console.log("Attempting to set user prefs in DB to the following prefs;" + currentPrefs);
+
+    try {
+        const response = await fetch("/api/pref", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_id: profile.id,
+                preferenceList: currentPrefs
+            })
+        });
+
+        if (response.ok) {
+            // Update local profile so no duplicate buttons are created if "edit your preferences" is clicked again
+            profile.preferences = currentPrefs;
+            //remove the elements
+            newPreferenceHeader.remove();
+            newPreferenceList.remove();
+            console.log("Preferences saved successfully.");
+        }
+    } catch (err) {
+        console.error("Failed to save preferences:", err);
+    }
+}
+
+async function togglePreferenceHandler(event) {
+    let preferenceList = document.getElementById("preferenceList_id") //DRY lacking :( too moist
+    let newPreferenceList = document.getElementById("newPreferenceList_id")
+    const button = event.target.closest('button');
+    if (!button || !preferenceList || !newPreferenceList) return;
+
+    console.log("button and parent nodes:")
+    console.log(button);
+    console.log(button.parentNode.parentNode);
+
+    const currentContainer = button.parentNode.parentNode;
+
+    if (currentContainer === preferenceList) {
+        button.classList.replace('pref-item', 'unselected-pref-item');
+        newPreferenceList.append(button.parentNode);
+    }
+    else if (currentContainer === newPreferenceList) {
+        button.classList.replace('unselected-pref-item', 'pref-item');
+        preferenceList.append(button.parentNode);
     }
 }

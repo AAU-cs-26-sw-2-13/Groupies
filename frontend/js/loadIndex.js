@@ -1,13 +1,13 @@
-import { getCurrentUser } from "./userAPI.js";
-import { login, register } from "./loginRegister.js";
-import { createUserHTML } from "./User_creation.js"
-import { initializeHeader } from "./loadHeader.js"
+import { createUserHTML } from "./User_creation.js";
+import { initializeHeader } from "./loadHeader.js";
+import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
 
 //Queries to dom elements
-let tripList = document.querySelector("#tripList")
-let userList = document.querySelector("#userList")
-let header = document.querySelector("header")
-let buttons = document.querySelector(".pageButtons")
+let tripList = document.querySelector("#tripList");
+let userList = document.querySelector("#userList");
+let similarUserList = document.querySelector("#similarUserList");
+let header = document.querySelector("header");
+let buttons = document.querySelector(".pageButtons");
 
 //Context variables
 let discovered = 1;
@@ -152,20 +152,37 @@ fetch("/me", {
     user = jsonResponse;
     initializeHeader(header, user, "Index");
     generateUsers(user);
+    generateSimilarUsers(user);
     generateTrips(user, discovered);
+    generateUserListButtons(user);
 }).catch(err => {
     console.log("Auth Check:", err);
 });
 
-//Get users
+//Get users sorted by # followers
 async function generateUsers(user) {
-    user.query = "users"
-    let usersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) })
+    console.log("attempting to generate users...");
+    user.query = "users";
+    let usersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
     usersQuery.then(userResponse => {
-        return userResponse.json()
+        return userResponse.json();
     }).then(jsonUserResponse => {
-        createUserHTML(jsonUserResponse, userList)
+        console.log("received json User list response");
+        createUserHTML(jsonUserResponse, userList);
     })
+}
+
+async function generateSimilarUsers(user) {
+    console.log("attempting to generate similar users...");
+    user.query = "similar users";
+    let similarUsersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
+    similarUsersQuery.then(similarUsersResponse => {
+        return similarUsersResponse.json();
+    }).then(jsonSimilarUsersResponse => {
+        console.log("received json similar user list response");
+        createUserHTML(jsonSimilarUsersResponse, similarUserList);
+    })
+
 }
 
 //Get groups
