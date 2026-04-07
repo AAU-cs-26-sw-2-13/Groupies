@@ -969,6 +969,9 @@ header {
 .createTripPage .register-box-top{
     width: 35%;
 }
+.createTripPage .register-box{
+    display: flex;
+}
     .createTripPage .reg-box-inputs{
         width: 75%;
         margin-bottom: 5px;

@@ -91,7 +91,7 @@ async function createResponse(req, res) {
                 const fileName = crypto.randomUUID() + ".jpg"
                 const filePath = path.join("frontend/img", fileName)
                 writeFileSync(filePath, Buffer.from(base64Data, "base64"))
-                picturePath = "img/" + fileName
+                picturePath = "../img/" + fileName
                 }
                     await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
                     res.writeHead(200, {"Content-Type": "application/json"})
