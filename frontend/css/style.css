@@ -621,6 +621,8 @@ header {
     -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     font-size: 0.85rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .groupImg {

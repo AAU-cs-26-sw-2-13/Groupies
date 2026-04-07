@@ -76,6 +76,7 @@ function createHTML(){
     groupDesc.setAttribute("type", "text")
     groupDesc.setAttribute("class", "description")
     groupDesc.setAttribute("placeholder", "Description (optional)")
+    groupDesc.setAttribute("maxlength", "500")
 
     let fileIcon = document.createElement("i")
     fileIcon.setAttribute("class", "fa-regular fa-image")
