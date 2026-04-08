@@ -12,7 +12,7 @@ export function loadDiscovery (req, res) {
     req.on('end', async () => {
         let jsonData = JSON.parse(data);
         if (jsonData.user_id !==null) { //If there is a login token (so we have an active user ID and want to tailor the items to the user)
-            console.log(`User found w id: ${jsonData.user_id}, query is for: "${jsonData.query}"`);
+            //console.log(`User found w id: ${jsonData.user_id}, query is for: "${jsonData.query}"`);
             switch(jsonData.query){
                 case "users": {
                     await queryResponse(res, queryPopularUsers);
@@ -20,7 +20,7 @@ export function loadDiscovery (req, res) {
                 }
                 case "similar users": {
                     await queryResponse(res, querySimilarUsers, [jsonData.user_id, jsonData.user_id]);
-                    console.log("IN THE SIMILAR USERS LIST CASE");
+                    //console.log("IN THE SIMILAR USERS LIST CASE");
                     if (!queryResponse) console.log("No queryResponse in similar users case");
                     break;
                 }

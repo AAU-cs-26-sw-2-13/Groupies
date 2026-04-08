@@ -47,6 +47,9 @@ export async function createResponse(req, res) {
                                     //logout request received, log the user out (delete session in DB)
                                     case "logout": await logout(req, res);
                                         break;
+                                    //Request to edit user profile
+                                    case "edit": await console.log("test");
+                                        break;
                                 }
                             }
                             break;
@@ -98,7 +101,7 @@ export async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("Image request received...")
+                    //console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }

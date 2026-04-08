@@ -201,12 +201,12 @@ function createEditProfile(profile) {
     if (!ownProfile) { console.log(`User ${activeUserId} tried to access edit page of user ${profileId}`); return }
     document.getElementById("mainContainer")?.remove()
 
-    let backgroundContainer = document.createElement("section")
-    backgroundContainer.setAttribute("class", "profileMain")
-    backgroundContainer.setAttribute("id", "mainContainer")
-    backgroundContainer.style.alignItems = "center"
-    backgroundContainer.style.flexDirection = "column"
-    backgroundContainer.style.width = "35%"
+    let formContainer = document.createElement("form")
+    formContainer.setAttribute("class", "profileMain")
+    formContainer.setAttribute("id", "mainContainer")
+    formContainer.style.alignItems = "center"
+    formContainer.style.flexDirection = "column"
+    formContainer.style.width = "35%"
 
     let firstNameInput = document.createElement("input")
     firstNameInput.type = "text"
@@ -246,14 +246,32 @@ function createEditProfile(profile) {
     saveButton.setAttribute("class", "box-button2")
     saveButton.setAttribute("type", "button")
     saveButton.textContent = "Save"
-    saveButton.addEventListener('click', () => {
-        //createEditProfile(profile)
-    })
+
     optionsContainer.append(backButton, saveButton)
     
-    backgroundContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
-    main.append(backgroundContainer)
+    formContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
+    saveButton.addEventListener('click', () => {
+        console.log("123")
+        console.log(firstNameInput.value)
+        editProfile(firstNameInput.value,
+            lastNameInput.value,
+            emailInput.value,
+            passwordInput.value
+        )
+    })
+    main.append(formContainer)
 }
+
+async function editProfile(firstname, lastname, email, password) {
+console.log(firstname)
+  const res = await fetch("/api/auth/edit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firstname, lastname, email, password })
+  });
+  return res.json();
+}
+
 
 // Generates the HTML object for a trip
 function createTrip(data) {
@@ -271,7 +289,7 @@ function createTrip(data) {
     let centerRTContainer = document.createElement("div")
     let rightTContainer = document.createElement("div")
 
-    leftTContainer.setAttribute("class", "  ateContainer")
+    leftTContainer.setAttribute("class", "tripDateContainer")
     centerLTContainer.setAttribute("class", "tripConnectorImage")
     centerRTContainer.setAttribute("class", "tripImageContainer")
     rightTContainer.setAttribute("class", "tripInfoContainer")
