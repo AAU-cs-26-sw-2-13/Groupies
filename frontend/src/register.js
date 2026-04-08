@@ -6,6 +6,8 @@ async function sendData() {
     const fromData = new FormData(form);
     const body = Object.fromEntries(fromData);
 
+    body.preference = fromData.getAll("preference")
+
     try {
         const response = await fetch("http://localhost:3000/api/auth/register", {
             method: "POST",
@@ -13,6 +15,7 @@ async function sendData() {
             body: JSON.stringify(body),
         });
         const data = await response.json();
+        console.log(data);
 
         const response2 = await fetch("http://localhost:3000/api/auth/regPrefs", {
                 method: "POST",
@@ -22,7 +25,6 @@ async function sendData() {
         const data2 = await response2.json();
         console.log(data2);
 
-        console.log(data);
     } catch(e) {
         console.error(e);
     }
