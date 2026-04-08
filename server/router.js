@@ -1,9 +1,9 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
-import { handleImage } from "./router APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences } from "./router APIs/authentication.js";
-import { loadDiscovery, regPreferences } from "./router APIs/pageRouting.js";
+import { handleImage } from "./router-APIs/uploads.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences } from "./router-APIs/authentication.js";
+import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
 export { createResponse }
 import { el } from "@faker-js/faker";
 
