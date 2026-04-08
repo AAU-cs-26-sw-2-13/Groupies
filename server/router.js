@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout } from "./router-APIs/authentication.js";
-import { loadDiscovery } from "./router-APIs/pageRouting.js";
+import { loadDiscovery, registerPreferences } from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
 
@@ -40,6 +40,8 @@ export async function createResponse(req, res) {
                                 switch (pathElements[3]) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
+                                        break;
+                                    case "regPrefs": await registerPreferences(req, res);
                                         break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
