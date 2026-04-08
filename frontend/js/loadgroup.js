@@ -1,6 +1,7 @@
 import { createUserHTML } from "./User_creation.js"
 import { initializeHeader } from "./loadHeader.js"
 
+let user = { user_id: null } 
 let header = document.querySelector("header")
 
 fetch("/me", {
@@ -16,7 +17,7 @@ fetch("/me", {
     }
 }).then(jsonResponse => {
     // Logged in: Initialize header with user data
-    let user = jsonResponse;
+    user = jsonResponse
     initializeHeader(header, user, "Group");
 }).catch(err => {
     console.log("Auth Check:", err);
@@ -62,10 +63,23 @@ function createGroup(groupInfo) {
 fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})})
     .then(r => r.json())
     .then(members => {
-                console.log("attempting to create memberslist...")
+                //console.log("attempting to create memberslist...")
                 createUserHTML(members,membersList) 
                 membercount = members.length
                 hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+
+                //looks thorugh all members, if the user is in the group as member, a button gets created
+                for(let m of members){
+                    let member = m.id
+                    //console.log(member)
+                    //console.log(user.user_id)
+                    if(user.user_id === member){
+                    let suggestActivityButton = document.createElement("button")
+                    suggestActivityButton.setAttribute("class", "button button1")
+                    suggestActivityButton.textContent = "Suggest an Activity"
+                    tripInfo.append(suggestActivityButton)
+                    return
+                    }}
     }).catch(error => {
         console.error('There was a problem with the fetch operation:', error);
       });
@@ -139,7 +153,14 @@ fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
 
 
     //group activities develop here and append to tripInfo
-     
+    let activities = document.createElement("p")
+    activities.setAttribute("class", "p1")
+    activities.textContent = "Planned activities:"
+    
+    //check if user is a member to the group, if use create button which allows them to suggest a activity
+    
+
+    tripInfo.append(activities)
 
     membersElement.append(membersTitle,membersList,buttons)
     container.append(tripInfo, membersElement)
