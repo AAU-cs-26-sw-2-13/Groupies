@@ -41,7 +41,7 @@ export async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
                                         break;
-                                    case "regPrefs": await regPreferences(req, res);
+                                    case "regPrefs": await registerPreferences(req, res);
                                         break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
