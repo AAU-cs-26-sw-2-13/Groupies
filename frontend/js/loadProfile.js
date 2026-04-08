@@ -29,23 +29,29 @@ const profileId = pageURL.searchParams.get("id")
 fetch(`profileInfo?id=${profileId}`).then(response => {
     return response.json()
 }).then(jsonResponse => {
-    createProfile(jsonResponse)
+    createEditProfile(jsonResponse)
     generateTrips(jsonResponse)
 })
 
 let user = { user_id: null };
 
 function createProfile(profile) {
+    document.getElementById("mainContainer")?.remove()
+    console.table(profile);
+
+    let ownProfile = (profileId == activeUserId) ? true : false; //if id returned from db matches profile page to build, user visited own profile
+    console.log(`The profile build for user id ${profile.id} commencing with own profile variable value: ${ownProfile}`);
     // Containers
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
+    backgroundContainer.setAttribute("id", "mainContainer")
 
     let profileContainer = document.createElement("section")
     profileContainer.setAttribute("class", "profileContainer")
     profileContainer.setAttribute("id", "about")
 
     let tripContainer = document.createElement("section")
-    tripContainer.setAttribute("class", "profileContainer")
+    tripContainer.setAttribute("class", "tripContainer")
     tripContainer.setAttribute("id", "trips")
 
     // Profile Container
@@ -131,9 +137,31 @@ function createProfile(profile) {
     tripList.setAttribute("id", "tripList")
     tripList.setAttribute("class", "tripList")
 
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Back"
+    backButton.addEventListener("click", () => { window.location.href = "/" })
+
+    let optionsContainer = document.createElement("section")
+    optionsContainer.setAttribute("class", "optionsContainer")
+
+    if (ownProfile) {
+        let editButton = document.createElement("button")
+        editButton.setAttribute("class", "box-button2")
+        editButton.setAttribute("type", "button")
+        editButton.textContent = "Edit Profile"
+        editButton.addEventListener('click', () => {
+            createEditProfile(profile)
+        })
+        optionsContainer.append(backButton, editButton)
+    } else {
+        optionsContainer.append(backButton)
+    }
+
     // Appending
-    profileContainer.append(profileImg, usernameP, infoP, profileInteractions, interactionD, followersAmountP, followingAmountP, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP)
-    
+    profileContainer.append(profileImg, usernameP, infoP, followersAmountP, followingAmountP, interactionD, profileInteractions, metricsD, preferenceHeader, preferenceList, prefsD, aboutHeader, aboutP, optionsContainer)
+
     if (profile.groups.length === 0) { // Text if no trips
         let noTripsText = document.createElement("p")
         noTripsText.setAttribute("class", "pGrey")
@@ -146,8 +174,66 @@ function createProfile(profile) {
 
     backgroundContainer.append(profileContainer, tripContainer)
     main.append(backgroundContainer)
+}
 
     
+function createEditProfile(profile) {
+    let ownProfile = (profileId == activeUserId) ? true : false;
+    if (!ownProfile) { console.log(`User ${activeUserId} tried to access edit page of user ${profileId}`); return }
+    document.getElementById("mainContainer")?.remove()
+
+    let backgroundContainer = document.createElement("section")
+    backgroundContainer.setAttribute("class", "profileMain")
+    backgroundContainer.setAttribute("id", "mainContainer")
+    backgroundContainer.style.alignItems = "center"
+    backgroundContainer.style.flexDirection = "column"
+    backgroundContainer.style.width = "35%"
+
+    let firstNameInput = document.createElement("input")
+    firstNameInput.type = "text"
+    firstNameInput.id = "firstName"
+    firstNameInput.placeholder = "First Name"
+    firstNameInput.class = "reg-box-inputs"
+
+    let lastNameInput = document.createElement("input")
+    lastNameInput.type = "text"
+    lastNameInput.id = "lastname"
+    lastNameInput.placeholder = "Last Name"
+    lastNameInput.class = "reg-box-inputs"
+
+    let emailInput = document.createElement("input")
+    emailInput.type = "email"
+    emailInput.id = "email"
+    emailInput.placeholder = "Email"
+    emailInput.class = "reg-box-inputs"
+
+    let passwordInput = document.createElement("input")
+    passwordInput.type = "password"
+    passwordInput.id = "password"
+    passwordInput.placeholder = "Password"
+    passwordInput.class = "reg-box-inputs"
+
+    // Options (back & save)
+    let optionsContainer = document.createElement("section")
+    optionsContainer.setAttribute("class", "optionsContainer")
+
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Back"
+    backButton.addEventListener("click", () => { window.location.href = `/profile/?id=${activeUserId}`   })
+
+    let saveButton = document.createElement("button")
+    saveButton.setAttribute("class", "box-button2")
+    saveButton.setAttribute("type", "button")
+    saveButton.textContent = "Save"
+    saveButton.addEventListener('click', () => {
+        //createEditProfile(profile)
+    })
+    optionsContainer.append(backButton, saveButton)
+    
+    backgroundContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
+    main.append(backgroundContainer)
 }
 
 // Generates the HTML object for a trip
@@ -234,5 +320,129 @@ function groupClick(event) {
 async function generateTrips(user) {
     for (let group of user.groups) {
         tripList.append(createTrip(group))
+    }
+}
+
+async function editPrefsHandler(profile, event) {
+    const prefsButton = event.target;
+
+    if (prefsButton.innerText === "Edit your preferences") {
+        console.log("Entering edit preferences case");
+        prefsButton.innerText = "Save preferences";
+        prefsButton.classList.replace("box-button2", "highlight-box-button2");
+
+        fetch("/prefs").then((response) => {
+            if (response.status === 200) {
+                return response.json();
+            }
+        }).then(jsonResponse => {
+            let possiblePrefs = jsonResponse;
+            let filteredPrefs = possiblePrefs.filter(pref => {
+                return !profile.preferences.includes(pref.preference_id); //return each preference that is not already selected to an array
+            })
+            console.log("Adding the following unselected preferences:")
+            console.log(filteredPrefs);
+            return filteredPrefs;
+        }).catch(err => {
+            console.error("Error fetching all prefs:", err);
+        }).then(filteredPrefs => {
+            insertNewPrefButtons(filteredPrefs);
+        });
+    }
+    else {
+        console.log("Saving Preferences...");
+        await savePrefsHandler(profile, event);
+
+        // Reset button state to edit your preferences
+        prefsButton.innerText = "Edit your preferences";
+        prefsButton.classList.replace("highlight-box-button2", "box-button2");
+    }
+}
+
+function insertNewPrefButtons(filteredPrefs) {
+    document.getElementById("newPreferenceHeader_id")?.remove();
+    document.getElementById("newPreferenceList_id")?.remove();
+    
+    let newPreferenceHeader = document.createElement("p")
+    newPreferenceHeader.setAttribute("class", "pGrey")
+    newPreferenceHeader.textContent = "Select new preferences"
+    newPreferenceHeader.setAttribute("id", "newPreferenceHeader_id")
+
+    let newPreferenceList = document.createElement("ul");
+    newPreferenceList.setAttribute("class", "prefList");
+    newPreferenceList.setAttribute("id", "newPreferenceList_id")
+
+    let allNewPrefs = filteredPrefs.map(pref => pref.preference_id);
+
+    for (let prefName of allNewPrefs) {
+        if (prefName !== null) {
+            let pref = document.createElement("li");
+            let button = document.createElement("button");
+            button.setAttribute("class", "unselected-pref-item");
+            button.textContent = prefName;
+            pref.append(button);
+            newPreferenceList.append(pref);
+            button.addEventListener('click', togglePreferenceHandler);
+        }
+    }
+
+    let newPrefsInsertTarget = document.getElementById("newPrefsListTarget_id");
+    newPrefsInsertTarget.after(newPreferenceHeader, newPreferenceList);
+}
+
+async function savePrefsHandler(profile, event) {
+    //logic to save preferences
+    console.log("profile id in savePrefsHandler: " + profile.id);
+    let newPreferenceHeader = document.getElementById("newPreferenceHeader_id");
+    let newPreferenceList = document.getElementById("newPreferenceList_id");
+    let preferenceList = document.getElementById("preferenceList_id")
+
+    //Get the current prefs buttons state in the existing prefs list and make an array for a post request to query the DB for update
+    const currentPrefs = Array.from(preferenceList.querySelectorAll('button'))
+                              .map(btn => btn.textContent.trim());
+    console.log("Attempting to set user prefs in DB to the following prefs;" + currentPrefs);
+
+    try {
+        const response = await fetch("/api/pref", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                user_id: profile.id,
+                preferenceList: currentPrefs
+            })
+        });
+
+        if (response.ok) {
+            // Update local profile so no duplicate buttons are created if "edit your preferences" is clicked again
+            profile.preferences = currentPrefs;
+            //remove the elements
+            newPreferenceHeader.remove();
+            newPreferenceList.remove();
+            console.log("Preferences saved successfully.");
+        }
+    } catch (err) {
+        console.error("Failed to save preferences:", err);
+    }
+}
+
+async function togglePreferenceHandler(event) {
+    let preferenceList = document.getElementById("preferenceList_id") //DRY lacking :( too moist
+    let newPreferenceList = document.getElementById("newPreferenceList_id")
+    const button = event.target.closest('button');
+    if (!button || !preferenceList || !newPreferenceList) return;
+
+    console.log("button and parent nodes:")
+    console.log(button);
+    console.log(button.parentNode.parentNode);
+
+    const currentContainer = button.parentNode.parentNode;
+
+    if (currentContainer === preferenceList) {
+        button.classList.replace('pref-item', 'unselected-pref-item');
+        newPreferenceList.append(button.parentNode);
+    }
+    else if (currentContainer === newPreferenceList) {
+        button.classList.replace('unselected-pref-item', 'pref-item');
+        preferenceList.append(button.parentNode);
     }
 }
