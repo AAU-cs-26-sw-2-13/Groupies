@@ -69,6 +69,8 @@ export async function createResponse(req, res) {
                     })
                     break;
                 }
+                case "regPrefs": await regPreferences(req, res);
+                    break;
             }
             break;
         }

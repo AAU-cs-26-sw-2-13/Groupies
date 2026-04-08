@@ -1,6 +1,7 @@
 import { createUserHTML } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js";
 import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
+import { parseTags } from "./parseJson.js"
 
 //Queries to dom elements
 let tripList = document.querySelector("#tripList");
@@ -74,7 +75,7 @@ function createTrip(title, host, tags, group) {
 
     lowerTripInfo.append(genreList)
 
-    for (let t of tags) {
+    for (let t of parseTags(tags)) {
         if (t !== null) {
             let genre = document.createElement("li")
             genre.setAttribute("class", "pref-item")
