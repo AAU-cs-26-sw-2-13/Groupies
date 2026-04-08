@@ -1,3 +1,5 @@
+import { parseTags } from "./parseJson.js"
+
 //Generates the HTML object for a new user
 export function createUser(id, name, age, gender, country, picture, tags) {
     let list = document.createElement("li")
@@ -59,7 +61,7 @@ export function createUser(id, name, age, gender, country, picture, tags) {
 
     lowerUserInfo.append(genreList)
 
-    for (let t of tags) {
+    for (let t of parseTags(tags)) {
         if (t !== null) {
             let genre = document.createElement("li")
             genre.setAttribute("class", "pref-item")
