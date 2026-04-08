@@ -14,6 +14,14 @@ async function sendData() {
         });
         const data = await response.json();
 
+        const response2 = await fetch("http://localhost:3000/api/auth/regPrefs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+        const data2 = await response2.json();
+        console.log(data2);
+
         console.log(data);
     } catch(e) {
         console.error(e);
