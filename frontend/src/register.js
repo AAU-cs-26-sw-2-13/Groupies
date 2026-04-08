@@ -119,31 +119,33 @@ function returnFileSize(number) {
 }
 
 const step3 = document.querySelector("#step3");
+function createPrefs(pref){
+    for(let t of pref){
+        let genre = document.createElement("input");
+        genre.setAttribute("class", "pref-item");
+        genre.setAttribute("type", "checkbox");
+        genre.setAttribute("name", "preference");
+        genre.setAttribute("value", `${t.preference_id}`);
 
-//Generates the HTML object for preferences
-function createPrefs(tags){
-    for(let t of tags){
-        if(t !== null){
-            const prefs = document.createElement("p")
-            prefs.textContent = `${t}`
-            step3.appendChild(prefs)
-        }
+        let label = document.createElement("label");
+        label.setAttribute("for", `${t.preference_id}`);
+        label.textContent = `${t.preference_id}`;
+
+        step3.append(genre);
+        step3.append(label);
     }
-    
-    return prefsList
 }
+
 
 //Get preferences
-let sessionDataPrefs = {sessionId: "empty", query:"preferences"}
-let prefsQuery = fetch("/", {method: 'POST', body: JSON.stringify(sessionDataPrefs)})
-prefsQuery.then(prefsResponse => {
-    return prefsResponse.json()
-}).then(jsonPrefsResponse => {
-    createPrefsHTML(jsonPrefsResponse)
-})
-
-function createPrefsHTML(prefsArray){
-    for(let p of prefsArray){
-        step3.append(createPrefs(p.preferences))
-    }
+function run(){
+    let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
+    let prefsQuery = fetch("/regPrefs", {method: 'POST', body: JSON.stringify(sessionDataPrefs)});
+    prefsQuery.then(prefsResponse => {
+        return prefsResponse.json();
+    }).then(jsonPrefsResponse => {
+        console.log(jsonPrefsResponse);
+        createPrefs(jsonPrefsResponse);
+    })
 }
+run();
