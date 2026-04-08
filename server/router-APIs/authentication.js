@@ -137,6 +137,39 @@ export async function logout(req, res) {
   return res.end(JSON.stringify({ status: "logged_out" }));
 }
 
+export async function editUser(req, res) {
+  try {
+    // Make sure user is logged in
+    const session = await getSession(req);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Not logged in yet" }));
+    }
+
+    // Sanitize input
+    const body = await parseJSON(req);
+    let { firstname, lastname, email, password } = body;
+    firstname = sanitize(String(firstname));
+    lastname = sanitize(String(lastname));
+    email = sanitize(String(email));
+    password = sanitize(String(password));
+
+    // Find user in db
+    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
+    if (!rows.length) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Wrong user" }));
+    }
+    const user = rows[0];
+    
+
+
+  } catch (err) {
+    res.writeHead(500, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ error: "Internal server error" }));
+  }
+}
+
 function sanitize (str) {
   str = str
   .replace(/\//g,"")
