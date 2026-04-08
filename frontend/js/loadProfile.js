@@ -204,6 +204,55 @@ function createEditProfile(profile) {
     let backgroundContainer = document.createElement("section")
     backgroundContainer.setAttribute("class", "profileMain")
     backgroundContainer.setAttribute("id", "mainContainer")
+    backgroundContainer.style.alignItems = "center"
+    backgroundContainer.style.flexDirection = "column"
+    backgroundContainer.style.width = "35%"
+
+    let firstNameInput = document.createElement("input")
+    firstNameInput.type = "text"
+    firstNameInput.id = "firstName"
+    firstNameInput.placeholder = "First Name"
+    firstNameInput.class = "reg-box-inputs"
+
+    let lastNameInput = document.createElement("input")
+    lastNameInput.type = "text"
+    lastNameInput.id = "lastname"
+    lastNameInput.placeholder = "Last Name"
+    lastNameInput.class = "reg-box-inputs"
+
+    let emailInput = document.createElement("input")
+    emailInput.type = "email"
+    emailInput.id = "email"
+    emailInput.placeholder = "Email"
+    emailInput.class = "reg-box-inputs"
+
+    let passwordInput = document.createElement("input")
+    passwordInput.type = "password"
+    passwordInput.id = "password"
+    passwordInput.placeholder = "Password"
+    passwordInput.class = "reg-box-inputs"
+
+    // Options (back & save)
+    let optionsContainer = document.createElement("section")
+    optionsContainer.setAttribute("class", "optionsContainer")
+
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Back"
+    backButton.addEventListener("click", () => { window.location.href = `/profile/?id=${activeUserId}`   })
+
+    let saveButton = document.createElement("button")
+    saveButton.setAttribute("class", "box-button2")
+    saveButton.setAttribute("type", "button")
+    saveButton.textContent = "Save"
+    saveButton.addEventListener('click', () => {
+        //createEditProfile(profile)
+    })
+    optionsContainer.append(backButton, saveButton)
+    
+    backgroundContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
+    main.append(backgroundContainer)
 }
 
 // Generates the HTML object for a trip
