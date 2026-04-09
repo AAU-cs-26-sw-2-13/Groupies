@@ -298,7 +298,7 @@ function createGroup(groupInfo) {
                 let activityDesc = document.createElement("p")
                 activityDesc.textContent = activity.about
                 activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
-                listOfActivities.append(activityItem)
+                listOfActivities.append(activityItem) //sort listen gennem datoer? nok alt for meget arbejde(faker går det allerede)
             }
             tripInfo.append(listOfActivities)
         })}
