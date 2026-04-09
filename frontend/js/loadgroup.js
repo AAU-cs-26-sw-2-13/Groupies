@@ -160,6 +160,7 @@ fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
     //hide the memberlist, and show new elements, that create the activity, 
     suggestActivityButton.addEventListener("click", () => { 
         membersElement.style.display = "none"
+        suggestActivityButton.disabled = true
         let createActivity = document.createElement("div")
         createActivity.setAttribute("class", "aside-box")
         let activityHead = document.createElement("h2")
@@ -216,11 +217,31 @@ fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
     activityDesc.setAttribute("placeholder", "Describe the activity")
     activityDesc.setAttribute("maxlength", "420") //maybe have a smaller limit?(same as the group desc rn)
 
-        createActivity.append(activityHead,activityTitle,dateRow,activityDesc)
+    createActivity.append(activityHead,activityTitle,dateRow,activityDesc)
+    
+    let activityButtons = document.createElement("div")
+    buttons.setAttribute("class", "groupActions")
 
-
-        container.append(createActivity)
-     })
+    let backButton = document.createElement("button")
+    backButton.setAttribute("class", "buttonBack")
+    backButton.setAttribute("type", "button")
+    backButton.textContent = "Close activity creation"
+    backButton.addEventListener("click", ()=>{ 
+        createActivity.style.display = "none"
+        membersElement.style.display = "flex"
+        suggestActivityButton.disabled = false
+    })
+    let submitButton = document.createElement("button")
+    submitButton.setAttribute("class", "button CreateTripButton")
+    submitButton.textContent = "Post the activity suggestion"
+    //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
+    submitButton.addEventListener("click", () => {        
+       
+    })
+    activityButtons.append(backButton,submitButton)
+    createActivity.append(activityButtons)
+    container.append(createActivity)
+    })
 
 
 
