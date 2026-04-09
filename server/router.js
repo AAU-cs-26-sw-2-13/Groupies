@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences, getGroupTags, addTripToDB, getAllPreferences} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences, getGroupTags, addTripToDB, getAllPreferences} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
@@ -125,7 +125,11 @@ async function createResponse(req, res) {
                 }
                 case "profile": {
                     if(pathElements[2]==="profileInfo"){
-                        queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
+                        if (!url.searchParams.get("ownProfile")) {
+                            queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
+                        } else {
+                            queryResponse(res, queryOwnProfileInfo, url.searchParams.get("id"))
+                        }
                     }else{
                         fileResponse(res, "html/profile.html");  
                     }

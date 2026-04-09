@@ -194,20 +194,23 @@ export async function editUser(req, res) {
 
     // Sanitize input
     const body = await parseJSON(req);
-    let { firstname, lastname, email, password } = body;
-    firstname = sanitize(String(firstname));
-    lastname = sanitize(String(lastname));
-    email = sanitize(String(email));
-    password = sanitize(String(password));
-
+    
+    let { firstname, lastname, email, password, dob, bio, picture } = body;
+    firstname = sanitize(String(body.name_first));
+    lastname = sanitize(String(body.name_last));
+    email = sanitize(String(body.email));
+    password = sanitize(String(body.password));
+    bio = sanitize(String(body.bio));
+    
     const hash = await bcrypt.hash(password, 12);
     await query(`UPDATE users
         SET name_first = ?,
           name_last = ?,
           email = ?,
-          password_hash = ?
+          password_hash = ?,
+          bio = ?
         WHERE id = ?
-        `, [firstname, lastname, email, hash, session.user_id])
+        `, [firstname, lastname, email, hash, bio, session.user_id])
     console.log("✓ Updated user in db");
 
     res.statusCode = 200;

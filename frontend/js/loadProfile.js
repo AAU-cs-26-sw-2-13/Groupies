@@ -6,7 +6,7 @@ let main = document.querySelector("main")
 let header = document.querySelector("header")
 let activeUserId = 0;
 
-fetch("/me", {
+await fetch("/me", {
     method: "GET",
     credentials: "include"
 }).then(response => {
@@ -28,14 +28,13 @@ fetch("/me", {
 
 const pageURL = new URL(window.location.href)
 const profileId = pageURL.searchParams.get("id")
-fetch(`profileInfo?id=${profileId}`).then(response => {
+const includeEmail = activeUserId === Number(profileId) ? "&ownProfile=true" : ""
+fetch(`profileInfo?id=${profileId}${includeEmail}`).then(response => {
     return response.json()
 }).then(jsonResponse => {
     createProfile(jsonResponse)
     generateTrips(jsonResponse)
 })
-
-let user = { user_id: null };
 
 function createProfile(profile) {
     document.getElementById("mainContainer")?.remove()
@@ -202,36 +201,131 @@ function createEditProfile(profile) {
     if (!ownProfile) { console.log(`User ${activeUserId} tried to access edit page of user ${profileId}`); return }
     document.getElementById("mainContainer")?.remove()
 
+    let pageHeader = document.createElement("div")
+    pageHeader.setAttribute("class", "headerBox")
+    let headerText= document.createElement("h3")
+    headerText.textContent = "Edit Profile"
+    let inputholder = document.createElement("div")
+    inputholder.setAttribute("class", "register-box")
+
     let formContainer = document.createElement("form")
     formContainer.setAttribute("class", "profileMain")
     formContainer.setAttribute("id", "mainContainer")
     formContainer.style.alignItems = "center"
     formContainer.style.flexDirection = "column"
-    formContainer.style.width = "35%"
+    formContainer.style.width = "25%"
+    formContainer.style.gap = "0.3rem"
+
+    let nameContainer = document.createElement("section")
+    nameContainer.setAttribute("class", "columnContainer")
+
+    let nameTitle = document.createElement("p")
+    nameTitle.setAttribute("class", "p1")
+    nameTitle.textContent = "Name"
 
     let firstNameInput = document.createElement("input")
-    firstNameInput.type = "text"
-    firstNameInput.id = "firstName"
-    firstNameInput.placeholder = "First Name"
-    firstNameInput.class = "reg-box-inputs"
+    firstNameInput.setAttribute("type", "text")
+    firstNameInput.setAttribute("id", "firstname")
+    firstNameInput.setAttribute("placeholder", "First Name")
+    firstNameInput.setAttribute("class", "box-input")
+    firstNameInput.style.width = "80%"
 
     let lastNameInput = document.createElement("input")
-    lastNameInput.type = "text"
-    lastNameInput.id = "lastname"
-    lastNameInput.placeholder = "Last Name"
-    lastNameInput.class = "reg-box-inputs"
+    lastNameInput.setAttribute("type", "text")
+    lastNameInput.setAttribute("id", "lastname")
+    lastNameInput.setAttribute("placeholder", "Last Name")
+    lastNameInput.setAttribute("class", "box-input")
+    lastNameInput.style.width = "80%"
+
+    let loginContainer = document.createElement("section")
+    loginContainer.setAttribute("class", "columnContainer")
+
+    let loginTitle = document.createElement("p")
+    loginTitle.setAttribute("class", "p1")
+    loginTitle.textContent = "Login"
 
     let emailInput = document.createElement("input")
-    emailInput.type = "email"
-    emailInput.id = "email"
-    emailInput.placeholder = "Email"
-    emailInput.class = "reg-box-inputs"
+    emailInput.setAttribute("type", "email")
+    emailInput.setAttribute("id", "email")
+    emailInput.setAttribute("placeholder", "Email")
+    emailInput.setAttribute("class", "box-input")
+    emailInput.style.width = "80%"
 
     let passwordInput = document.createElement("input")
-    passwordInput.type = "password"
-    passwordInput.id = "password"
-    passwordInput.placeholder = "Password"
-    passwordInput.class = "reg-box-inputs"
+    passwordInput.setAttribute("type", "password")
+    passwordInput.setAttribute("id", "password")
+    passwordInput.setAttribute("placeholder", "Password")
+    passwordInput.setAttribute("class", "box-input")
+    passwordInput.style.width = "80%"
+    
+    let aboutTitle = document.createElement("p")
+    aboutTitle.setAttribute("class", "p1")
+    aboutTitle.textContent = "About"
+    
+    let bioInput = document.createElement("input")
+    bioInput.setAttribute("type", "text")
+    bioInput.setAttribute("id", "bio")
+    bioInput.setAttribute("placeholder", "Bio")
+    bioInput.setAttribute("class", "box-input")
+    bioInput.style.height = "3rem"
+
+    let calendarIcon = document.createElement("i")
+    calendarIcon.setAttribute("class", "fa-regular fa-calendar")
+    
+    let dobLabel = document.createElement("label")
+    dobLabel.setAttribute("class", "box-interactable")
+    let dobText = document.createElement("span")
+    dobText.textContent = " Date of Birth" 
+    let dobBox = document.createElement("input")
+    dobBox.setAttribute("type", "date")
+    dobBox.setAttribute("class", "calenderDisplay")
+    dobLabel.style.width = "100%"
+    dobLabel.append(calendarIcon,dobText,dobBox)
+    dobLabel.addEventListener("click", (e) => {
+        e.preventDefault()
+        dobBox.showPicker()
+    })
+    dobLabel.addEventListener("change", () => {
+        dobText.textContent = " " + dobBox.value || " Start Date"
+        dobText.style.color = dobBox.value ? "#333" : "#717171"
+    })
+
+    let fileIcon = document.createElement("i")
+    fileIcon.setAttribute("class", "fa-regular fa-image")
+    let fileLabel = document.createElement("label")
+    fileLabel.setAttribute("class", "box-interactable")
+    let fileText = document.createElement("span")
+    fileText.textContent = " Profile Picture"
+    let profileImg = document.createElement("input")
+    profileImg.setAttribute("type", "file")
+    profileImg.setAttribute("accept", "image/*")
+    profileImg.style.display = "none"
+    let preview = document.createElement("img")
+    preview.setAttribute("class", "groupImg")
+    preview.style.display = "none" //hide preview until a picture is uploaded
+    fileLabel.style.width = "100%"
+    let validImageData = null
+    profileImg.addEventListener("change", () => {
+    const file = profileImg.files[0]    
+    if(file){
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg"]
+        if(!allowedTypes.includes(file.type)){
+            alert("Unsupported file format")  
+            profileImg.value = ""
+            return
+        }
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = (e) => {
+            console.log(e.target)
+            console.log(e.target.result)
+        validImageData = e.target.result
+        preview.setAttribute("src", validImageData)
+        preview.style.display = "block"
+        fileText.textContent = " Change Photo"
+    }}})
+
+    fileLabel.append(fileIcon, fileText, profileImg, preview)
 
     // Options (back & save)
     let optionsContainer = document.createElement("section")
@@ -250,22 +344,51 @@ function createEditProfile(profile) {
 
     optionsContainer.append(backButton, saveButton)
     
-    formContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
+    // Initial input
+    firstNameInput.value = profile.name_first || ""
+    lastNameInput.value = profile.name_last || ""
+    bioInput.value = profile.bio || ""
+    emailInput.value = profile.email || ""
+
+    // Appending
+    nameContainer.append(firstNameInput, lastNameInput)
+    loginContainer.append(emailInput, passwordInput)
+    pageHeader.append(headerText)
+    formContainer.append(pageHeader, nameTitle, nameContainer, loginTitle, loginContainer, aboutTitle, bioInput, dobLabel, fileLabel, optionsContainer)
     saveButton.addEventListener('click', () => {
-        editProfile(firstNameInput.value,
-            lastNameInput.value,
-            emailInput.value,
-            passwordInput.value
+        editProfile(firstNameInput.value.trim(),
+            lastNameInput.value.trim(),
+            emailInput.value.trim(),
+            passwordInput.value.trim(),
+            bioInput.value.trim(),
+            dobBox.value,
+            validImageData
         )
     })
     main.append(formContainer)
 }
 
-async function editProfile(firstname, lastname, email, password) {
+async function editProfile(firstname, lastname, email, password, bio, dob, image) {
+    if(!firstname){ alert("First Name is required"); return; }
+    if(!lastname){ alert("Last Name is required"); return; }
+    if(!email){ alert("Email is required"); return; }
+    if(!password){ alert("Password is required"); return; }
+    if(!bio){ alert("Bio is required"); return; }
+    if(!dob){ alert("Date of birth is required"); return; }
+    if(!image){ image = null; }
+    
     const res = await fetch("/api/auth/edit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstname, lastname, email, password })
+        body: JSON.stringify({ 
+            name_first: firstname,
+            name_last: email,
+            email: email,
+            password: password,
+            dob: dob,
+            bio: bio,
+            picture: image || null,
+        })
     });
     if (!res.ok) {
         return "Server failed to update user in database!"
@@ -365,7 +488,6 @@ async function editPrefsHandler(profile, event) {
     const prefsButton = event.target;
 
     if (prefsButton.innerText === "Edit your preferences") {
-        console.log("Entering edit preferences case");
         prefsButton.innerText = "Save preferences";
         prefsButton.classList.replace("box-button2", "highlight-box-button2");
 
@@ -378,8 +500,6 @@ async function editPrefsHandler(profile, event) {
             let filteredPrefs = possiblePrefs.filter(pref => {
                 return !profile.preferences.includes(pref.preference_id); //return each preference that is not already selected to an array
             })
-            console.log("Adding the following unselected preferences:")
-            console.log(filteredPrefs);
             return filteredPrefs;
         }).catch(err => {
             console.error("Error fetching all prefs:", err);
@@ -468,10 +588,6 @@ async function togglePreferenceHandler(event) {
     let newPreferenceList = document.getElementById("newPreferenceList_id")
     const button = event.target.closest('button');
     if (!button || !preferenceList || !newPreferenceList) return;
-
-    console.log("button and parent nodes:")
-    console.log(button);
-    console.log(button.parentNode.parentNode);
 
     const currentContainer = button.parentNode.parentNode;
 

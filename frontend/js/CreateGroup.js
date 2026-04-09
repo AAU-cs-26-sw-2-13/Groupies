@@ -261,7 +261,7 @@ function createHTML(){
     
         if(validImageData)sendFetchImage(validImageData)
         else sendFetchImage(null)
-    })})
+    })})    
     
     buttons.append(backButton, submitButton)
     infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel)
