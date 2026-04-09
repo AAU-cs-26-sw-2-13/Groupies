@@ -6,7 +6,7 @@ import path, { relative } from "path"
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
-import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
+import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
@@ -129,12 +129,15 @@ async function createResponse(req, res) {
                     }
                     break;
                 }
+                case "chat": {
+                    loadChat(req, res, pathElements, url.searchParams);
+                    break;
+                }
                 //Server wants current user, check for active session for user from browser session cookie
                 case "me":
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }

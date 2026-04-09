@@ -81,7 +81,10 @@ function createProfile(profile) {
     messageButton.setAttribute("class", "button5")
     messageButton.setAttribute("type", "button")
     messageButton.textContent = "message"
-    //messageButton.addEventListener('click', followUserListener)
+    messageButton.addEventListener('click', ()=>{
+        console.log(profile)
+        window.location.href = `/chat/users/?id=${profile.id}`
+    })
 
     let editPrefsButton = document.createElement("button");
     editPrefsButton.setAttribute("id", "edit-prefs-button_id");

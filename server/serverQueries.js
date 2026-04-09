@@ -156,6 +156,34 @@ LEFT JOIN user_prefs p ON u.id = p.user_id
 WHERE u.id = ?
 `
 
+const getUserContactsQuery = `
+SELECT
+DISTINCT
+u.id,
+u.picture,
+concat(u.name_first, " ", u.name_last) AS contact_name
+FROM users u
+JOIN chat_users cu ON u.id = CASE
+WHEN cu.sender_id = ? THEN cu.target_id
+WHEN cu.target_id = ? THEN cu.sender_id
+END
+
+`
+const getUserChatHistoryQuery = `SELECT sender_id, target_id, chat_text FROM chat_users 
+WHERE (sender_id = ? AND target_id = ?) OR (sender_id = ? AND target_id = ?)
+ORDER BY created_at;`
+
+const getGroupChatHistoryQuery = `SELECT sender_id, CONCAT(u.name_first, " ",u.name_last) AS sender_name, chat_text FROM chat_groups cg
+JOIN users u ON u.id = sender_id
+WHERE target_id = ?
+ORDER BY cg.created_at;`
+
+const getGroupContactsQuery = `SELECT *  FROM \`groups\` g
+JOIN group_relations gr ON g.id = gr.group_id
+WHERE gr.user_id = ? AND member = 1;`
+
+
+
 export async function getAllPreferences() {
     let queryResponse = await query(sqlGetPreferences);
     return queryResponse;
@@ -220,6 +248,26 @@ export async function queryProfileInfo(userId) {
 
 export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
+    return queryResponse
+}
+
+export async function getUserContacts(params) {
+    let queryResponse = await query(getUserContactsQuery, params)
+    return queryResponse
+}
+
+export async function getUserChatHistory(params) {
+    let queryResponse = await query(getUserChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupChatHistory(params) {
+    let queryResponse = await query(getGroupChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupContacs(params) {
+    let queryResponse = await query(getGroupContactsQuery, params)
     return queryResponse
 }
 export async function queryUpdateUserPreferences(user_id, preferenceList) {
