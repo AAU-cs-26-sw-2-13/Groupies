@@ -258,6 +258,7 @@ function createGroup(groupInfo) {
                 membersElement.style.display = "flex"
                 suggestActivityButton.disabled = false
                 submitButton.disabled = false
+                showActivites() //runs the show activites again to show the newly created one aswell, so the user does not need to refresh to see their own
             })
         })
         container.append(createActivity)
@@ -266,7 +267,7 @@ function createGroup(groupInfo) {
       let listOfActivities = document.createElement("li")
         listOfActivities.setAttribute("class", "membersList")
 
-    fetch(`/activities?id=${groupId}`, { method: "GET" })
+    const showActivites = () => {fetch(`/activities?id=${groupId}`, { method: "GET" })
         .then(r => r.json()).then(activities => {
         console.log("Activities received:", activities)
             for (let activity of activities) {
@@ -287,7 +288,7 @@ function createGroup(groupInfo) {
                 listOfActivities.append(activityItem)
             }
             tripInfo.append(listOfActivities)
-        })
+        })}
 
 
 
