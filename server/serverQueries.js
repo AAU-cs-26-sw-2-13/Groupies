@@ -185,8 +185,8 @@ WHERE gr.user_id = ? AND member = 1;`
 
 
 
-export async function getAllUsers() {
-    let queryResponse = await query(sqlGetAllUsers)
+export async function queryPopularUsers() {
+    let queryResponse = await query(sqlGetPopularUsers);
     return queryResponse
 }
 
