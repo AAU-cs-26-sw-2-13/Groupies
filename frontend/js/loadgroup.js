@@ -269,9 +269,7 @@ function createGroup(groupInfo) {
 
     const showActivites = () => {fetch(`/activities?id=${groupId}`, { method: "GET" })
         .then(r => r.json()).then(activities => {
-        console.log("Activities received:", activities)
             for (let activity of activities) {
-                            console.log(activity)
                 let activityItem = document.createElement("div")
                 activityItem.setAttribute("class", "trip")
 
@@ -294,7 +292,7 @@ function createGroup(groupInfo) {
 
 
 
-
+    showActivites()
     tripInfo.append(activities)
     membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
