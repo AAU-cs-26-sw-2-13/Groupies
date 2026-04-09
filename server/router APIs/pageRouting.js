@@ -1,5 +1,5 @@
 import {queryResponse, fileResponse} from "../server.js"
-import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers, getUserContacts, getChatHistory} from "../serverQueries.js";
+import { getAllUsers, getAllGroups, jaccardSorted, getGroupMembers, getUserContacts, getUserChatHistory, getGroupContacs,getGroupChatHistory} from "../serverQueries.js";
 
 export function loadDiscovery (req, res) {
     let data = ""
@@ -35,27 +35,40 @@ export function loadDiscovery (req, res) {
 }
 
 export function loadChat(req, res, pathElements, searchParams) {
+    console.log(pathElements)
     switch(pathElements[2]){
         //All logic for users
+        case "getUserContacs": {
+            let userId = searchParams.get("ownUser")
+            if(userId){
+                queryResponse(res, getUserContacts,[userId, userId])
+                return
+            }else{
+                res.statusCode = 400
+                res.end('\n');
+            }
+            return
+            break;
+        }
+        case "getGroupContacs": {
+            let userId = searchParams.get("ownUser")
+            if(userId){
+                queryResponse(res, getGroupContacs,[userId])
+                return
+            }else{
+                res.statusCode = 400
+                res.end('\n');
+            }
+            return
+            break;
+        }
         case "users":{
             switch(pathElements[3]){
-                case "getUserContacs": {
-                    let userId = searchParams.get("ownUser")
-                    if(userId){
-                        queryResponse(res, getUserContacts,[userId, userId])
-                        return
-                    }else{
-                        res.statusCode = 400
-                        res.end('\n');
-                    }
-                    return
-                    break;
-                }
                 case "getChatHistory":{
                     let userId = searchParams.get("ownUser")
                     let otherChatterId = searchParams.get("chatUser")
                     if(userId && otherChatterId){
-                        queryResponse(res, getChatHistory,[userId, otherChatterId, otherChatterId, userId])
+                        queryResponse(res, getUserChatHistory,[userId, otherChatterId, otherChatterId, userId])
                         return
                     }else{
                         res.statusCode = 400
@@ -65,6 +78,22 @@ export function loadChat(req, res, pathElements, searchParams) {
                 }
             }
             break
+        }
+        case "groups":{
+            switch(pathElements[3]){
+                case "getChatHistory":{
+                    let userId = searchParams.get("ownUser")
+                    let otherChatterId = searchParams.get("chatUser")
+                    if(userId && otherChatterId){
+                        queryResponse(res, getGroupChatHistory,[otherChatterId])
+                        return
+                    }else{
+                        res.statusCode = 400
+                        res.end('\n');
+                    }
+                    break
+                }
+            }
         }
     }
     console.log("GetFile")

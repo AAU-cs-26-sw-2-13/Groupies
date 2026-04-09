@@ -12,6 +12,15 @@ let messageInput = document.querySelector(".messageInputBox")
 let activeChatName = document.querySelector(".activeChatName")
 let activeChatImage = document.querySelector(".activeChatImage")
 
+//Local variables
+
+/*
+The variables below makes sure when you write to a new person, they pup up as an contact without -
+refreshing. 
+*/
+let isUserContactNew = true //Makes sure its only searched once
+let userContactsList; //Contains all the current contacts
+
 let user = await fetch("/me", {
     method: "GET",
     credentials: "include"  
@@ -34,30 +43,47 @@ let user = await fetch("/me", {
 
 //Listens for update of contact information
 socket.on('updateChatInfo', (data)=>{
+    console.log(data)
     activeChatImage.setAttribute("src", data[0].picture) 
-    activeChatName.textContent =  data[0].full_name
+    activeChatName.textContent =  data[0].title
 })
 
 //Load user contacts
-fetch(`getUserContacs/?ownUser=${user.user_id}`).then(response => {
-    console.log(response.status)
+fetch(`/chat/getUserContacs/?ownUser=${user.user_id}`).then(response => {
     if(response.status === 200){
         return response.json()
     }else{
         throw "Couldnt fetch users"
     }
 }).then(jsonReponse => {
-    console.log(jsonReponse)
+    userContactsList = jsonReponse
     for(let uc of jsonReponse){
         generateUserContact(uc)
     }
 })
 
+fetch(`/chat/getGroupContacs/?ownUser=${user.user_id}`).then(response => {
+    if(response.status === 200){
+        return response.json()
+    }else{
+        throw "Couldnt fetch groups"
+    }
+}).then(jsonReponse => {
+    for(let g of jsonReponse){
+        generateGroupContact(g)
+    }
+})
+
+//Load chat
+loadChat()
+
 //Get chat history
 function loadChat(){
+    isUserContactNew = true
     chatList.replaceChildren()
     let activeChat = new URL(window.location.href)
     let chatId = activeChat.searchParams.get("id")
+    let urlChatType = window.location.href.split("/")[4] //Users or groups :)
     if(chatId){
         //Get the old chat history
         fetch(`getChatHistory/?ownUser=${user.user_id}&chatUser=${chatId}`).then(response=>{
@@ -67,18 +93,31 @@ function loadChat(){
                 throw "Couldnt fetch users"
             }
         }).then(jsonReponse =>{
-            console.log(jsonReponse)
-            for(let m of jsonReponse){
-                if(m.sender_id === user.user_id){
-                    createOwnMessage(m.chat_text)
-                }else{
-                    createOpponenMessage(m.chat_text)
+            console.log(urlChatType)
+            if(urlChatType === "groups"){
+                console.log("GROUP")
+                for(let m of jsonReponse){
+                    if(m.sender_id === user.user_id){
+                        createOwnMessage(m.chat_text)
+                    }else{
+                        createOpponenMessageGroup(m.chat_text, m.sender_name)
+                    }
+                }
+            }else{
+                for(let m of jsonReponse){
+                    if(m.sender_id === user.user_id){
+                        createOwnMessage(m.chat_text)
+                    }else{
+                        createOpponenMessage(m.chat_text)
+                    }
                 }
             }
+            
              //Joins the socket room
             socket.emit('join-chat', {
                 userId: user.user_id,
-                targetId: chatId
+                targetId: chatId,
+                chatType: urlChatType
             })
             //Scroll to the buttom
             chatList.scrollTo(0, chatList.scrollHeight)
@@ -87,7 +126,6 @@ function loadChat(){
             socket.off('messageClient')
             //Listens for new chats
             socket.on('messageClient', data=>{
-                console.log(data)
                 if(data.sender === user.user_id){
                     createOwnMessage(data.message)
                 }else{
@@ -100,16 +138,39 @@ function loadChat(){
         console.log("No active chats")
     }
 }
-loadChat()
 //Add event listener for sending a message
 sendMessage.addEventListener('click', ()=>{
     let activeChat = new URL(window.location.href)
+    let urlChatType = window.location.href.split("/")[4] //Users or groups :)
+    let stringPath = activeChat.toString()
+    let pathArray = stringPath.split("/")
     let chatId = activeChat.searchParams.get("id")
     if(messageInput.value !== ""){
+        //Check if the user already exist, otherwise add as an contact
+        if(isUserContactNew){
+            for(let u of userContactsList){
+                if (u.id == chatId){
+                    isUserContactNew = false
+                    break
+                }
+            }
+            if(isUserContactNew){
+                if(pathArray[3] === "chat"){
+                    isUserContactNew = false
+                    generateUserContact(
+                        {
+                            id: chatId,
+                            contact_name: activeChatName.textContent, 
+                            picture: activeChatImage.getAttribute("src")
+                        })
+                }
+            }
+        }
         socket.emit('message', {
                 userId: user.user_id,
                 targetId: chatId,
-                message: messageInput.value
+                message: messageInput.value,
+                chatType: urlChatType
             })
         messageInput.value = ""
     }
@@ -119,7 +180,6 @@ sendMessage.addEventListener('click', ()=>{
 
 //HTML FOR GENERATING USER CONTACT
 function generateUserContact(uc){
-    console.log(uc)
     //List item
     let listItem = document.createElement("li")
     userContacts.append(listItem)
@@ -131,7 +191,7 @@ function generateUserContact(uc){
     listItem.append(contactDiv)
 
     //Event listener for loading new chat
-     contactDiv.addEventListener('click', () =>{
+    contactDiv.addEventListener('click', () =>{
         window.history.pushState(null,"", `/chat/users/?id=${uc.id}`)
         activeChatImage.setAttribute("src",uc.picture)
         activeChatName.textContent = uc.contact_name
@@ -166,7 +226,7 @@ function generateUserContact(uc){
     contactInfo.append(profileName)
 }
 
-function generateGroupContact(){
+function generateGroupContact(group){
     //List item
     let listItem = document.createElement("li")
     groupContacts.append(listItem)
@@ -175,6 +235,13 @@ function generateGroupContact(){
     let contactDiv = document.createElement("div")
     contactDiv.setAttribute("class", "userContactElement")
     listItem.append(contactDiv)
+
+    contactDiv.addEventListener('click', () =>{
+        window.history.pushState(null,"", `/chat/groups/?id=${group.group_id}`)
+        activeChatImage.setAttribute("src",group.picture)
+        activeChatName.textContent = group.title
+        loadChat()
+    })
 
     //group contact info
     let contactInfo = document.createElement("div")
@@ -191,7 +258,7 @@ function generateGroupContact(){
     //group img
     let profileImg = document.createElement("img")
     profileImg.setAttribute("class", "userImage")
-    profileImg.setAttribute("src", "/img/notFound.jpg")
+    profileImg.setAttribute("src", group.picture)
     contactInfo.append(profileImg)
 
     //group Text div
@@ -201,15 +268,15 @@ function generateGroupContact(){
 
     //Contact Name
     let contactName = document.createElement("p")
-    contactName.textContent = "Italy 2026"
+    contactName.textContent = group.title
     textDiv.append(contactName)
 
     let tripStart = document.createElement("p")
-    tripStart.textContent = "July 19, 2026 -"
+    tripStart.textContent = group.date_start_at.split("T")[0]
     textDiv.append(tripStart)
 
     let tripEnd = document.createElement("p")
-    tripEnd.textContent = "August 19, 2026"
+    tripEnd.textContent = group.date_end_at.split("T")[0]
     textDiv.append(tripEnd)
 }
 
@@ -220,6 +287,19 @@ function createOpponenMessage(message){
     chatList.append(textElement)
 }
 
+function createOpponenMessageGroup(message,sender_name){
+    let textContainer = document.createElement("div")
+    let sender = document.createElement("p")
+    sender.setAttribute("class","chatSenderText")
+    sender.textContent = sender_name
+    let textElement = document.createElement("p")
+    textElement.setAttribute("class", "opponentChatter")
+    textElement.textContent = message
+    textContainer.append(sender)
+    textContainer.append(textElement)
+    chatList.append(textContainer)
+}
+
 function createOwnMessage(message){
     let textElement = document.createElement("p")
     textElement.setAttribute("class", "currentChatter")
@@ -227,7 +307,4 @@ function createOwnMessage(message){
     chatList.append(textElement)
 }
 
-generateGroupContact()
-generateGroupContact()
-generateGroupContact()
 
