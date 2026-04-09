@@ -733,7 +733,7 @@ header {
     border-radius: 13px;
 }
 
-.tripDisplayCreate{
+.calenderDisplay{
     position: absolute;
     opacity: 0;
     width: 0;
