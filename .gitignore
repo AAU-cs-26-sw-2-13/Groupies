@@ -166,3 +166,4 @@ dist
 #package
 package-lock.json
 package.json
+*.json
