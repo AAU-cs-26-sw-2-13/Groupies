@@ -1,7 +1,7 @@
-import { createUserHTML } from "./User_creation.js"
+import { createUserHTML } from "./createUser.js"
 import { initializeHeader } from "./loadHeader.js"
 
-let user = { user_id: null } 
+let user = { user_id: null }
 let header = document.querySelector("header")
 
 fetch("/me", {
@@ -22,7 +22,6 @@ fetch("/me", {
 }).catch(err => {
     console.log("Auth Check:", err);
 });
-
 
 let tripid = document.querySelector("#tripid")
 const pageURL = new URL(window.location.href)
@@ -56,41 +55,39 @@ function createGroup(groupInfo) {
     const maxAllowed = groupInfo.max_members
     let membercount = 0
 
- //group members list
+    //group members list
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
 
-fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})})
-    .then(r => r.json())
-    .then(members => {
-                //console.log("attempting to create memberslist...")
-                createUserHTML(members,membersList) 
-                membercount = members.length
-                hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+    fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
+        .then(r => r.json())
+        .then(members => {
+            //console.log("attempting to create memberslist...")
+            createUserHTML(members, membersList, user.user_id)
+            membercount = members.length
+            hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
-                //looks thorugh all members, if the user is in the group as member, a button gets created
-                for(let m of members){
-                    let member = m.id
-                    //console.log(member)
-                    //console.log(user.user_id)
-                    if(user.user_id === member){
+            //looks thorugh all members, if the user is in the group as member, a button gets created
+            for (let m of members) {
+                let member = m.id
+                //console.log(member)
+                //console.log(user.user_id)
+                if (user.user_id === member) {
                     let suggestActivityButton = document.createElement("button")
                     suggestActivityButton.setAttribute("class", "button button1")
                     suggestActivityButton.textContent = "Suggest an Activity"
                     tripInfo.append(suggestActivityButton)
                     return
-                    }}
-    }).catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
-       
-
+                }
+            }
+        }).catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
 
     let aboutInfo = document.createElement("p")
     aboutInfo.setAttribute("class", "groupAbout")
     const about = groupInfo.about
     aboutInfo.textContent = about
-
 
     let dates = document.createElement("p")
     dates.setAttribute("class", "p1")
@@ -113,7 +110,7 @@ fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})
     membersElement.setAttribute("class", "aside-box")
 
     let membersTitle = document.createElement("h2")
-    membersTitle.textContent = "Trip Members"
+    membersTitle.textContent = "Group Members"
     membersElement.append(membersTitle)
 
 
@@ -129,40 +126,38 @@ fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})
 
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button button1")
-    joinButton.textContent = "Apply to join trip"
+    joinButton.textContent = "Apply to join group"
 
     buttons.append(backButton, joinButton)
 
 
-let tagsList = document.createElement("div")
- tagsList.setAttribute("class", "groupTags")
+    let tagsList = document.createElement("div")
+    tagsList.setAttribute("class", "groupTags")
 
-//The tags display 
-fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
-    .then(r => r.json())
-    .then(tags => {
-           for(let t of tags){
-             if (t!== null){
-            let genre = document.createElement("l1")
-            genre.setAttribute("class", "pref-item")
-            genre.textContent = t.tag_id
-            tagsList.append(genre)
-        }}
-     })
-       tripInfo.append(tagsList)
-
+    //The tags display 
+    fetch("/groupTags", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
+        .then(r => r.json())
+        .then(tags => {
+            for (let t of tags) {
+                if (t !== null) {
+                    let genre = document.createElement("l1")
+                    genre.setAttribute("class", "pref-item")
+                    genre.textContent = t.tag_id
+                    tagsList.append(genre)
+                }
+            }
+        })
+    tripInfo.append(tagsList)
 
     //group activities develop here and append to tripInfo
     let activities = document.createElement("p")
     activities.setAttribute("class", "p1")
     activities.textContent = "Planned activities:"
-    
-    //check if user is a member to the group, if use create button which allows them to suggest a activity
-    
 
+    //check if user is a member to the group, if use create button which allows them to suggest a activity
     tripInfo.append(activities)
 
-    membersElement.append(membersTitle,membersList,buttons)
+    membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
     return container
 }

@@ -147,7 +147,7 @@ LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 
 
 const getProfileInfoQuery = `
-SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture, u.id,
+SELECT u.id, u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -184,14 +184,10 @@ WHERE gr.user_id = ? AND member = 1;`
 
 
 
-export async function getAllPreferences() {
-    let queryResponse = await query(sqlGetPreferences);
-    return queryResponse;
-}
 
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
-    return queryResponse;
+    return queryResponse
 }
 
 export async function querySimilarUsers(params) {
