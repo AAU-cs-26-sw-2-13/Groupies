@@ -38,7 +38,6 @@ export async function chatSocket(socket, io){
             `,[data.userId, data.targetId, data.message] )
         }
         let roomId = [data.userId, data.targetId].sort().join("_")+data.chatType[0]
-        console.log(roomId)
         io.to(roomId).emit('messageClient', {sender: data.userId, message: data.message})
     })
 }
