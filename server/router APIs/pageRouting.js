@@ -1,4 +1,4 @@
-import {queryResponse} from "../server.js"
+import {queryResponse, fileResponse} from "../server.js"
 import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, getUserContacts, getUserChatHistory, getGroupContacs,getGroupChatHistory} from "../serverQueries.js";
 
 //Page variables
