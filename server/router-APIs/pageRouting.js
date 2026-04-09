@@ -1,5 +1,6 @@
-import {queryResponse} from "../server.js"
-import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, queryAllPreferences} from "../serverQueries.js";
+import {queryResponse, fileResponse} from "../server.js"
+import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, queryAllPreferences, getUserContacts, getUserChatHistory, getGroupContacs,getGroupChatHistory} from "../serverQueries.js";
+
 
 //Page variables
 let activePage = 1;
