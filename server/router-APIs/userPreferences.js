@@ -9,14 +9,14 @@ export async function setUserPreferences(req, res) {
         const { user_id, preferenceList } = body;
 
         // Validation: Ensure we have data and it's an array
-        if (!user_id || !Array.isArray(preferenceList) || preferenceList.length === 0) {
+        if (!user_id || !Array.isArray(preferenceList)) {
             res.writeHead(400, { "Content-type": "application/json" });
             return res.end(JSON.stringify({ status: "error", message: "Missing data" }));
         }
 
         await queryUpdateUserPreferences(user_id, preferenceList); //query the db with an update with the array of preferences to save
 
-        console.log(`Successfully added ${preferenceList.length} items for user ${user_id}`);
+        console.log(`Successfully updated list with ${preferenceList.length} preferences active for user ${user_id}`);
 
         res.writeHead(200, { "Content-type": "application/json" });
         return res.end(JSON.stringify({
