@@ -139,7 +139,7 @@ function createGroup(groupInfo) {
     tagsList.setAttribute("class", "groupTags")
 
     //The tags display 
-    fetch("/groupTags", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
+    fetch("/    s", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
         .then(r => r.json())
         .then(tags => {
             for (let t of tags) {
@@ -160,10 +160,10 @@ function createGroup(groupInfo) {
 
     //hide the memberlist, and show new elements, that create the activity, 
     suggestActivityButton.addEventListener("click", () => {
-        membersElement.style.display = "none"
-        suggestActivityButton.disabled = true
         let createActivity = document.createElement("div")
         createActivity.setAttribute("class", "aside-box")
+        membersElement.style.display = "none"
+        suggestActivityButton.disabled = true
         let activityHead = document.createElement("h2")
         activityHead.textContent = "Suggest an activity"
         //litteraly same code for input as createGroup.js(with different textual content)
@@ -197,24 +197,7 @@ function createGroup(groupInfo) {
             startText.style.color = activityStart.value ? "#333" : "#717171"
         })
 
-        let endLabel = document.createElement("label")
-        endLabel.setAttribute("class", "trip-interactable-boxes")
-        let endText = document.createElement("span")
-        endText.textContent = " End Date"
-        let activityEnd = document.createElement("input")
-        activityEnd.setAttribute("type", "date")
-        activityEnd.setAttribute("class", "tripDisplayCreate")
-        endLabel.append(calendarIcon2, endText, activityEnd)
-        endLabel.addEventListener("click", (e) => {
-            e.preventDefault()
-            activityEnd.showPicker()
-        })
-        activityEnd.addEventListener("change", () => {
-            endText.textContent = " " + activityEnd.value || " End Date"
-            endText.style.color = activityEnd.value ? "#333" : "#717171"
-        })
-
-        dateRow.append(startLabel, endLabel)
+        dateRow.append(startLabel)
 
         let activityDesc = document.createElement("textarea")
         activityDesc.setAttribute("type", "text")
@@ -225,7 +208,7 @@ function createGroup(groupInfo) {
         createActivity.append(activityHead, activityTitle, dateRow, activityDesc)
 
         let activityButtons = document.createElement("div")
-        buttons.setAttribute("class", "groupActions")
+        activityButtons.setAttribute("class", "groupActions")
 
         let backButton = document.createElement("button")
         backButton.setAttribute("class", "buttonBack")
@@ -239,6 +222,9 @@ function createGroup(groupInfo) {
         let submitButton = document.createElement("button")
         submitButton.setAttribute("class", "button CreateTripButton")
         submitButton.textContent = "Post the activity suggestion"
+        activityButtons.append(backButton, submitButton)
+        createActivity.append(activityButtons)
+
         //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
         submitButton.addEventListener("click", () => {
             //same checks as in creategroup, still has the downsides of being able to be injected into
@@ -250,46 +236,59 @@ function createGroup(groupInfo) {
                 alert("Start date is required")
                 return
             }
-            if (!activityEnd.value) {
-                alert("End date is required")
-                return
-            }
             const today = new Date().toISOString().split("T")[0]
             if (activityStart.value < today) {
                 alert("Start date cannot be in the past")
                 return
             }
-            if (activityEnd.value < activityStart.value) {
-                alert("End date cannot be before start date")
-                return
-            }
+
             submitButton.disabled = true
 
             //insert into activity db and close the activity creation
-            fetch("/createActivity", {method: "POST", body: JSON.stringify({
+            fetch("/createActivity", {
+                method: "POST", body: JSON.stringify({
                     user_id: user.user_id,
                     group_id: groupId,
                     title: activityTitle.value,
                     about: activityDesc.value,
-                    date_start_at: activityStart.value,
-                    date_end_at: activityEnd.value
+                    date_start_at: activityStart.value
                 })
             }).then(() => {
-                    createActivity.style.display = "none"
-                    membersElement.style.display = "flex"
-                    suggestActivityButton.disabled = false
-                    submitButton.disabled = false
-                })
+                createActivity.style.display = "none"
+                membersElement.style.display = "flex"
+                suggestActivityButton.disabled = false
+                submitButton.disabled = false
+            })
         })
-        activityButtons.append(backButton, submitButton)
-        createActivity.append(activityButtons)
         container.append(createActivity)
     })
+    //display the activities by fetching the groups activites and for each one creating display elements
+    fetch(`/activities?id=${groupId}`, { method: "GET" })
+        .then(r => r.json()).then(activities => {
+            let listOfActivities = document.createElement("li")
+            listOfActivities.setAttribute("class", "membersList")
+
+            for (let activity of activities) {
+                activitiesIcon = document.createElement("i")
+                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
+                activityStartDate = document.createElement("h2")
+                activityStartDate.textContent = activity.date_start_at
+                activityName = document.createElement("h2")
+                activityName.textContent = activity.title
+                activityDesc = document.createElement("p")
+                activityDesc.textContent = activity.about
+
+                listOfActivities.append(activitiesIcon, activityName, activityStartDate, activityDesc)
+            }
+            //container.append(listOfActivities)
+        })
+
+
+
 
 
 
     tripInfo.append(activities)
-
     membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
     return container
@@ -305,4 +304,3 @@ function formatDate(dateString) {
         year: "numeric"
     })
 }
-

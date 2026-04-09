@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences, addActivityToDB} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences, addActivityToDB, queryActivites} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
@@ -106,7 +106,7 @@ async function createResponse(req, res) {
                 } 
                 case "createActivity": {
                     const body = await parseJSON(req);
-                    await addActivityToDB(body.user_id, body.group_id, body.title,body.about,body.date_start_at,body.date_end_at);
+                    await addActivityToDB(body.user_id, body.group_id, body.title,body.about,body.date_start_at);
                     res.statusCode = 200;
                     res.end();
                     break;
@@ -154,7 +154,17 @@ async function createResponse(req, res) {
                         console.error(error);
                     }
                     break;
+                } 
+                case "activities": {
+                    try {
+                        const groupId = url.searchParams.get("id")
+                        queryResponse(res, () => queryActivites(groupId))
+                    } catch (error) {
+                        console.error(error);
+                    }
+                    break;
                 }
+
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname);
