@@ -246,6 +246,26 @@ export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
 }
+
+export async function getUserContacts(params) {
+    let queryResponse = await query(getUserContactsQuery, params)
+    return queryResponse
+}
+
+export async function getUserChatHistory(params) {
+    let queryResponse = await query(getUserChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupChatHistory(params) {
+    let queryResponse = await query(getGroupChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupContacs(params) {
+    let queryResponse = await query(getGroupContactsQuery, params)
+    return queryResponse
+}
 export async function queryUpdateUserPreferences(user_id, preferenceList) {
     try {
         // Clear existing prefs first to avoid duplicates
@@ -277,23 +297,3 @@ if(tags_list && tags_list.length > 0){
     }
 }       
  
-
-export async function getUserContacts(params) {
-    let queryResponse = await query(getUserContactsQuery, params)
-    return queryResponse
-}
-
-export async function getUserChatHistory(params) {
-    let queryResponse = await query(getUserChatHistoryQuery, params)
-    return queryResponse
-}
-
-export async function getGroupChatHistory(params) {
-    let queryResponse = await query(getGroupChatHistoryQuery, params)
-    return queryResponse
-}
-
-export async function getGroupContacs(params) {
-    let queryResponse = await query(getGroupContactsQuery, params)
-    return queryResponse
-}

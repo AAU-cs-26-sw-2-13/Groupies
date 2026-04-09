@@ -46,6 +46,69 @@ export function loadDiscovery (req, res) {
     })
 }
 
+export function loadChat(req, res, pathElements, searchParams) {
+    switch(pathElements[2]){
+        //All logic for users
+        case "getUserContacs": {
+            let userId = searchParams.get("ownUser")
+            if(userId){
+                queryResponse(res, getUserContacts,[userId, userId])
+                return
+            }else{
+                res.statusCode = 400
+                res.end('\n');
+            }
+            return
+            break;
+        }
+        case "getGroupContacs": {
+            let userId = searchParams.get("ownUser")
+            if(userId){
+                queryResponse(res, getGroupContacs,[userId])
+                return
+            }else{
+                res.statusCode = 400
+                res.end('\n');
+            }
+            return
+            break;
+        }
+        case "users":{
+            switch(pathElements[3]){
+                case "getChatHistory":{
+                    let userId = searchParams.get("ownUser")
+                    let otherChatterId = searchParams.get("chatUser")
+                    if(userId && otherChatterId){
+                        queryResponse(res, getUserChatHistory,[userId, otherChatterId, otherChatterId, userId])
+                        return
+                    }else{
+                        res.statusCode = 400
+                        res.end('\n');
+                    }
+                    break
+                }
+            }
+            break
+        }
+        case "groups":{
+            switch(pathElements[3]){
+                case "getChatHistory":{
+                    let userId = searchParams.get("ownUser")
+                    let otherChatterId = searchParams.get("chatUser")
+                    if(userId && otherChatterId){
+                        queryResponse(res, getGroupChatHistory,[otherChatterId])
+                        return
+                    }else{
+                        res.statusCode = 400
+                        res.end('\n');
+                    }
+                    break
+                }
+            }
+        }
+    }
+    fileResponse(res, "html/chat.html");
+}
 export function regPreferences(req, res){
     let data = "";
     req.on('data', chunk => {
