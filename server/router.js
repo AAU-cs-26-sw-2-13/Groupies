@@ -8,7 +8,6 @@ import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
-import { el } from "@faker-js/faker";
 export { createResponse }
 
 /**

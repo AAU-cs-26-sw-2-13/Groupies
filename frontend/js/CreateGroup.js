@@ -56,7 +56,7 @@ function createHTML(){
     endText.textContent = " End Date" 
     let tripEnd = document.createElement("input")
     tripEnd.setAttribute("type", "date")
-    tripEnd.setAttribute("class", "tripDisplayCreate")
+    tripEnd.setAttribute("class", "calenderDisplay")
     endLabel.append(calendarIcon2,endText,tripEnd)
     endLabel.addEventListener("click", (e) => {
         e.preventDefault()
