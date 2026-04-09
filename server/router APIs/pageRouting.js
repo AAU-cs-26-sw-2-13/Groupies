@@ -35,7 +35,6 @@ export function loadDiscovery (req, res) {
 }
 
 export function loadChat(req, res, pathElements, searchParams) {
-    console.log(pathElements)
     switch(pathElements[2]){
         //All logic for users
         case "getUserContacs": {
@@ -96,6 +95,5 @@ export function loadChat(req, res, pathElements, searchParams) {
             }
         }
     }
-    console.log("GetFile")
     fileResponse(res, "html/chat.html");
 }
