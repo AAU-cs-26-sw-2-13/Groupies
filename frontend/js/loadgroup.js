@@ -3,7 +3,7 @@ import { initializeHeader } from "./loadHeader.js"
 
 let user = { user_id: null }
 let header = document.querySelector("header")
-
+let submitting = 0;
 fetch("/me", {
     method: "GET",
     credentials: "include"
@@ -258,7 +258,8 @@ function createGroup(groupInfo) {
                 membersElement.style.display = "flex"
                 suggestActivityButton.disabled = false
                 submitButton.disabled = false
-                showActivites() //runs the show activites again to show the newly created one aswell, so the user does not need to refresh to see their own
+                submitting = 1;
+                showActivites(submitting) //runs the show activites again to show the newly created one aswell, so the user does not need to refresh to see their own
             })
         })
         container.append(createActivity)
@@ -267,12 +268,12 @@ function createGroup(groupInfo) {
       let listOfActivities = document.createElement("li")
         listOfActivities.setAttribute("class", "membersList")
 
-    const showActivites = () => {fetch(`/activities?id=${groupId}`, { method: "GET" })
+    const showActivites = (submitting) => {fetch(`/activities?id=${groupId}`, { method: "GET" })
         .then(r => r.json()).then(activities => {
+            if(submitting === 0){
             for (let activity of activities) {
                 let activityItem = document.createElement("div")
                 activityItem.setAttribute("class", "trip")
-
                 let activitiesIcon = document.createElement("i")
                 activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
                 let activityStartDate = document.createElement("h2")
@@ -283,6 +284,22 @@ function createGroup(groupInfo) {
                 activityDesc.textContent = activity.about
                 
                 activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
+                listOfActivities.append(activityItem)}
+            }
+            else{ //same kode uden for loop kun til sidste element
+                let activity = activities[activities.length-1]
+
+                let activityItem = document.createElement("div")
+                activityItem.setAttribute("class", "trip")
+                let activitiesIcon = document.createElement("i")
+                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
+                let activityStartDate = document.createElement("h2")
+                activityStartDate.textContent = formatDate(activity.date_start_at)
+                let activityName = document.createElement("h2")
+                activityName.textContent = activity.title
+                let activityDesc = document.createElement("p")
+                activityDesc.textContent = activity.about
+                activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
                 listOfActivities.append(activityItem)
             }
             tripInfo.append(listOfActivities)
@@ -292,7 +309,7 @@ function createGroup(groupInfo) {
 
 
 
-    showActivites()
+    showActivites(submitting)
     tripInfo.append(activities)
     membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
