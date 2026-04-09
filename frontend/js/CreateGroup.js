@@ -198,7 +198,8 @@ function createHTML(){
     submitButton.setAttribute("class", "button CreateTripButton")
     submitButton.textContent = "Finish trip creation"
     submitButton.addEventListener("click", () => {
-        
+    
+    //maybe add proper validation, so no injection can happend
     if(!groupTitle.value.trim()){
         alert("Group title is required")
         return

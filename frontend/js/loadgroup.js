@@ -59,6 +59,7 @@ function createGroup(groupInfo) {
  //group members list
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
+    let suggestActivityButton = document.createElement("button")
 
 fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})})
     .then(r => r.json())
@@ -74,7 +75,6 @@ fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})
                     //console.log(member)
                     //console.log(user.user_id)
                     if(user.user_id === member){
-                    let suggestActivityButton = document.createElement("button")
                     suggestActivityButton.setAttribute("class", "button button1")
                     suggestActivityButton.textContent = "Suggest an Activity"
                     tripInfo.append(suggestActivityButton)
@@ -157,8 +157,72 @@ fetch("/groupTags", {method: "POST", body: JSON.stringify({groupId: groupId})})
     activities.setAttribute("class", "p1")
     activities.textContent = "Planned activities:"
     
-    //check if user is a member to the group, if use create button which allows them to suggest a activity
+    //hide the memberlist, and show new elements, that create the activity, 
+    suggestActivityButton.addEventListener("click", () => { 
+        membersElement.style.display = "none"
+        let createActivity = document.createElement("div")
+        createActivity.setAttribute("class", "aside-box")
+        let activityHead = document.createElement("h2")
+        activityHead.textContent = "Suggest an activity"
+    //litteraly same code for input as createGroup.js(with different textual content)
+        let activityTitle = document.createElement("input") 
+        activityTitle.setAttribute("type", "text")
+        activityTitle.setAttribute("class", "reg-box-inputs") //need to do smth about the look as a whole as it was based on smth else before.
+        activityTitle.setAttribute("placeholder", "Enter activity title")
+
+        let dateRow = document.createElement("div")
+        dateRow.setAttribute("class", "center-align")
     
+        let calendarIcon1 = document.createElement("i")
+        calendarIcon1.setAttribute("class", "fa-regular fa-calendar")
+        let calendarIcon2 = document.createElement("i")
+        calendarIcon2.setAttribute("class", "fa-regular fa-calendar")
+
+        let startLabel = document.createElement("label")
+        startLabel.setAttribute("class", "trip-interactable-boxes")
+        let startText = document.createElement("span")
+        startText.textContent = " Start Date" 
+        let activityStart = document.createElement("input")
+        activityStart.setAttribute("type", "date")
+        activityStart.setAttribute("class", "tripDisplayCreate")
+        startLabel.append(calendarIcon1,startText,activityStart)
+        startLabel.addEventListener("click", (e) => {
+            e.preventDefault()
+            activityStart.showPicker()})
+        activityStart.addEventListener("change", () => {
+            startText.textContent = " " + activityStart.value || " Start Date"
+            startText.style.color = activityStart.value ? "#333" : "#717171"})
+
+        let endLabel = document.createElement("label")
+        endLabel.setAttribute("class", "trip-interactable-boxes")
+        let endText = document.createElement("span")
+        endText.textContent = " End Date" 
+        let activityEnd = document.createElement("input")
+        activityEnd.setAttribute("type", "date")
+        activityEnd.setAttribute("class", "tripDisplayCreate")
+        endLabel.append(calendarIcon2,endText,activityEnd)
+        endLabel.addEventListener("click", (e) => {
+            e.preventDefault()
+            activityEnd.showPicker()})
+        activityEnd.addEventListener("change", () => {
+        endText.textContent = " " + activityEnd.value || " End Date"
+        endText.style.color = activityEnd.value ? "#333" : "#717171"})
+
+        dateRow.append(startLabel, endLabel)
+
+    let activityDesc = document.createElement("textarea")
+    activityDesc.setAttribute("type", "text")
+    activityDesc.setAttribute("class", "description")
+    activityDesc.setAttribute("placeholder", "Describe the activity")
+    activityDesc.setAttribute("maxlength", "420") //maybe have a smaller limit?(same as the group desc rn)
+
+        createActivity.append(activityHead,activityTitle,dateRow,activityDesc)
+
+
+        container.append(createActivity)
+     })
+
+
 
     tripInfo.append(activities)
 
