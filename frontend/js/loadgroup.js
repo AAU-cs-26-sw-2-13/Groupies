@@ -113,7 +113,7 @@ fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})
     membersElement.setAttribute("class", "aside-box")
 
     let membersTitle = document.createElement("h2")
-    membersTitle.textContent = "Trip Members"
+    membersTitle.textContent = "Group Members"
     membersElement.append(membersTitle)
 
 
@@ -129,7 +129,7 @@ fetch("/groupMembers", {method: "POST", body: JSON.stringify({groupId: groupId})
 
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button button1")
-    joinButton.textContent = "Apply to join trip"
+    joinButton.textContent = "Apply to join group"
 
     buttons.append(backButton, joinButton)
 
