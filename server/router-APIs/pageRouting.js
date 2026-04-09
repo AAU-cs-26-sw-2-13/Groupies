@@ -1,5 +1,5 @@
 import {queryResponse} from "../server.js"
-import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers} from "../serverQueries.js";
+import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, queryAllPreferences} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;
@@ -42,6 +42,16 @@ export function loadDiscovery (req, res) {
                 }
             }
         }
+    })
+}
+
+export function regPreferences(req, res){
+    let data = "";
+    req.on('data', chunk => {
+        data += chunk.toString()
+    })
+    req.on('end', () => {
+        queryResponse(res, queryAllPreferences);
     })
 }
 
