@@ -1,4 +1,4 @@
-import { createUserHTML } from "./User_creation.js"
+import { createUserHTML } from "./createUser.js"
 import { initializeHeader } from "./loadHeader.js"
 
 let user = { user_id: null }

@@ -1,6 +1,6 @@
 import { login } from "./loginRegister.js";
 import { highlightActivePageButton } from "./activePage.js"
-import { profileClick } from "./User_creation.js"
+import { profileClick } from "./createUser.js"
 
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
 export async function initializeHeader(headerElement, user, pageToRender) {

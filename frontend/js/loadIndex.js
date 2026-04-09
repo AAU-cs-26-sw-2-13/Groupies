@@ -1,4 +1,4 @@
-import { createUserHTML } from "./User_creation.js";
+import { createUserHTML } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js";
 import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
 import { parseTags } from "./parseJson.js"
