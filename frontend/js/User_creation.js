@@ -1,7 +1,7 @@
 import { parseTags } from "./parseJson.js"
 
 //Generates the HTML object for a new user
-export function createUser(id, name, age, gender, country, picture, tags) {
+export function createUser(id, name, age, gender, country, picture, tags, isActiveUser) {
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -9,7 +9,6 @@ export function createUser(id, name, age, gender, country, picture, tags) {
     let lowerUserInfo = document.createElement("div")
 
     let userInformation = document.createElement("div")
-    let followButton = document.createElement("button")
     //let plusIcon = document.createElement("i")
 
     let userImage = document.createElement("img")
@@ -28,11 +27,15 @@ export function createUser(id, name, age, gender, country, picture, tags) {
     lowerUserInfo.setAttribute("class", "userPrefFront")
 
     userInformation.setAttribute("class", "userInfo")
+    
+    let followButton = document.createElement("button")
     followButton.setAttribute("class", "button2")
     followButton.setAttribute("type", "button")
     //plusIcon.setAttribute("class", "fa-regular fa-plus")
     followButton.innerHTML = "Follow"
     followButton.addEventListener('click', followUserListener)
+    
+
 
     userImage.setAttribute("class", "userImage")
     userImage.setAttribute("src", picture)
@@ -51,7 +54,7 @@ export function createUser(id, name, age, gender, country, picture, tags) {
     article.append(lowerUserInfo)
 
     upperUserInfo.append(userInformation)
-    upperUserInfo.append(followButton)
+    if (!isActiveUser) upperUserInfo.append(followButton);
 
     userInformation.append(userImage)
     userInformation.append(userText)
@@ -84,10 +87,13 @@ export function followUserListener(event) {
     }
 }
 
-export function createUserHTML(userArray, targetList) {
+export function createUserHTML(userArray, targetList, userID) {
     for (let u of userArray) {
+        let isActiveUser = false;
+        if (u.id == userID) isActiveUser = true; //if its the active user, createUser must not create a follow button
+
         let prefs = u.preferences;
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs));
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, prefs, isActiveUser));
     }
 }
 
@@ -95,6 +101,6 @@ export function profileClick(event) {
     // console.log(event.target)
 
     let profileData = event.currentTarget.dataset
-    window.location.href = `/profile/?id=${profileData["id"]}`    
+    window.location.href = `/profile/?id=${profileData["id"]}`
 }
 
