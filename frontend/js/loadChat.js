@@ -11,6 +11,7 @@ let sendMessage = document.querySelector(".sendMessageButton")
 let messageInput = document.querySelector(".messageInputBox")
 let activeChatName = document.querySelector(".activeChatName")
 let activeChatImage = document.querySelector(".activeChatImage")
+let chatBox = document.querySelector(".chatBox")
 
 //Local variables
 
@@ -84,58 +85,63 @@ function loadChat(){
     let activeChat = new URL(window.location.href)
     let chatId = activeChat.searchParams.get("id")
     let urlChatType = window.location.href.split("/")[4] //Users or groups :)
-    if(chatId){
-        //Get the old chat history
-        fetch(`getChatHistory/?ownUser=${user.user_id}&chatUser=${chatId}`).then(response=>{
-            if(response.status === 200){
-                return response.json()
-            }else{
-                throw "Couldnt fetch users"
-            }
-        }).then(jsonReponse =>{
-            console.log(urlChatType)
-            if(urlChatType === "groups"){
-                console.log("GROUP")
-                for(let m of jsonReponse){
-                    if(m.sender_id === user.user_id){
-                        createOwnMessage(m.chat_text)
-                    }else{
-                        createOpponenMessageGroup(m.chat_text, m.sender_name)
-                    }
-                }
-            }else{
-                for(let m of jsonReponse){
-                    if(m.sender_id === user.user_id){
-                        createOwnMessage(m.chat_text)
-                    }else{
-                        createOpponenMessage(m.chat_text)
-                    }
-                }
-            }
-            
-             //Joins the socket room
-            socket.emit('join-chat', {
-                userId: user.user_id,
-                targetId: chatId,
-                chatType: urlChatType
-            })
-            //Scroll to the buttom
-            chatList.scrollTo(0, chatList.scrollHeight)
-
-            //Removes possible old active listeners
-            socket.off('messageClient')
-            //Listens for new chats
-            socket.on('messageClient', data=>{
-                if(data.sender === user.user_id){
-                    createOwnMessage(data.message)
+    if(window.location.href.split("/").length !== 6){  //Not in any active chats
+        chatBox.setAttribute("class", "hidden")
+    }else{ //Is in an active chat
+        if(chatId){
+            chatBox.setAttribute("class", "chatBox")
+            //Get the old chat history
+            fetch(`getChatHistory/?ownUser=${user.user_id}&chatUser=${chatId}`).then(response=>{
+                if(response.status === 200){
+                    return response.json()
                 }else{
-                    createOpponenMessage(data.message)
+                    throw "Couldnt fetch users"
                 }
+            }).then(jsonReponse =>{
+                console.log(urlChatType)
+                if(urlChatType === "groups"){
+                    console.log("GROUP")
+                    for(let m of jsonReponse){
+                        if(m.sender_id === user.user_id){
+                            createOwnMessage(m.chat_text)
+                        }else{
+                            createOpponenMessageGroup(m.chat_text, m.sender_name)
+                        }
+                    }
+                }else{
+                    for(let m of jsonReponse){
+                        if(m.sender_id === user.user_id){
+                            createOwnMessage(m.chat_text)
+                        }else{
+                            createOpponenMessage(m.chat_text)
+                        }
+                    }
+                }
+                
+                //Joins the socket room
+                socket.emit('join-chat', {
+                    userId: user.user_id,
+                    targetId: chatId,
+                    chatType: urlChatType
+                })
+                //Scroll to the buttom
                 chatList.scrollTo(0, chatList.scrollHeight)
+
+                //Removes possible old active listeners
+                socket.off('messageClient')
+                //Listens for new chats
+                socket.on('messageClient', data=>{
+                    if(data.sender === user.user_id){
+                        createOwnMessage(data.message)
+                    }else{
+                        createOpponenMessage(data.message)
+                    }
+                    chatList.scrollTo(0, chatList.scrollHeight)
+                })
             })
-        })
-    }else{
-        console.log("No active chats")
+        }else{
+            console.log("No active chats")
+        }
     }
 }
 //Add event listener for sending a message
@@ -253,6 +259,9 @@ function generateGroupContact(group){
     profileButton.setAttribute("class", "button2")
     profileButton.setAttribute("type", "button")
     profileButton.textContent = "Group"
+    profileButton.addEventListener('click', ()=>{
+        window.location.href = `/group/?id=${group.group_id}`
+    })
     contactDiv.append(profileButton)
 
     //group img
