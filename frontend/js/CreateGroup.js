@@ -24,7 +24,7 @@ function createHTML(){
    //group creation input fields
     let groupTitle = document.createElement("input")
     groupTitle.setAttribute("type", "text")
-    groupTitle.setAttribute("class", "reg-box-inputs")
+    groupTitle.setAttribute("class", "text-input-box")
     groupTitle.setAttribute("placeholder", "Enter Trip title")
 
     let dateRow = document.createElement("div")
@@ -69,7 +69,7 @@ function createHTML(){
 
     let groupDest = document.createElement("input")
     groupDest.setAttribute("type", "text")
-    groupDest.setAttribute("class", "reg-box-inputs")
+    groupDest.setAttribute("class", "text-input-box")
     groupDest.setAttribute("placeholder", "Enter destination")
 
     let groupDesc = document.createElement("textarea")
@@ -118,7 +118,7 @@ function createHTML(){
 
     let Members = document.createElement("input")
     Members.setAttribute("type", "number")
-    Members.setAttribute("class", "reg-box-inputs")
+    Members.setAttribute("class", "text-input-box")
     Members.setAttribute("placeholder", "Maximum joinable members")
 
     let membershipRow = document.createElement("div")

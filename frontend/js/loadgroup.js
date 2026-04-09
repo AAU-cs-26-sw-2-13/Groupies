@@ -77,7 +77,7 @@ function createGroup(groupInfo) {
                 if (user.user_id === member) {
                     suggestActivityButton.setAttribute("class", "button button1")
                     suggestActivityButton.textContent = "Suggest an Activity"
-                    tripInfo.append(suggestActivityButton)
+                    activities.append(suggestActivityButton)
                     return
                 }
             }
@@ -169,7 +169,7 @@ function createGroup(groupInfo) {
         //litteraly same code for input as createGroup.js(with different textual content)
         let activityTitle = document.createElement("input")
         activityTitle.setAttribute("type", "text")
-        activityTitle.setAttribute("class", "reg-box-inputs") //need to do smth about the look as a whole as it was based on smth else before.
+        activityTitle.setAttribute("class", "text-input-box") //need to do smth about the look as a whole as it was based on smth else before.
         activityTitle.setAttribute("placeholder", "Enter activity name")
 
         let dateRow = document.createElement("div")
@@ -276,14 +276,12 @@ function createGroup(groupInfo) {
                 activityItem.setAttribute("class", "trip")
                 let activitiesIcon = document.createElement("i")
                 activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
-                let activityStartDate = document.createElement("h2")
-                activityStartDate.textContent = formatDate(activity.date_start_at)
-                let activityName = document.createElement("h2")
-                activityName.textContent = activity.title
+                let activityStartDateandName = document.createElement("h2")
+                activityStartDateandName.textContent = formatDate(activity.date_start_at) + ", " + activity.title
                 let activityDesc = document.createElement("p")
                 activityDesc.textContent = activity.about
                 
-                activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
+                activityItem.append(activitiesIcon, activityStartDateandName, activityDesc)
                 listOfActivities.append(activityItem)}
             }
             else{ //same kode uden for loop kun til sidste element
