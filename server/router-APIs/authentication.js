@@ -146,6 +146,14 @@ export async function editUser(req, res) {
       return res.end(JSON.stringify({ error: "Not logged in yet" }));
     }
 
+  // Find user in db
+    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
+    if (!rows.length) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Wrong user" }));
+    }
+    const user = rows[0];
+
     // Sanitize input
     const body = await parseJSON(req);
     let { firstname, lastname, email, password } = body;
@@ -154,16 +162,19 @@ export async function editUser(req, res) {
     email = sanitize(String(email));
     password = sanitize(String(password));
 
-    // Find user in db
-    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
-    if (!rows.length) {
-      res.writeHead(401, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Wrong user" }));
-    }
-    const user = rows[0];
-    
+    const hash = await bcrypt.hash(password, 12);
+    await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, session.user_id])
+    console.log("✓ Updated user in db");
 
-
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/plain')
+    res.end('Updated\n');
   } catch (err) {
     res.writeHead(500, { "Content-Type": "application/json" });
     return res.end(JSON.stringify({ error: "Internal server error" }));

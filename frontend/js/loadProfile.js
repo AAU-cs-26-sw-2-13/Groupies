@@ -30,7 +30,7 @@ const profileId = pageURL.searchParams.get("id")
 fetch(`profileInfo?id=${profileId}`).then(response => {
     return response.json()
 }).then(jsonResponse => {
-    createEditProfile(jsonResponse)
+    createProfile(jsonResponse)
     generateTrips(jsonResponse)
 })
 
@@ -251,8 +251,6 @@ function createEditProfile(profile) {
     
     formContainer.append(firstNameInput, lastNameInput, emailInput, passwordInput, optionsContainer)
     saveButton.addEventListener('click', () => {
-        console.log("123")
-        console.log(firstNameInput.value)
         editProfile(firstNameInput.value,
             lastNameInput.value,
             emailInput.value,
@@ -263,13 +261,15 @@ function createEditProfile(profile) {
 }
 
 async function editProfile(firstname, lastname, email, password) {
-console.log(firstname)
-  const res = await fetch("/api/auth/edit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ firstname, lastname, email, password })
-  });
-  return res.json();
+    const res = await fetch("/api/auth/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstname, lastname, email, password })
+    });
+    if (!res.ok) {
+        return "Server failed to update user in database!"
+    }
+    window.location.href = `/profile/?id=${activeUserId}`
 }
 
 

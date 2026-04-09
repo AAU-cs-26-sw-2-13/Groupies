@@ -2,7 +2,7 @@
 import { fileResponse, queryResponse } from "./server.js";
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout } from "./router-APIs/authentication.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, editUser } from "./router-APIs/authentication.js";
 import { loadDiscovery } from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
@@ -48,7 +48,7 @@ export async function createResponse(req, res) {
                                     case "logout": await logout(req, res);
                                         break;
                                     //Request to edit user profile
-                                    case "edit": await console.log("test");
+                                    case "edit": await editUser(req, res);
                                         break;
                                 }
                             }
