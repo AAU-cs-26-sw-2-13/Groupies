@@ -125,8 +125,35 @@ body {
     border-radius: 10px;
     transition-duration: 0.6s;
     cursor: pointer;
+    text-align: center;
 }
 
+.box-button#logout-btn_id{
+    padding: 0.5rem 1.2rem;
+    background-color: #842f2f;
+    color: white;
+    border: 0px;
+    border-radius: 10px;
+    transition-duration: 0.6s;
+    cursor: pointer;
+}
+
+
+.box-link {
+    padding: 0.5rem 1.2rem;
+    background-color: #6b4fb2;
+    color: white;
+    border: 0px;
+    border-radius: 10px;
+    transition-duration: 0.6s;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+}
+.box-link:hover {
+    background-color: #7e378b;
+    cursor: pointer;
+}
 .box-button:hover {
     background-color: #7e378b;
     cursor: pointer;
@@ -1190,4 +1217,9 @@ header {
     visibility: hidden;
     width: 200px;
     height: 50px;
+}
+#profile-box-div_id {
+    position: absolute;
+    width: 0;
+    height: 0;
 }
