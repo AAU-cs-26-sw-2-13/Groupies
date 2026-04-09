@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences, addActivityToDB} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
@@ -101,8 +101,17 @@ async function createResponse(req, res) {
                     res.end(JSON.stringify({status: "created"}))
                 break;
                 }
-                case "regPrefs": await regPreferences(req, res);
+                case "regPrefs": await regPreferences(req, res);{
                     break;
+                } 
+                case "createActivity": {
+                    const body = await parseJSON(req);
+                    await addActivityToDB(body.user_id, body.group_id, body.title,body.about,body.date_start_at,body.date_end_at);
+                    res.statusCode = 200;
+                    res.end();
+                    break;
+                }
+
             }
             break;
         }

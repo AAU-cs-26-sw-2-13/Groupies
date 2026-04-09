@@ -252,4 +252,7 @@ if(tags_list && tags_list.length > 0){
         }
     }
 }       
- 
+
+export async function addActivityToDB(user_id, group_id, title, about, date_start_at, date_end_at){ 
+return query("INSERT INTO group_activities (user_id, group_id, title, about, date_start_at, date_end_at) VALUES (?,?,?,?,?,?)", [user_id, group_id,title,about,date_start_at,date_end_at])
+}  

@@ -266,16 +266,15 @@ function createGroup(groupInfo) {
             submitButton.disabled = true
 
             //insert into activity db and close the activity creation
-            fetch("/createTrip", { //not done yet just copied from createtrip
-                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-                    host_user_id: user.user_id,
+            fetch("/createActivity", {method: "POST", body: JSON.stringify({
+                    user_id: user.user_id,
+                    group_id: groupId,
                     title: activityTitle.value,
                     about: activityDesc.value,
                     date_start_at: activityStart.value,
                     date_end_at: activityEnd.value
                 })
-            }).then(r => r.json())
-                .then(() => {
+            }).then(() => {
                     createActivity.style.display = "none"
                     membersElement.style.display = "flex"
                     suggestActivityButton.disabled = false
