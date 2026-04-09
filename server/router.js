@@ -1,10 +1,15 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
-import { handleImage } from "./router APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout } from "./router APIs/authentication.js";
-import { loadChat, loadDiscovery } from "./router APIs/pageRouting.js";
+import crypto from "node:crypto";
+import {writeFileSync} from "fs"
+import path, { relative } from "path"
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
+import { handleImage } from "./router-APIs/uploads.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
+import { loadDiscovery, regPreferences, loadChat, loadDiscovery  } from "./router-APIs/pageRouting.js";
+import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
+export { createResponse }
 
 /**
  * CreateResponse takes the request received on the server listener and switches on the request url.
@@ -22,7 +27,9 @@ import { el } from "@faker-js/faker";
  *      - "images":
  *      - defaults to server a fileresponse corresponding to the url of the request
  */
-export async function createResponse(req, res) {
+
+
+async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
     let url = new URL(req.url, baseURL);
 
@@ -40,6 +47,8 @@ export async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
                                         break;
+                                    case "regPrefs": await registerPreferences(req, res);
+                                        break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
                                         break;
@@ -50,15 +59,15 @@ export async function createResponse(req, res) {
                             }
                             break;
                         }
-                        case "pref": await setUserPreference(req, res);
+                        case "pref": await setUserPreferences(req, res);
                             break;
                     }
                     break;
                 }
-                case "groupMembers": {
-                    let data = "";
+                case "groupMembers":{
+                    let data = ""
                     req.on('data', chunk => {
-                        data += chunk.toString();
+                        data += chunk.toString()
                     })
                     req.on('end', () => {
                         let jsonData = JSON.parse(data);
@@ -66,6 +75,34 @@ export async function createResponse(req, res) {
                     })
                     break;
                 }
+                 case "groupTags":{
+                    let data = ""
+                    req.on('data', chunk => {
+                        data += chunk.toString()
+                    })
+                    req.on('end', () => {
+                        let jsonData = JSON.parse(data)
+                        queryResponse(res, () => getGroupTags(jsonData.groupId));
+                    })
+                    break;
+                }
+                case "createTrip": {
+                    const body = await parseJSON(req);
+                    let picturePath = null
+                if(body.picture){
+                const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
+                const fileName = crypto.randomUUID() + ".jpg"
+                const filePath = path.join("frontend/img", fileName)
+                writeFileSync(filePath, Buffer.from(base64Data, "base64"))
+                picturePath = "../img/" + fileName
+                }
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
+                    res.writeHead(200, {"Content-Type": "application/json"})
+                    res.end(JSON.stringify({status: "created"}))
+                break;
+                }
+                case "regPrefs": await regPreferences(req, res);
+                    break;
             }
             break;
         }
@@ -102,6 +139,14 @@ export async function createResponse(req, res) {
                     break;
                 case "images": {
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
+                    break;
+                }
+                case "prefs": {
+                    try {
+                        await queryResponse(res, queryAllPreferences);
+                    } catch (error) {
+                        console.error(error);
+                    }
                     break;
                 }
                 //Fallback to file response

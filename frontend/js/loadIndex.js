@@ -1,8 +1,7 @@
-import { getCurrentUser } from "./userAPI.js";
-import { login, register } from "./loginRegister.js";
 import { createUserHTML } from "./User_creation.js";
 import { initializeHeader } from "./loadHeader.js";
-import  "./indexHelpers/indexListeners.js";
+import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
+import { parseTags } from "./parseJson.js"
 
 //Queries to dom elements
 let tripList = document.querySelector("#tripList");
@@ -10,6 +9,8 @@ let userList = document.querySelector("#userList");
 let similarUserList = document.querySelector("#similarUserList");
 let header = document.querySelector("header");
 let buttons = document.querySelector(".pageButtons");
+let tripButton = document.querySelector("#createTripBtn")  // maybe add the trip button to pagebuttons?
+
 
 //Context variables
 let discovered = 1;
@@ -76,7 +77,7 @@ function createTrip(title, host, tags, group) {
 
     lowerTripInfo.append(genreList)
 
-    for (let t of tags) {
+    for (let t of parseTags(tags)) {
         if (t !== null) {
             let genre = document.createElement("li")
             genre.setAttribute("class", "pref-item")
@@ -99,6 +100,15 @@ function followTripListener(event) {
     }
 
 }
+
+tripButton.addEventListener("click", createTripClick)
+
+function createTripClick() {
+    if(user.user_id){   //if the user has an id, i.e. is logged in, redirect them to the html file
+         window.location.href = "/html/CreateTrip.html"}
+    else alert("You need to be logged in to create a trip.")
+    }
+   
 
 function groupClick(event) {
     //console.log(event.target)
@@ -156,6 +166,7 @@ fetch("/me", {
     generateUsers(user);
     generateSimilarUsers(user);
     generateTrips(user, discovered);
+    generateUserListButtons(user);
 }).catch(err => {
     console.log("Auth Check:", err);
 });

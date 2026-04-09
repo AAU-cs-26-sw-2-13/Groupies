@@ -10,19 +10,20 @@
         <main>
             <div class="Discovers">
                 <section class="section-box" id="Discover-Journeys">
-                    <h2>Discover Journeys</h2>
+                    <div class="discoverHeader">
+                    <h2>Discover Journeys </h2>
+                     <button class="CreateTripButton" type="button" id="createTripBtn">Create trip</button>
+                    </div>
                     <ul id = "tripList">
                     </ul>
+                    
                     <div class="pageButtons" data-loaded="false">
-        
                     </div>
                 </section>
                 <aside class="aside-box">
                     <h2 id = "userListHeader_id">Popular Users</h2>
-                    <div class = "userLists-buttons">
-                        <button class ="highlight-box-button2" id="Pop-users-btn_id">Popular Users</button>
-                        <div class="divider"></div>
-                        <button class ="box-button2" id="Similar-users-btn_id">Similar Users</button>
+                    <div id = "button-container_id" class = "userLists-buttons">
+                        <div id = "button-divider_id" class="divider"></div>
                     </div>
                     <ul class ="userLists active" id = "userList">
                     </ul>

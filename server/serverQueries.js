@@ -39,7 +39,7 @@ SELECT
     u.age,
     u.picture,
     JSON_ARRAYAGG(p.preference_id) AS preferences,
-    (SELECT COUNT(id) FROM user_relations WHERE user_id = u.id) AS followers
+    (SELECT COUNT(id) FROM user_relations WHERE target_user_id = u.id) AS followers
 FROM users u
 LEFT JOIN user_prefs p 
     ON u.id = p.user_id
@@ -147,7 +147,7 @@ LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 
 
 const getProfileInfoQuery = `
-SELECT u.id, u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture, u.id,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -184,6 +184,10 @@ WHERE gr.user_id = ? AND member = 1;`
 
 
 
+export async function getAllPreferences() {
+    let queryResponse = await query(sqlGetPreferences);
+    return queryResponse;
+}
 
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
@@ -218,6 +222,14 @@ export async function queryGroupMembers(groupId) {
         WHERE gr.group_id = ? AND gr.member = 1
         GROUP BY gr.id
     `, [groupId])
+}
+
+export async function getGroupTags(groupId){
+    return query(`
+        SELECT gt.id, gt.group_id, gt.tag_id, gt.tag_value
+        FROM group_tags gt
+        WHERE gt.group_id = ?
+         `, [groupId])
 }
 
 export async function queryGroupInfo(groupId) {
@@ -258,3 +270,34 @@ export async function getGroupContacs(params) {
     let queryResponse = await query(getGroupContactsQuery, params)
     return queryResponse
 }
+export async function queryUpdateUserPreferences(user_id, preferenceList) {
+    try {
+        // Clear existing prefs first to avoid duplicates
+        await query('DELETE FROM user_prefs WHERE user_id = ?', [user_id]);
+        //for each preference in the list insert a row in the db.
+        if (preferenceList && preferenceList.length > 0) {
+            for (let pref of preferenceList) {
+                await query(
+                    'INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES (?, ?, ?)',
+                    [user_id, pref, 1]
+                );
+            }
+        }
+        return { success: true };
+    } catch (e) {
+        console.error("Database error in updateUserPreferences:", e);
+        throw e;
+    }
+}
+     
+export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, picturePath, max_members, group_openess, tags_list){ 
+let result = await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, picture, max_members, group_openess) VALUES (?,?,?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,picturePath,max_members,group_openess])
+let groupID = result.insertId    
+await query("INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,1)" , [host_user_id, groupID])
+if(tags_list && tags_list.length > 0){
+        for(let tag of tags_list){
+            await query("INSERT INTO group_tags (group_id, tag_id, tag_value) VALUES (?,?,?)", [groupID, tag, 1])
+        }
+    }
+}       
+ 

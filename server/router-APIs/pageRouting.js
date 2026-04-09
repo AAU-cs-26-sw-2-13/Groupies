@@ -1,5 +1,5 @@
-import {queryResponse, fileResponse} from "../server.js"
-import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, getUserContacts, getUserChatHistory, getGroupContacs,getGroupChatHistory} from "../serverQueries.js";
+import {queryResponse} from "../server.js"
+import { queryPopularUsers, querySimilarUsers, queryPopularGroups, queryJaccardSortedGroups, queryGroupMembers, queryAllPreferences, getUserContacts, getUserChatHistory, getGroupContacs,getGroupChatHistory} from "../serverQueries.js";
 
 //Page variables
 let activePage = 1;
@@ -108,3 +108,13 @@ export function loadChat(req, res, pathElements, searchParams) {
     }
     fileResponse(res, "html/chat.html");
 }
+export function regPreferences(req, res){
+    let data = "";
+    req.on('data', chunk => {
+        data += chunk.toString()
+    })
+    req.on('end', () => {
+        queryResponse(res, queryAllPreferences);
+    })
+}
+
