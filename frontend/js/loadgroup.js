@@ -263,24 +263,30 @@ function createGroup(groupInfo) {
         container.append(createActivity)
     })
     //display the activities by fetching the groups activites and for each one creating display elements
+      let listOfActivities = document.createElement("li")
+        listOfActivities.setAttribute("class", "membersList")
+
     fetch(`/activities?id=${groupId}`, { method: "GET" })
         .then(r => r.json()).then(activities => {
-            let listOfActivities = document.createElement("li")
-            listOfActivities.setAttribute("class", "membersList")
-
+        console.log("Activities received:", activities)
             for (let activity of activities) {
-                activitiesIcon = document.createElement("i")
-                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
-                activityStartDate = document.createElement("h2")
-                activityStartDate.textContent = activity.date_start_at
-                activityName = document.createElement("h2")
-                activityName.textContent = activity.title
-                activityDesc = document.createElement("p")
-                activityDesc.textContent = activity.about
+                            console.log(activity)
+                let activityItem = document.createElement("div")
+                activityItem.setAttribute("class", "trip")
 
-                listOfActivities.append(activitiesIcon, activityName, activityStartDate, activityDesc)
+                let activitiesIcon = document.createElement("i")
+                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
+                let activityStartDate = document.createElement("h2")
+                activityStartDate.textContent = formatDate(activity.date_start_at)
+                let activityName = document.createElement("h2")
+                activityName.textContent = activity.title
+                let activityDesc = document.createElement("p")
+                activityDesc.textContent = activity.about
+                
+                activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
+                listOfActivities.append(activityItem)
             }
-            //container.append(listOfActivities)
+            tripInfo.append(listOfActivities)
         })
 
 
