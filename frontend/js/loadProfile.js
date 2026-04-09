@@ -1,4 +1,4 @@
-import { followUserListener } from "./User_creation.js";
+import { followUserListener } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js"
 import { parseTags } from "./parseJson.js";
 

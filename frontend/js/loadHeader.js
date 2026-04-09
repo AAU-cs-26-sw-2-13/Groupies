@@ -1,6 +1,6 @@
 import { login } from "./loginRegister.js";
 import { highlightActivePageButton } from "./activePage.js"
-import { profileClick } from "./User_creation.js"
+import { profileClick } from "./createUser.js"
 
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
 export async function initializeHeader(headerElement, user, pageToRender) {
@@ -45,6 +45,7 @@ function renderLoggedInHeader(header, user, pageToRender) {
     username.addEventListener('click', profileClick)
 
     mainDiv.append(username, profileImage);
+    console.log(`Appending header for logged out case on ${pageToRender} page`);
     header.append(mainDiv);
 }
 
@@ -73,6 +74,7 @@ function renderLoggedOutHeader(header, pageToRender) {
 
     mainDiv.append(loginBtn, registerBtn, loginBoxDiv);
     header.append(mainDiv);
+    console.log(`Appending header for logged out case on ${pageToRender} page`);
 }
 
 function toggleLoginBox(container) {
@@ -135,6 +137,6 @@ let titleElementHTML = `<div id="Groupies_title_id">
     <h1 id="Groupies_title_header_id">Groupies</h1> 
 </div>
 
-<button class = "button" type="button" id="discover-btn_id">Find your next trips</button>`
+<button class = "button" type="button" id="discover-btn_id">Discover Travel Groups</button>`
 
 

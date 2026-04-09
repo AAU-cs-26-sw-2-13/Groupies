@@ -46,6 +46,16 @@ export function loadDiscovery (req, res) {
     })
 }
 
+export function regPreferences(req, res){
+    let data = "";
+    req.on('data', chunk => {
+        data += chunk.toString()
+    })
+    req.on('end', () => {
+        queryResponse(res, queryAllPreferences);
+    })
+}
+
 export function loadChat(req, res, pathElements, searchParams) {
     switch(pathElements[2]){
         //All logic for users
@@ -109,13 +119,3 @@ export function loadChat(req, res, pathElements, searchParams) {
     }
     fileResponse(res, "html/chat.html");
 }
-export function regPreferences(req, res){
-    let data = "";
-    req.on('data', chunk => {
-        data += chunk.toString()
-    })
-    req.on('end', () => {
-        queryResponse(res, queryAllPreferences);
-    })
-}
-
