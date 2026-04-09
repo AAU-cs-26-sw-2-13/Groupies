@@ -4,7 +4,7 @@ import fs from "fs";
 import { createResponse } from "./router.js"
 import {Server} from "socket.io"
 import { da } from "@faker-js/faker";
-import {chatSocket} from "./router APIs/chat.js"
+import {chatSocket} from "./router-APIs/chat.js"
 
 const hostname = 'localhost';
 const port = 3000;
