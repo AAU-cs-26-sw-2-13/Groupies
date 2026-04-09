@@ -1,11 +1,15 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences } from "./serverQueries.js";
+import crypto from "node:crypto";
+import {writeFileSync} from "fs"
+import path, { relative } from "path"
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, getAllPreferences} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences} from "./router-APIs/authentication.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
+export { createResponse }
 
 /**
  * CreateResponse takes the request received on the server listener and switches on the request url.
@@ -23,7 +27,9 @@ import { el } from "@faker-js/faker";
  *      - "images":
  *      - defaults to server a fileresponse corresponding to the url of the request
  */
-export async function createResponse(req, res) {
+
+
+async function createResponse(req, res) {
     let baseURL = 'http://' + req.headers.host + "/";    //https://github.com/nodejs/node/issues/12682
     let url = new URL(req.url, baseURL);
 
@@ -58,16 +64,42 @@ export async function createResponse(req, res) {
                     }
                     break;
                 }
-                case "groupMembers": {
-                    let data = "";
+                case "groupMembers":{
+                    let data = ""
                     req.on('data', chunk => {
-                        data += chunk.toString();
+                        data += chunk.toString()
                     })
                     req.on('end', () => {
                         let jsonData = JSON.parse(data);
                         queryResponse(res, () => queryGroupMembers(jsonData.groupId));
                     })
                     break;
+                }
+                 case "groupTags":{
+                    let data = ""
+                    req.on('data', chunk => {
+                        data += chunk.toString()
+                    })
+                    req.on('end', () => {
+                        let jsonData = JSON.parse(data)
+                        queryResponse(res, () => getGroupTags(jsonData.groupId));
+                    })
+                    break;
+                }
+                case "createTrip": {
+                    const body = await parseJSON(req);
+                    let picturePath = null
+                if(body.picture){
+                const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
+                const fileName = crypto.randomUUID() + ".jpg"
+                const filePath = path.join("frontend/img", fileName)
+                writeFileSync(filePath, Buffer.from(base64Data, "base64"))
+                picturePath = "../img/" + fileName
+                }
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
+                    res.writeHead(200, {"Content-Type": "application/json"})
+                    res.end(JSON.stringify({status: "created"}))
+                break;
                 }
                 case "regPrefs": await regPreferences(req, res);
                     break;

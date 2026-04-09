@@ -9,6 +9,8 @@ let userList = document.querySelector("#userList");
 let similarUserList = document.querySelector("#similarUserList");
 let header = document.querySelector("header");
 let buttons = document.querySelector(".pageButtons");
+let tripButton = document.querySelector("#createTripBtn")  // maybe add the trip button to pagebuttons?
+
 
 //Context variables
 let discovered = 1;
@@ -98,6 +100,15 @@ function followTripListener(event) {
     }
 
 }
+
+tripButton.addEventListener("click", createTripClick)
+
+function createTripClick() {
+    if(user.user_id){   //if the user has an id, i.e. is logged in, redirect them to the html file
+         window.location.href = "/html/CreateTrip.html"}
+    else alert("You need to be logged in to create a trip.")
+    }
+   
 
 function groupClick(event) {
     //console.log(event.target)

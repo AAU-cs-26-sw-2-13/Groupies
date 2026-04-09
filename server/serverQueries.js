@@ -156,6 +156,10 @@ LEFT JOIN user_prefs p ON u.id = p.user_id
 WHERE u.id = ?
 `
 
+export async function getAllPreferences() {
+    let queryResponse = await query(sqlGetPreferences);
+    return queryResponse;
+}
 
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
@@ -192,6 +196,14 @@ export async function queryGroupMembers(groupId) {
     `, [groupId])
 }
 
+export async function getGroupTags(groupId){
+    return query(`
+        SELECT gt.id, gt.group_id, gt.tag_id, gt.tag_value
+        FROM group_tags gt
+        WHERE gt.group_id = ?
+         `, [groupId])
+}
+
 export async function queryGroupInfo(groupId) {
     const normalizedGroupId = Array.isArray(groupId) ? groupId[0] : groupId;
     let queryResponse = await query(sqlGetGroupInfoQuery, [normalizedGroupId, normalizedGroupId])
@@ -208,9 +220,8 @@ export async function queryProfileInfo(userId) {
 
 export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
-    return queryResponse;
+    return queryResponse
 }
-
 export async function queryUpdateUserPreferences(user_id, preferenceList) {
     try {
         // Clear existing prefs first to avoid duplicates
@@ -230,3 +241,15 @@ export async function queryUpdateUserPreferences(user_id, preferenceList) {
         throw e;
     }
 }
+     
+export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, picturePath, max_members, group_openess, tags_list){ 
+let result = await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, picture, max_members, group_openess) VALUES (?,?,?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,picturePath,max_members,group_openess])
+let groupID = result.insertId    
+await query("INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,1)" , [host_user_id, groupID])
+if(tags_list && tags_list.length > 0){
+        for(let tag of tags_list){
+            await query("INSERT INTO group_tags (group_id, tag_id, tag_value) VALUES (?,?,?)", [groupID, tag, 1])
+        }
+    }
+}       
+ 
