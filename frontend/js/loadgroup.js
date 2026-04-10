@@ -34,7 +34,7 @@ fetch(`groupInfo?id=${groupId}`).then(response => {
 
 
 function createGroup(groupInfo) {
-    //console.table(groupInfo)
+    console.table(groupInfo)
     let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
 
@@ -77,7 +77,7 @@ function createGroup(groupInfo) {
                 //console.log(user.user_id)
                 if (user.user_id === member) {
                     createSuggestActityButton(tripInfo);
-                    changeApplyToJoinButton(hostID, user.user_id, membersList, members);
+                    changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members);
                 }
             }
         }).catch(error => {
@@ -182,23 +182,23 @@ let suggestActivityButton = document.createElement("button");
     return;
 }
 
-function changeApplyToJoinButton(hostID, activeUserID, membersList, members) {
+function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members) {
     if (hostID == activeUserID) { //the active user is a member but is also the organizer, so they should be able to manage the group
-        manageGroupOption(hostID, membersList, members);
+        manageGroupOption(hostID, groupId, membersList, members);
     }
     else { //else the active user is a member of the trip, and they don't need to apply to join the trip, so change the btn
-        leaveGroupOption(activeUserID);
+        leaveGroupOption(activeUserID, groupId);
     }
 }
 
-function manageGroupOption(hostID, membersList, members) {
+function manageGroupOption(hostID, groupId, membersList, members) {
     const joinButton = document.getElementById("joinButton_id");
     joinButton.innerText = "Manage Group"
     joinButton.id = "manageButton_id"
-    joinButton.addEventListener('click', (event) => { manageGroupHandler(event, membersList, members);}, {once: true});
+    joinButton.addEventListener('click', (event) => { manageGroupHandler(event, membersList, members, groupId);}, {once: true});
 }
 
-async function manageGroupHandler (event, membersList, members) {
+async function manageGroupHandler (event, membersList, members, groupId) {
     
     event.target.innerText="Save Changes";
     event.target.classList.replace("button1" , "highlight-box-button2");
@@ -209,13 +209,13 @@ async function manageGroupHandler (event, membersList, members) {
     let i = 0;
     for (let li of listItems) {
         console.log(li)
-        createKickButton(li, members[i]);
+        createKickButton(li, members[i], groupId);
         i++;
     }
 
     //add save manage group event handler and change the button back.
 }
-function createKickButton(li, member) {
+async function createKickButton(li, member, groupId) {
     //get the button position
     let btnDiv = document.createElement("div");
     let userInfoBox = li.firstChild.firstChild.firstChild;
@@ -227,21 +227,42 @@ function createKickButton(li, member) {
     btn.classList = "box-button"
     btnDiv.append(btn)
 
-    //TO DO: Implement event handler to query DELETE relation where user ID is that of the member and group id is that of this group
- }
+    btn.addEventListener('click', (event) => kickButtonHandler(member, groupId, event));
+}
 
-function leaveGroupOption (activeUserID) {
+async function kickButtonHandler(member, groupId, event) {
+    const btn = event.currentTarget;
+    btn.innerText = "Kicked";
+    btn.disabled = true;
+    btn.classList.replace("box-button", "highlight-box-button2")
+
+    try {
+        const response = await fetch("/groupLeave", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: member.id,
+                groupId: groupId
+            })
+        });
+
+    } catch (err) {
+        console.error(`Failed to kick member w id: ${member.id} from group w id: ${groupId}`, err);
+    }
+}
+
+function leaveGroupOption (activeUserID, groupId) {
     const joinButton = document.getElementById("joinButton_id");
     joinButton.innerText = "Leave Group";
     joinButton.id = "leaveButton_id";
-    joinButton.addEventListener('click', (event) => leaveGroupHandler(event));
+    joinButton.addEventListener('click', (event) => leaveGroupHandler(event, activeUserID, groupId));
 
     //TO DO: implement the event handler to query DELETE here as well
 }
 
-async function leaveGroupHandler (event) {
+async function leaveGroupHandler (event, activeUserID, groupId) {
     
     //fetch the leave group query
     //refresh page
-    location.reload();
+    //location.reload();
 }
