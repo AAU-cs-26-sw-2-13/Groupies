@@ -25,6 +25,7 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
     lowerUserInfo.setAttribute("class", "userPrefFront")
 
     userInformation.setAttribute("class", "userInfo")
+    userInformation.dataset.id = id;
     
     let followButton = document.createElement("button")
     followButton.setAttribute("class", "button2")
