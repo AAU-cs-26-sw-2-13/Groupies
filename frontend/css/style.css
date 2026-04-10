@@ -138,6 +138,10 @@ body {
     cursor: pointer;
 }
 
+#leaveButton_id{
+    background-color: #842f2f;
+}
+
 
 .box-link {
     padding: 0.5rem 1.2rem;

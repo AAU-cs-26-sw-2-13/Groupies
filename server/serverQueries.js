@@ -124,7 +124,7 @@ ORDER BY id
 `
 
 const sqlGetGroupInfoQuery = `
-SELECT grp.created_at, grp.title, grp.destination, grp.about, 
+SELECT grp.created_at, grp.title, grp.destination, grp.about, grp.host_user_id,
 	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
        (SELECT COUNT(id) FROM group_relations WHERE group_id = ? AND member = 1) AS member_count,
        CONCAT(u.name_first, " ",u.name_last) as host_name
