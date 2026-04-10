@@ -18,10 +18,8 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
     let userInfoText = document.createElement("p")
 
     let genreList = document.createElement("ul")
-
     article.setAttribute("class", "userBox")
     article.dataset.id = id
-    article.addEventListener('click', profileClick)
 
     upperUserInfo.setAttribute("class", "mainUserInfo")
     lowerUserInfo.setAttribute("class", "userPrefFront")
@@ -72,6 +70,9 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
             genreList.append(genre)
         }
     }
+
+    let clickArea = article.firstChild.firstChild;
+    clickArea.addEventListener('click', profileClick) //click to go to this article user profile
 
     return list
 }
