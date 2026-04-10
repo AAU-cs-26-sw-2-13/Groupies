@@ -60,6 +60,8 @@ function createGroup(groupInfo) {
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
     let suggestActivityButton = document.createElement("button")
+    suggestActivityButton.setAttribute("class", "suggestActivityButt")
+    suggestActivityButton.textContent = "Suggest an Activity"
 
     fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
         .then(r => r.json())
@@ -75,8 +77,6 @@ function createGroup(groupInfo) {
                 //console.log(member)
                 //console.log(user.user_id)
                 if (user.user_id === member) {
-                    suggestActivityButton.setAttribute("class", "button button1")
-                    suggestActivityButton.textContent = "Suggest an Activity"
                     activities.append(suggestActivityButton)
                     return
                 }
@@ -129,7 +129,7 @@ function createGroup(groupInfo) {
     backButton.addEventListener("click", () => { window.location.href = "/" })
 
     let joinButton = document.createElement("button")
-    joinButton.setAttribute("class", "button button1")
+    joinButton.setAttribute("class", "button1")
     joinButton.textContent = "Apply to join trip"
 
     buttons.append(backButton, joinButton)
@@ -139,7 +139,7 @@ function createGroup(groupInfo) {
     tagsList.setAttribute("class", "groupTags")
 
     //The tags display 
-    fetch("/    s", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
+    fetch("/groupTags", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
         .then(r => r.json())
         .then(tags => {
             for (let t of tags) {
@@ -155,7 +155,7 @@ function createGroup(groupInfo) {
 
     //group activities start here
     let activities = document.createElement("p")
-    activities.setAttribute("class", "p1")
+    activities.setAttribute("class", "activityPlanText")
     activities.textContent = "Planned activities:"
 
     //hide the memberlist, and show new elements, that create the activity, 
@@ -265,45 +265,46 @@ function createGroup(groupInfo) {
         container.append(createActivity)
     })
     //display the activities by fetching the groups activites and for each one creating display elements
-      let listOfActivities = document.createElement("li")
-        listOfActivities.setAttribute("class", "membersList")
+    let listOfActivities = document.createElement("li")
+    listOfActivities.setAttribute("class", "activityList")
 
-    const showActivites = (submitting) => {fetch(`/activities?id=${groupId}`, { method: "GET" })
-        .then(r => r.json()).then(activities => {
-            if(submitting === 0){
-            for (let activity of activities) {
-                let activityItem = document.createElement("div")
-                activityItem.setAttribute("class", "trip")
-                let activitiesIcon = document.createElement("i")
-                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
-                let activityStartDateandName = document.createElement("h2")
-                activityStartDateandName.textContent = formatDate(activity.date_start_at) + ", " + activity.title
-                let activityDesc = document.createElement("p")
-                activityDesc.textContent = activity.about
-                
-                activityItem.append(activitiesIcon, activityStartDateandName, activityDesc)
-                listOfActivities.append(activityItem)}
-            }
-            else{ //same kode uden for loop kun til sidste element
-                let activity = activities[activities.length-1]
+    const showActivites = (submitting) => {
+        fetch(`/activities?id=${groupId}`, { method: "GET" })
+            .then(r => r.json()).then(activities => {
 
-                let activityItem = document.createElement("div")
-                activityItem.setAttribute("class", "trip")
-                let activitiesIcon = document.createElement("i")
-                activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
-                let activityStartDate = document.createElement("h2")
-                activityStartDate.textContent = formatDate(activity.date_start_at)
-                let activityName = document.createElement("h2")
-                activityName.textContent = activity.title
-                let activityDesc = document.createElement("p")
-                activityDesc.textContent = activity.about
-                activityItem.append(activitiesIcon, activityStartDate, activityName, activityDesc)
-                listOfActivities.append(activityItem) //sort listen gennem datoer? nok alt for meget arbejde(faker går det allerede)
-            }
-            tripInfo.append(listOfActivities)
-        })}
+                for (let activity of activities) {
+                    let activityItem = document.createElement("div")
+                    activityItem.setAttribute("class", "trip")
+                    let activitesTop = document.createElement("div")
+                    let activitiesIcon = document.createElement("i")
+                    activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
+                    let activityStartDateandName = document.createElement("h2")
+                    activityStartDateandName.setAttribute("class", "tripText")
+                    let activityDesc = document.createElement("p")
 
+                    if (submitting === 0) {
+                        activityStartDateandName.textContent = "  " + formatDate(activity.date_start_at) + ", " + activity.title
+                        activityDesc.textContent = activity.about
 
+                        activitesTop.append(activitiesIcon, activityStartDateandName)
+                        activityItem.append(activitesTop, activityDesc)
+                        listOfActivities.append(activityItem)
+                    }
+
+                    else {
+                        let activity = activities[activities.length - 1]
+
+                        activityStartDateandName.textContent = "  " + formatDate(activity.date_start_at) + ", " + activity.title
+                        activityDesc.textContent = activity.about
+
+                        activitesTop.append(activitiesIcon, activityStartDateandName)
+                        activityItem.append(activitesTop, activityDesc)
+                        listOfActivities.append(activityItem) //sort listen gennem datoer? nok alt for meget arbejde(faker gør det allerede når den faker dataen)
+                    }
+                    tripInfo.append(listOfActivities)
+                }
+            })
+    }
 
 
 
