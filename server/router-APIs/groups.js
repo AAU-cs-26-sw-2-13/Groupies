@@ -5,10 +5,14 @@ export async function deleteGroupRelation (req, res) {
     try {
         const body = await parseJSON(req);
         const { userId, groupId } = body;
-        queryGroupLeave(userId, groupId);
+
+        await queryGroupLeave(userId, groupId);
+        res.statusCode = 200;
+        res.end();
+
     } catch (error) {
-        console.error(error);
+        console.error("Error in deleteGroupRelation:", error);
+        res.statusCode = 500;
+        res.end();
     }
-    res.statusCode = 200;
-    return;
 }

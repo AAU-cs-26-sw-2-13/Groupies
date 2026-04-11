@@ -262,8 +262,27 @@ function leaveGroupOption (activeUserID, groupId) {
 }
 
 async function leaveGroupHandler (event, activeUserID, groupId) {
-    
-    //fetch the leave group query
-    //refresh page
-    //location.reload();
+    try {
+        event.target.innerText = "Leaving group...";
+        event.target.disabled = true;
+
+        const response = await fetch("/groupLeave", { //fetch a request to DELETE the group relation for the active user
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: activeUserID,
+                groupId: groupId
+            })
+        });
+        if (response.ok) { //if query was succesful reload the page
+            event.target.innerText = "Left group!";
+            setTimeout (() => {
+                location.reload(); 
+            }, 500)
+        }
+    } catch (err) {
+        console.error(`Failed to leave group for user w id: ${activeUserID.id} from group w id: ${groupId}`, err);
+        event.target.innerText = "Leave group";
+        event.target.disabled = false;
+    }
 }
