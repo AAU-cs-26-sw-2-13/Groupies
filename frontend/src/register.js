@@ -1,41 +1,68 @@
+//HTML elements
 const form = document.querySelector("#form");
 const step3 = document.querySelector("#step3");
 const prefList = document.querySelector(".registerPreferenceList")
 const activePrefList = document.querySelector(".registerPreferenceListActive")
 
-async function sendData() {
-    const formData = new FormData(form);
-    const currentPrefs = Array.from(activePrefList.querySelectorAll('button'))
-                              .map(btn => btn.textContent.trim());
-    try {
-        const response = await fetch("/api/auth/register", {
-            method: "POST",
-            body: formData,
-        });
-        const data = await response.json();
-        console.log(data);
+const currentPageText = document.querySelector(".currentRegisterPage")
+const pageSections = document.querySelectorAll('div[id^="step"]');
+let currentRegisterPage = 0
 
-        /*const response2 = await fetch("/api/auth/regPrefs", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
-            });
-        const data2 = await response2.json();
-        console.log(data2);*/
+const registerPageNextButton = document.querySelector('#next');
+const registerPageSubmitButton = document.querySelector('#submit');
+const registerPageReturnButton = document.querySelector('#return')
 
-    } catch(e) {
-        console.error(e);
-    }
-};
+const input = document.querySelector("#img"); //Used for the image
+const preview = document.querySelector(".preview");//Used for the image
 
-//listens for submit
+const genderButtons = document.querySelectorAll(".registerGenderTextButton")
+
+//Allowed image types
+const fileTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+];
+//Fetches all the active preferences in the database
+fetchPreferences();
+
+//Submit button (Send data to server)
 form.addEventListener("submit", (event) => {
     event.preventDefault();
     sendData();
 });
 
-//Listening for gender buttons
-let genderButtons = document.querySelectorAll(".registerGenderTextButton")
+//Responsible for changing the pages in the register interface
+//Goes forward
+registerPageNextButton.addEventListener('click', function() {
+    let switchPage = Math.min(currentRegisterPage+1,2)
+    for(let ps of pageSections){
+        ps.hidden = true
+    }
+    pageSections[switchPage].hidden = false
+    currentRegisterPage = switchPage
+    currentPageText.textContent = (switchPage + 1)+"/3"
+    if(switchPage === 2){
+        registerPageSubmitButton.hidden = false
+        registerPageNextButton.hidden = true
+    }
+});
+
+//Goes backwards
+registerPageReturnButton.addEventListener('click', function() {
+    let switchPage = Math.max(currentRegisterPage-1,0)
+    for(let ps of pageSections){
+        ps.hidden = true
+    }
+    pageSections[switchPage].hidden = false
+    currentRegisterPage = switchPage
+    currentPageText.textContent = (switchPage + 1)+"/3"
+    registerPageSubmitButton.hidden = true
+    registerPageNextButton.hidden = false
+});
+
+//Eventlistener for choosing gender
 for(let gb of genderButtons){
     gb.addEventListener('click', ()=>{
         for(let gb2 of genderButtons){
@@ -45,41 +72,26 @@ for(let gb of genderButtons){
     })
 }
 
-
-//document.querySelectorAll('a').forEach(a => a.style.display = 'none');
-
-var ps = document.querySelectorAll('div[id^="step"]');
-var i = 0;
-document.getElementById("next").addEventListener('click', function() {
-
-    if(i < ps.length - 1) {
-        ps[i].hidden = true; //hide current step
-        i = ++i % ps.length;
-        ps[i].hidden = false; //show next step
-        if (i === ps.length - 1){
-            document.getElementById('next').hidden = true;
-            document.getElementById('submit').hidden = false;
-        }
-    } else {
-        document.getElementById('form').submit();
-    }
-});
-
-document.getElementById('return').addEventListener('click', function() {
-    if (i > 0) {
-        ps[i].hidden = true;  // hide current step
-        i--;
-        ps[i].hidden = false; // show previous step
-        document.getElementById('next').hidden = false;
-        document.getElementById('submit').hidden = true;
-    }
-});
-
-const input = document.querySelector("#img");
-const preview = document.querySelector(".preview");
-
-
+//Event listener to update the image display
 input.addEventListener("change", updateImageDisplay);
+
+async function sendData() {
+    const formData = new FormData(form);
+    const currentPrefs = Array.from(activePrefList.querySelectorAll('button'))
+                              .map(btn => btn.textContent.trim());
+    formData.append("preferences", currentPrefs)
+    const response = await fetch("/api/auth/register", {
+        method: "POST",
+        body: formData,
+    }).then(response=>{
+        return response.json()
+    }).then(jsonData=>{
+        console.log(jsonData)
+        if(jsonData.status && jsonData.status === "registered"){
+            window.location.href = "/"
+        }
+    })
+};
 
 function updateImageDisplay(){
     while (preview.firstChild) {
@@ -110,17 +122,20 @@ function updateImageDisplay(){
     }
 }
 
-const fileTypes = [
-    "image/png",
-    "image/jpeg",
-    "image/jpg",
-    "image/webp",
-];
 
-function validFileType(file) {
-    return fileTypes.includes(file.type);
+//Fetches preferecnes
+function fetchPreferences(){
+    let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
+    let prefsQuery = fetch("/regPrefs", {method: 'POST', body: JSON.stringify(sessionDataPrefs)});
+    prefsQuery.then(prefsResponse => {
+        return prefsResponse.json();
+    }).then(jsonPrefsResponse => {
+        console.log(jsonPrefsResponse);
+        createPrefs(jsonPrefsResponse);
+    })
 }
 
+//Create the HTML for preferences
 function createPrefs(pref){
     for(let t of pref){
         let prefButton = document.createElement("button");
@@ -144,16 +159,7 @@ function createPrefs(pref){
     }
 }
 
-
-//Get preferences
-function run(){
-    let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
-    let prefsQuery = fetch("/regPrefs", {method: 'POST', body: JSON.stringify(sessionDataPrefs)});
-    prefsQuery.then(prefsResponse => {
-        return prefsResponse.json();
-    }).then(jsonPrefsResponse => {
-        console.log(jsonPrefsResponse);
-        createPrefs(jsonPrefsResponse);
-    })
+function validFileType(file) {
+    return fileTypes.includes(file.type);
 }
-run();
+

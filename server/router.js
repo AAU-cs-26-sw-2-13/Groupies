@@ -5,7 +5,7 @@ import {writeFileSync} from "fs"
 import path, { relative } from "path"
 import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
+import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { el } from "@faker-js/faker";
@@ -46,8 +46,6 @@ async function createResponse(req, res) {
                                 switch (pathElements[3]) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
-                                        break;
-                                    case "regPrefs": await registerPreferences(req, res);
                                         break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
