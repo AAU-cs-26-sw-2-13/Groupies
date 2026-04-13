@@ -161,7 +161,7 @@ function createGroup(groupInfo) {
     //hide the memberlist, and show new elements, that create the activity, 
     suggestActivityButton.addEventListener("click", () => {
         let createActivity = document.createElement("div")
-        createActivity.setAttribute("class", "aside-box")
+        createActivity.setAttribute("class", "aside-box createActivityBox")
         membersElement.style.display = "none"
         suggestActivityButton.disabled = true
         let activityHead = document.createElement("h2")
@@ -171,9 +171,6 @@ function createGroup(groupInfo) {
         activityTitle.setAttribute("type", "text")
         activityTitle.setAttribute("class", "text-input-box") //need to do smth about the look as a whole as it was based on smth else before.
         activityTitle.setAttribute("placeholder", "Enter activity name")
-
-        let dateRow = document.createElement("div")
-        dateRow.setAttribute("class", "center-align")
 
         let calendarIcon1 = document.createElement("i")
         calendarIcon1.setAttribute("class", "fa-regular fa-calendar")
@@ -197,15 +194,14 @@ function createGroup(groupInfo) {
             startText.style.color = activityStart.value ? "#333" : "#717171"
         })
 
-        dateRow.append(startLabel)
 
         let activityDesc = document.createElement("textarea")
         activityDesc.setAttribute("type", "text")
         activityDesc.setAttribute("class", "description")
         activityDesc.setAttribute("placeholder", "Describe the activity")
-        activityDesc.setAttribute("maxlength", "420") //maybe have a smaller limit?(same as the group desc rn)
+        activityDesc.setAttribute("maxlength", "210")
 
-        createActivity.append(activityHead, activityTitle, dateRow, activityDesc)
+        createActivity.append(activityHead, activityTitle, startLabel, activityDesc)
 
         let activityButtons = document.createElement("div")
         activityButtons.setAttribute("class", "groupActions")
@@ -228,19 +224,32 @@ function createGroup(groupInfo) {
         //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
         submitButton.addEventListener("click", () => {
             //same checks as in creategroup, still has the downsides of being able to be injected into
-            if (!activityTitle.value.trim()) {
+
+            if (!activityTitle.value) {
                 alert("Activity name is required")
                 return
             }
-            if (!activityStart.value) { //maybe make the activites check if they are within the trip group dates    
+            if (!activityStart.value) {
                 alert("Start date is required")
                 return
             }
-            const today = new Date().toISOString().split("T")[0]
-            if (activityStart.value < today) {
-                alert("Start date cannot be in the past")
+            if (activityStart.value < groupInfo.date_start_at) {
+                alert("Start date cannot be before the trip starts")
                 return
             }
+            const tripEnd = new Date(groupInfo.date_end_at)  //pga. den måde datoer er opbevaret bliver date_end_at set som dagen før den reele slut dato
+            tripEnd.setDate(tripEnd.getDate() + 1)
+            const tripEndPlusOne = tripEnd.toISOString().split("T")[0] //har lavet et forklaring til disse funktioner i CreateGroup.js for "today" variablen
+
+            if (activityStart.value > tripEndPlusOne) {
+                alert("Start date cannot be after the trip ends")
+                return
+            }
+            if (!activityDesc.value) {
+                alert("Activity has to be described")
+                return
+            }
+
 
             submitButton.disabled = true
 
@@ -274,7 +283,7 @@ function createGroup(groupInfo) {
 
                 for (let activity of activities) {
                     let activityItem = document.createElement("div")
-                    activityItem.setAttribute("class", "trip")
+                    activityItem.setAttribute("class", "activityItem")
                     let activitesTop = document.createElement("div")
                     let activitiesIcon = document.createElement("i")
                     activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
@@ -300,6 +309,7 @@ function createGroup(groupInfo) {
                         activitesTop.append(activitiesIcon, activityStartDateandName)
                         activityItem.append(activitesTop, activityDesc)
                         listOfActivities.append(activityItem) //sort listen gennem datoer? nok alt for meget arbejde(faker gør det allerede når den faker dataen)
+                        return
                     }
                     tripInfo.append(listOfActivities)
                 }
