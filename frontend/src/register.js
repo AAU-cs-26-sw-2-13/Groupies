@@ -22,7 +22,6 @@ const fileTypes = [
     "image/png",
     "image/jpeg",
     "image/jpg",
-    "image/webp",
 ];
 //Fetches all the active preferences in the database
 fetchPreferences();

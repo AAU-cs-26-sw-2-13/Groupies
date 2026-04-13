@@ -49,6 +49,12 @@ export async function getSession(req) { //get the session for the user
 
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
+  //Allowed image file types
+  const fileTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+  ];
   try {
     let userData = {}
     await new Promise((resolve, reject) => {
@@ -80,6 +86,9 @@ export async function registerUserToDB(req, res) {
       bb.on('close', resolve)
       bb.on('error', reject)
     })
+    if(!fileTypes.includes("image/"+userData.imageType)){
+      throw "Invalid file type"
+    }
     if(userData.country.length !== 2){
       throw "Invalid country"
     }
