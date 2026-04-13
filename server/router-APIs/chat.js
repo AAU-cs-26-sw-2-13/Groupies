@@ -9,7 +9,13 @@ The fetch requests from chat can be found in the pageRouting. :)
 export async function chatSocket(socket, io){
     //Join chat event
     socket.on('join-chat', async (data)=>{
-        let roomId = [data.userId, data.targetId].sort().join("_")+data.chatType[0] //Makes a room id, like 2_797u(This means chat between user 2 and 797)
+        let roomId;
+        if(data.chatType === "users"){
+            roomId = [data.userId, data.targetId].sort().join("_")+data.chatType[0] //Makes a room id, like 2_797u(This means chat between user 2 and 797)
+        }else{
+            roomId = data.targetId+data.chatType[0]
+        }
+        
         if(socket.rooms.has(roomId)){
             return
         }else{
@@ -37,7 +43,13 @@ export async function chatSocket(socket, io){
             VALUES(?, ?, ?)
             `,[data.userId, data.targetId, data.message] )
         }
-        let roomId = [data.userId, data.targetId].sort().join("_")+data.chatType[0]
-        io.to(roomId).emit('messageClient', {sender: data.userId, message: data.message})
+        let roomId;
+        if(data.chatType === "users"){
+            roomId = [data.userId, data.targetId].sort().join("_")+data.chatType[0] //Makes a room id, like 2_797u(This means chat between user 2 and 797)
+        }else{
+            roomId = data.targetId+data.chatType[0]
+        }
+        console.log(data.message+": "+roomId)
+        io.to(roomId).emit('messageClient', {sender: data.userId, message: data.message, senderName: data.username})
     })
 }

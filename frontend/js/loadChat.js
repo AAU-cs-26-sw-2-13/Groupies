@@ -42,6 +42,8 @@ let user = await fetch("/me", {
     window.location.href = "/"
 });
 
+console.log(user)
+
 //Listens for update of contact information
 socket.on('updateChatInfo', (data)=>{
     console.log(data)
@@ -134,7 +136,11 @@ function loadChat(){
                     if(data.sender === user.user_id){
                         createOwnMessage(data.message)
                     }else{
-                        createOpponenMessage(data.message)
+                        if(urlChatType === "groups"){
+                            createOpponenMessageGroup(data.message, data.senderName)
+                        }else{
+                            createOpponenMessage(data.message)
+                        }
                     }
                     chatList.scrollTo(0, chatList.scrollHeight)
                 })
@@ -153,7 +159,7 @@ sendMessage.addEventListener('click', ()=>{
     let chatId = activeChat.searchParams.get("id")
     if(messageInput.value !== ""){
         //Check if the user already exist, otherwise add as an contact
-        if(isUserContactNew){
+        if(isUserContactNew && urlChatType === "users"){
             for(let u of userContactsList){
                 if (u.id == chatId){
                     isUserContactNew = false
@@ -174,6 +180,7 @@ sendMessage.addEventListener('click', ()=>{
         }
         socket.emit('message', {
                 userId: user.user_id,
+                username: user.username,
                 targetId: chatId,
                 message: messageInput.value,
                 chatType: urlChatType
