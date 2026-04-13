@@ -136,29 +136,6 @@ function validFileType(file) {
     return fileTypes.includes(file.type);
 }
 
-function createPrefs(pref){
-    for(let t of pref){
-        let prefButton = document.createElement("button");
-        prefButton.setAttribute("class", "unselected-pref-item");
-        prefButton.setAttribute("value", `${t.preference_id}`);
-        prefButton.textContent = t.preference_id
-        prefButton.setAttribute("type","button")
-
-        prefButton.addEventListener('click', (event)=>{
-            if(event.target.parentNode === prefList){
-                event.target.classList.replace('unselected-pref-item', 'pref-item');
-                activePrefList.append(event.target)
-            }else{
-                event.target.classList.replace('pref-item', 'unselected-pref-item');
-                prefList.append(event.target)
-            }
-
-        })
-
-        prefList.append(prefButton);
-    }
-}
-
 //Fetches preferecnes
 function fetchPreferences(){
     let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
@@ -193,8 +170,4 @@ function createPrefs(pref){
 
         prefList.append(prefButton);
     }
-}
-
-function validFileType(file) {
-    return fileTypes.includes(file.type);
 }
