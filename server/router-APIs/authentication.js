@@ -259,12 +259,17 @@ export async function editUser(req, res) {
       userData[fieldname]=value
     })
     bb.on('close', async ()=>{
-      console.log(userData)
       const firstname = sanitize(String(userData.firstname));
       const lastname = sanitize(String(userData.lastname));
       const email = sanitize(String(userData.email));
       const password = sanitize(String(userData.password));
       const bio = sanitize(String(userData.bio));
+
+      const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+      if (exists.length && session.user_id != exists[0].id) { //if already taken, reject
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Email already in use!" }));
+      }
 
       const hash = await bcrypt.hash(password, 12);
       await query(`UPDATE users
