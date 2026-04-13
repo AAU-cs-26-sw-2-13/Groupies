@@ -32,19 +32,19 @@ function createHTML(header) {
     let dateRow = document.createElement("div");
     dateRow.setAttribute("class", "center-align");
 
+    let startLabel = document.createElement("label")
+    startLabel.setAttribute("class", "trip-interactable-boxes")
+    let startText = document.createElement("span")
+    startText.textContent = " Start Date" 
+    let tripStart = document.createElement("input")
+    tripStart.setAttribute("type", "date")
+    tripStart.setAttribute("class", "calenderDisplay")
+    startLabel.append(calendarIcon1,startText,tripStart)
     let calendarIcon1 = document.createElement("i");
     calendarIcon1.setAttribute("class", "fa-regular fa-calendar");
     let calendarIcon2 = document.createElement("i");
     calendarIcon2.setAttribute("class", "fa-regular fa-calendar");
 
-    let startLabel = document.createElement("label");
-    startLabel.setAttribute("class", "trip-interactable-boxes");
-    let startText = document.createElement("span");
-    startText.textContent = " Start Date";
-    let tripStart = document.createElement("input");
-    tripStart.setAttribute("type", "date");
-    tripStart.setAttribute("class", "tripDisplayCreate");
-    startLabel.append(calendarIcon1, startText, tripStart);
     startLabel.addEventListener("click", (e) => {
         e.preventDefault();
         tripStart.showPicker();
@@ -54,14 +54,14 @@ function createHTML(header) {
         startText.style.color = tripStart.value ? "#333" : "#717171";
     })
 
-    let endLabel = document.createElement("label");
-    endLabel.setAttribute("class", "trip-interactable-boxes");
-    let endText = document.createElement("span");
-    endText.textContent = " End Date";
-    let tripEnd = document.createElement("input");
-    tripEnd.setAttribute("type", "date");
-    tripEnd.setAttribute("class", "tripDisplayCreate");
-    endLabel.append(calendarIcon2, endText, tripEnd)
+    let endLabel = document.createElement("label")
+    endLabel.setAttribute("class", "trip-interactable-boxes")
+    let endText = document.createElement("span")
+    endText.textContent = " End Date" 
+    let tripEnd = document.createElement("input")
+    tripEnd.setAttribute("type", "date")
+    tripEnd.setAttribute("class", "calenderDisplay")
+    endLabel.append(calendarIcon2,endText,tripEnd)
     endLabel.addEventListener("click", (e) => {
         e.preventDefault();
         tripEnd.showPicker();
@@ -202,105 +202,83 @@ function createHTML(header) {
     backButton.textContent = "Back";
     backButton.addEventListener("click", () => { window.location.href = "/" });
 
-    let submitButton = document.createElement("button");
-    submitButton.setAttribute("class", "button CreateTripButton");
-    submitButton.textContent = "Finish travel group creation";
 
-    // fetch the user for submit action to correct user id in DB and for initializing the header conditionally on user
-    let user = { user_id: null }
-    fetch("/me", {
-        method: "GET",
-        credentials: "include"
-    }).then(response => {
-        if (response.status === 200) {
-            return response.json();
-        } 
-        else {
-            // Not logged in: Initialize header with null user
-            initializeHeader(header, null, "Group");
-            throw "Session not found";
-            }
-    }).then(jsonResponse => {
-        //Logged in: initialize the header with user data
-        user = jsonResponse;
-        initializeHeader(header, user, "createGroup");
-        submitButton.addEventListener("click", () => {
-            
-            const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent);
-
-            if (!groupTitle.value.trim()) {
-                alert("Group title is required");
-                return;
-            }
-            if (!groupDest.value.trim()) {
-                alert("Destination is required");
-                return;
-            }
-            if (!tripStart.value) {
-                alert("Start date is required");
-                return;
-            }
-            if (!tripEnd.value) {
-                alert("End date is required");
-                return;
-            }
-            const today = new Date().toISOString().split("T")[0];
-            if (tripStart.value < today) {
-                alert("Start date cannot be in the past");
-                return;
-            }
-            if (tripEnd.value < tripStart.value) {
-                alert("End date cannot be before start date");
-                return;
-            }
-            if (!Members.value || Members.value < 1 || Members.value >= 1000) {
-                alert("Member limit is required or has to atleast equal 1 and less than 1000");
-                return;
-            }
-            if (!validImageData) {
-                alert("A travel group picture is required");
-                return;
-            }
-            submitButton.disabled = true; //all valid. Now disable the button to avoid double function call if user clicks double
-            submitButton.textContent = "Processing..."
+    let submitButton = document.createElement("button")
+    submitButton.setAttribute("class", "button CreateTripButton")
+    submitButton.textContent = "Finish trip creation"
+    submitButton.addEventListener("click", () => {
         
-            //insert into group db and refer the user back to main page
-            const sendFetchImage = (imageData) => {
-                fetch("/createTrip", {
-                    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({
-                        host_user_id: user.user_id,
-                        title: groupTitle.value,
-                        destination: groupDest.value,
-                        about: groupDesc.value,
-                        date_start_at: tripStart.value,
-                        date_end_at: tripEnd.value,
-                        picture: imageData || null,
-                        max_members: Members.value,
-                        group_openess: membershipType,
-                        tags_list: selectedTags
-                    })
-                }).then(r => r.json())
-                    .then(() => { window.location.href = "/" })
-                    .catch(err => {
-                        submitButton.disabled = false;
-                        submitButton.textContent = "Finish travel group creation";
-                        console.error("Error uploading created group: " + err);
-                    })
-            }
-
-            if (validImageData) sendFetchImage(validImageData);
-            else sendFetchImage(null);
-            })
-
-        })
-
-    buttons.append(backButton, submitButton);
-    infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc, fileLabel);
-    formRow.append(infoSide, tagsSide);
-    inputholder.append(formRow, MemberTitle, membershipRow, Members, buttons);
-    page.append(pageHeader, inputholder);
-    container.append(page);
-    return container;
+    if(!groupTitle.value.trim()){
+        alert("Group title is required")
+        return
+    }
+    if(!groupDest.value.trim()){
+        alert("Destination is required")
+        return
+    }
+    if(!tripStart.value){
+        alert("Start date is required")
+        return
+    }
+    if(!tripEnd.value){
+        alert("End date is required")
+        return
+    }
+    const today = new Date().toISOString().split("T")[0]  
+    if(tripStart.value < today){
+    alert("Start date cannot be in the past")
+    return
+    }
+    if(tripEnd.value < tripStart.value){
+    alert("End date cannot be before start date")
+    return
+    }
+    if(!Members.value || Members.value < 1 || Members.value >= 1000){
+        alert("Member limit is required or has to atleast equal 1 and less than 1000")
+        return
+    }
+    if(!validImageData){
+        alert("A trip picture is required")
+        return
+    }   
+        const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
+        submitButton.disabled = true
+   
+       // fetch the user, so the host id for the group can be set to the user id
+       let user = { user_id: null }
+       fetch("/me", {
+       method: "GET",
+       credentials: "include"
+       }).then(response => {
+       if (response.status === 200) {
+       return response.json()}}).then(jsonResponse => {
+        user = jsonResponse;   
+        //insert into group db and refer the user back to main page
+        const sendFetchImage = (imageData) => {
+        fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+        host_user_id: user.user_id,
+        title: groupTitle.value,
+        destination: groupDest.value,
+        about: groupDesc.value,
+        date_start_at: tripStart.value,  
+        date_end_at: tripEnd.value,
+        picture: imageData || null,
+        max_members: Members.value,
+        group_openess: membershipType,
+        tags_list: selectedTags})}).then(r => r.json())
+        .then(() => {window.location.href = "/"})}
+    
+        if(validImageData)sendFetchImage(validImageData)
+        else sendFetchImage(null)
+    })})    
+    
+    buttons.append(backButton, submitButton)
+    infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel)
+    formRow.append(infoSide, tagsSide)
+    inputholder.append(formRow, MemberTitle, membershipRow, Members, buttons)
+    page.append(pageHeader, inputholder)
+    container.append(page)
+    return container
 }
 
 HTMLdoc.append(createHTML(header));
