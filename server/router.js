@@ -8,6 +8,7 @@ import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
+import { deleteGroupRelation, insertGroupRelation } from "./router-APIs/groups.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
 
@@ -84,15 +85,24 @@ async function createResponse(req, res) {
                     })
                     break;
                 }
+                case "groupLeave":{
+                    await deleteGroupRelation(req, res);
+                    break;
+                }
+                case "groupApply":{
+                    await insertGroupRelation(req, res);
+                    break;
+                }
                 case "createTrip": {
                     const body = await parseJSON(req);
                     let picturePath = null
-                if(body.picture){
-                const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
-                const fileName = crypto.randomUUID() + ".jpg"
-                const filePath = path.join("frontend/img", fileName)
-                writeFileSync(filePath, Buffer.from(base64Data, "base64"))
-                picturePath = "../img/" + fileName
+                    
+                    if(body.picture){
+                    const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
+                    const fileName = crypto.randomUUID() + ".jpg"
+                    const filePath = path.join("frontend/img", fileName)
+                    writeFileSync(filePath, Buffer.from(base64Data, "base64"))
+                    picturePath = "../img/" + fileName
                 }
                     await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
                     res.writeHead(200, {"Content-Type": "application/json"})

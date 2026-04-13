@@ -32,6 +32,16 @@ form.addEventListener("submit", (event) => {
     sendData();
 });
 
+//Listening for gender buttons
+for(let gb of genderButtons){
+    gb.addEventListener('click', ()=>{
+        for(let gb2 of genderButtons){
+            gb2.setAttribute("class","registerGenderTextButton")
+        }
+        gb.setAttribute("class","registerGenderTextButtonActive")
+    })
+}
+
 //Responsible for changing the pages in the register interface
 //Goes forward
 registerPageNextButton.addEventListener('click', function() {
@@ -122,6 +132,10 @@ function updateImageDisplay(){
 }
 
 
+function validFileType(file) {
+    return fileTypes.includes(file.type);
+}
+
 //Fetches preferecnes
 function fetchPreferences(){
     let sessionDataPrefs = {sessionId: "empty", query:"preferences"};
@@ -157,8 +171,3 @@ function createPrefs(pref){
         prefList.append(prefButton);
     }
 }
-
-function validFileType(file) {
-    return fileTypes.includes(file.type);
-}
-

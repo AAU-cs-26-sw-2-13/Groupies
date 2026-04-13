@@ -34,6 +34,7 @@ fetch(`groupInfo?id=${groupId}`).then(response => {
 
 
 function createGroup(groupInfo) {
+    console.table(groupInfo)
     let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
 
@@ -51,13 +52,15 @@ function createGroup(groupInfo) {
 
     let hostedBy = document.createElement("p")
     hostedBy.setAttribute("class", "p1")
-    const host = groupInfo.host_name
+    const host = groupInfo.host_name;
+    const hostID = groupInfo.host_user_id;
     const maxAllowed = groupInfo.max_members
     let membercount = 0
 
     //group members list
     let membersList = document.createElement("div")
     membersList.setAttribute("class", "membersList")
+    membersList.id = "groupMembers_Id"
 
     fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
         .then(r => r.json())
@@ -68,18 +71,21 @@ function createGroup(groupInfo) {
             hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
             //looks thorugh all members, if the user is in the group as member, a button gets created
+            let isAMember = false;
             for (let m of members) {
                 let member = m.id
                 //console.log(member)
                 //console.log(user.user_id)
                 if (user.user_id === member) {
-                    let suggestActivityButton = document.createElement("button")
-                    suggestActivityButton.setAttribute("class", "button button1")
-                    suggestActivityButton.textContent = "Suggest an Activity"
-                    tripInfo.append(suggestActivityButton)
-                    return
+                    isAMember = true;
+                    createSuggestActityButton(tripInfo);
+                    changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members);
                 }
             }
+            if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
+                const joinButton = document.getElementById("joinButton_id");
+                joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
+                }
         }).catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
@@ -127,6 +133,7 @@ function createGroup(groupInfo) {
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button button1")
     joinButton.textContent = "Apply to join group"
+    joinButton.id = "joinButton_id";
 
     buttons.append(backButton, joinButton)
 
@@ -140,7 +147,7 @@ function createGroup(groupInfo) {
         .then(tags => {
             for (let t of tags) {
                 if (t !== null) {
-                    let genre = document.createElement("l1")
+                    let genre = document.createElement("li")
                     genre.setAttribute("class", "pref-item")
                     genre.textContent = t.tag_id
                     tagsList.append(genre)
@@ -173,3 +180,138 @@ function formatDate(dateString) {
     })
 }
 
+function createSuggestActityButton (groupInfo) {
+let suggestActivityButton = document.createElement("button");
+    suggestActivityButton.setAttribute("class", "button button1");
+    suggestActivityButton.textContent = "Suggest an Activity";
+    groupInfo.append(suggestActivityButton);
+    return;
+}
+
+function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members) {
+    if (hostID == activeUserID) { //the active user is a member but is also the organizer, so they should be able to manage the group
+        manageGroupOption(hostID, groupId, membersList, members);
+    }
+    else { //else the active user is a member of the trip, and they don't need to apply to join the trip, so change the btn
+        leaveGroupOption(activeUserID, groupId);
+    }
+}
+
+function manageGroupOption(hostID, groupId, membersList, members) {
+    const joinButton = document.getElementById("joinButton_id");
+    joinButton.innerText = "Manage Group"
+    joinButton.id = "manageButton_id"
+    joinButton.addEventListener('click', (event) => { manageGroupHandler(event, membersList, hostID, members, groupId);}, {once: true});
+}
+
+async function manageGroupHandler (event, membersList, hostID, members, groupId) {
+    
+    event.target.innerText="Save Changes";
+    event.target.classList.replace("button1" , "highlight-box-button2");
+    //size the members list down and add kick users buttons
+    //add requests to join window (fetch the requests and build the userlist with admit or reject buttons)
+    let listItems = membersList.children;
+    console.table (listItems)
+    let i = 0;
+    for (let li of listItems) {
+        console.log(li)
+        if (members[i].id != hostID) createKickButton(li, members[i], groupId); //if not the organize himself, create kick button
+        i++;
+    }
+
+    //add save manage group event handler and change the button back.
+}
+
+async function createKickButton(li, member, groupId) {
+    //get the button position
+    let btnDiv = document.createElement("div");
+    let userInfoBox = li.firstChild.firstChild.firstChild;
+    
+
+    //create the button and append it to its container
+    let btn = document.createElement("button");
+    btn.innerText = "Kick";
+    btn.classList = "box-button"
+    userInfoBox.after(btn);
+
+    btn.addEventListener('click', (event) => kickButtonHandler(member, groupId, event));
+}
+
+async function kickButtonHandler(member, groupId, event) {
+    const btn = event.currentTarget;
+    btn.innerText = "Kicked";
+    btn.disabled = true;
+    btn.classList.replace("box-button", "highlight-box-button2")
+
+    try {
+        await fetch("/groupLeave", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: member.id,
+                groupId: groupId
+            })
+        });
+
+    } catch (err) {
+        console.error(`Failed to kick member w id: ${member.id} from group w id: ${groupId}`, err);
+    }
+}
+
+function leaveGroupOption (activeUserID, groupId) {
+    const joinButton = document.getElementById("joinButton_id");
+    joinButton.innerText = "Leave Group";
+    joinButton.id = "leaveButton_id";
+    joinButton.addEventListener('click', (event) => leaveGroupHandler(event, activeUserID, groupId));
+
+    //TO DO: implement the event handler to query DELETE here as well
+}
+
+async function leaveGroupHandler (event, activeUserID, groupId) {
+    try {
+        event.target.disabled = true;
+
+        const response = await fetch("/groupLeave", { //fetch a request to DELETE the group relation for the active user
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userId: activeUserID,
+                groupId: groupId
+            })
+        });
+        if (response.ok) { //if query was succesful reload the page
+            event.target.innerText = "Left group!";
+            setTimeout (() => {
+                location.reload(); 
+            }, 500)
+        }
+    } catch (err) {
+        console.error(`Failed to leave group for user w id: ${activeUserID.id} from group w id: ${groupId}`, err);
+        event.target.innerText = "Leave group";
+        event.target.disabled = false;
+    }
+}
+
+async function applyToJoinHandler(event, groupId, activeUserId) {
+    try {
+        event.target.innerText = "Application requested..."
+        event.target.disabled = true;
+        
+        const response = await fetch("/groupApply", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: activeUserId,
+                groupId: groupId})
+        });
+        if (response.ok) {
+            event.target.innerText = "Application pending"
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        }
+    } catch (error) {
+        console.error(`Failed to join group for user w id: ${activeUserId} for group id: ${groupId}`, err);
+        event.target.innerText = "Apply to join group";
+        event.target.disabled = false;
+    }
+}
