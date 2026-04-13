@@ -1,6 +1,5 @@
 import { login } from "./loginRegister.js";
 import { highlightActivePageButton } from "./activePage.js"
-import { profileClick } from "./User_creation.js"
 
 /* Entry point to build the header. Conditionally renders a logged in header or loggedout header on whether the user is specified from the session */
 export async function initializeHeader(headerElement, user, pageToRender) {
@@ -15,10 +14,8 @@ export async function initializeHeader(headerElement, user, pageToRender) {
     }
 
     let discoverBtn = document.getElementById("discover-btn_id");
-    console.log
     discoverBtn.onclick = () => {
-        console.log("in the discoverbtn click case")
-        window.location.href = "../"; //go to the discover page on discover btn click
+        window.location.href = "/"; //go to the discover page on discover btn click
     }
 
     console.log("page to render: " + pageToRender);
@@ -29,6 +26,7 @@ function renderLoggedInHeader(header, user, pageToRender) {
 
     const mainDiv = document.createElement("div");
     mainDiv.className = "profile";
+    mainDiv.style.position = "relative";
 
     const profileImage = document.createElement("img");
     profileImage.className = "profileImageClickable";
@@ -39,12 +37,17 @@ function renderLoggedInHeader(header, user, pageToRender) {
     username.textContent = user.username;
 
     profileImage.dataset.id = user.user_id
-    profileImage.addEventListener('click', profileClick)
+    profileImage.addEventListener('click', (event) => toggleProfileBox(event)) //profileClick previously
 
     username.dataset.id = user.user_id
-    username.addEventListener('click', profileClick)
+    username.addEventListener('click', (event) => toggleProfileBox(event)) //profileClick previously
 
-    mainDiv.append(username, profileImage);
+    //div for the profile nav box (go to profile, messages pages or logout)
+    const profileBoxDiv = document.createElement("div");
+    profileBoxDiv.id = "profile-box-div_id";
+
+    mainDiv.append(username, profileImage, profileBoxDiv);
+    console.log(`Appending header for logged out case on ${pageToRender} page`);
     header.append(mainDiv);
 }
 
@@ -67,12 +70,13 @@ function renderLoggedOutHeader(header, pageToRender) {
     registerBtn.id = "register-btn_id";
 
     registerBtn.onclick = () => window.location.href = "/html/register.html";
-
+    //div for the login box to appear when clicking login btn
     const loginBoxDiv = document.createElement("div");
     loginBoxDiv.id = "login-box-div_id";
 
     mainDiv.append(loginBtn, registerBtn, loginBoxDiv);
     header.append(mainDiv);
+    console.log(`Appending header for logged out case on ${pageToRender} page`);
 }
 
 function toggleLoginBox(container) {
@@ -118,6 +122,17 @@ function toggleLoginBox(container) {
 
 }
 
+function toggleProfileBox (event) {
+    let existingBox = document.getElementById("profile-box");
+    if (!existingBox) {
+        const profileBox = document.getElementById("profile-box-div_id");
+        createProfileBox(profileBox, event);
+        }
+    else {
+        existingBox.classList.toggle("active");
+    }
+}
+
 function loadTitleElements(header) {
     if (document.getElementById("Groupies_title_id")) return; //if the title elements already exist, they are already loaded.
     //Load title and site logo
@@ -129,12 +144,59 @@ function loadTitleElements(header) {
 }
 
 
+
 //HTML Generators
+function createProfileBox(profileBox, event) {
+    profileBox.id = "profile-box"; //toggle logic will find this box by this ID
+    profileBox.className = "register-box active";
+    
+    // set styles for positioning
+    profileBox.style.position = "absolute";
+    profileBox.style.width = "200px";
+    profileBox.style.left = "";
+    profileBox.style.top = "105%";
+    profileBox.style.zIndex = "1000";
+
+    // Create link buttons (to own profile and to messages page)
+    const profileLink = document.createElement("a");
+    profileLink.textContent = "View Profile";
+    profileLink.className = "box-link"; 
+    let profileData = event.currentTarget.dataset
+    profileLink.href = `/profile/?id=${profileData["id"]}`
+    profileLink.style.width = "150px";
+    
+    const messagesLink = document.createElement("a");
+    messagesLink.textContent = "View Messages";
+    messagesLink.className = "box-link"; 
+    messagesLink.href = `/chat`
+    messagesLink.style.width = "150px";
+
+    // Create the logout button and add logout functionality (deletes the browser cookie and reloads current page)
+    const logoutBtn = document.createElement("button");
+    logoutBtn.textContent = "Logout";
+    logoutBtn.className = "box-button";
+    logoutBtn.id = "logout-btn_id";
+    logoutBtn.style.width = "150px";
+    logoutBtn.onclick = async () => {
+        try { //try to send a logout request to server for the server to send a delete cookie response to client
+            const response = await fetch('/api/auth/logout', {method: 'POST'});
+            if(response.ok){
+                window.location.reload(); //reload if cookie was succesfully deleted by the server API
+            }
+        } catch (error) {
+            console.error("Network failed", error)
+        }
+    };
+
+    profileBox.append(profileLink, messagesLink, logoutBtn);
+}
+
+
 let titleElementHTML = `<div id="Groupies_title_id"> 
-    <img src="../img/favicon.svg" alt="Groupies logo of a compass" id="logo_id"> 
+    <img src="/img/favicon.svg" alt="Groupies logo of a compass" id="logo_id"> 
     <h1 id="Groupies_title_header_id">Groupies</h1> 
 </div>
 
-<button class = "button" type="button" id="discover-btn_id">Find your next trips</button>`
+<button class = "button" type="button" id="discover-btn_id">Discover Travel Groups</button>`
 
 

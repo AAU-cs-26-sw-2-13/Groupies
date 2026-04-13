@@ -15,36 +15,41 @@
                 <ul>
                     <li>
                         <form id="form">
-                            <p id="step1">
+                            <div id="step1">
                                 <input type="text" id="firstName" name="firstName" placeholder="First Name" class="reg-box-inputs">
                                 <input type="text" id="lastName" name="lastName" placeholder="Last Name" class="reg-box-inputs">
                                 <input type="password" id="password" name="password" placeholder="Password" class="reg-box-inputs">
                                 <input type="email" id="email" name="email" placeholder="Email" class="reg-box-inputs">
-                            </p>
-                            <p hidden id="step2">
-                                <textarea role="textbox" id="bio" name="bio" placeholder="Bio" class="reg-box-inputs-bio"></textarea>
+                            </div>
+                            <div hidden id="step2">
+                                <textarea role="textbox" id="bio" name="bio" placeholder="Bio" class="reg-box-inputs"></textarea>
                                 <input 
                                     type="file" 
                                     id="img" 
                                     name="picture"
                                     accept="image/png, image/jpeg"
                                     class="reg-box-inputs"/>
-                                <!-- <div class="preview">
+                                <div class="preview">
                                     
-                                </div> -->
+                                </div>
                                 <!-- <input type="date" id="age" name="age" placeholder="DD-MM-YYYY" class="reg-box-inputs"><br> -->
                                 <input type="text" id="age" name="age" placeholder="Temp Age" class="reg-box-inputs"><br>
-                                <label>Choose your gender:</label><br>
-                                <input type="radio" id="male" name="gender" value="Male">
-                                <label for="male">Male</label><br>
-                                <input type="radio" id="female" name="gender" value="Female">
-                                <label for="female">Female</label><br>
-                                <input type="radio" id="other" name="gender" value="Other">
-                                <label for="other">Other</label><br>
-                            </p>
-                            <p hidden id="step3">
-                                
-                            </p>
+                                <div class="genderChooserBox">
+                                    <label class="chooseGendetHeadTitle">Choose your gender:</label><br>
+                                    <div class="registerGenderDiv">
+                                        <input class="registerGenderRadioButton" type="radio" id="male" name="gender" value="Male">
+                                        <label class="registerGenderTextButton" for="male">Male</label><br>
+                                        <input class="registerGenderRadioButton" type="radio" id="female" name="gender" value="Female">
+                                        <label class="registerGenderTextButton" for="female">Female</label><br>
+                                        <input class="registerGenderRadioButton" type="radio" id="other" name="gender" value="Other">
+                                        <label class="registerGenderTextButton" for="other">Other</label><br>
+                                    </div>
+                                </div>
+                            </div>
+                            <div hidden id="step3">
+                                <ul class="registerPreferenceList"></ul>
+                                <ul class="registerPreferenceListActive"></ul>
+                            </div>
                             <div class="center-align">
                                 <button class="trans-box-button trans-box-button1" type="button" id="return">Back</button>
                                 <button class="box-button box-button1" type="button" id="next">Next</button>

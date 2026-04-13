@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Groupies</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <script src="/socket.io/socket.io.js"></script> <!--SocketIO - used for websocket logic-->
+    </head>
+    <body>
+        <header></header> <!-- The navigation header will go here -->
+        <article class="chatArticle">
+            <div class="contacts">
+                <section class="userContactsSection">
+                    <h2 class="userContactsText">User contacts</h2>
+                    <ul class="userContactList">
+                       <!--This is for user contacts-->
+                    </ul>
+                </section>
+                <section class="groupContacts">
+                    <h2 class="userContactsText">Group Contacts</h2>
+                    <ul class="groupContactList">
+                        <!--This is for group contacts-->
+                    </ul>
+                </section>
+            </div>
+            <section class="chatBox">
+                <div class="chatBoxTop">
+                    <img class="activeChatImage activeChatImage" src="/img/accountPlaceholder.svg">
+                    <h2 class="activeChatName"></h2>
+                </div>
+                <section class="chatHistory">
+                    <ul class="chatHistoryList">
+                        <!--This is for chat messages-->
+                    </ul>
+                </section>
+                <div class="messageSendContainer">
+                    <textarea class="messageInputBox" placeholder="Enter new message"></textarea>
+                    <button class="sendMessageButton" type="button">Send</button>
+                </div>
+            </section>
+        </article>
+        
+    </body>
+</html>
+<script type="module" src="/js/loadChat.js"></script>
+
+

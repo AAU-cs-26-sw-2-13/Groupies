@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS chat_users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  sender_id INT NOT NULL,
+  target_id int NOT NULL,
+  chat_text TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (sender_id) REFERENCES `users`(id) ON DELETE CASCADE,
+  FOREIGN KEY (target_id) REFERENCES `users`(id) ON DELETE CASCADE
+);
