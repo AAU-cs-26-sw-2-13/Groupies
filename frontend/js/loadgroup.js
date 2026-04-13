@@ -2,38 +2,42 @@ import { createUserHTML } from "./createUser.js"
 import { initializeHeader } from "./loadHeader.js"
 
 let user = { user_id: null }
-let header = document.querySelector("header")
 
-fetch("/me", {
-    method: "GET",
-    credentials: "include"
-}).then(response => {
-    if (response.status === 200) {
-        return response.json();
-    } else {
+async function initializePage () {
+    //1. Initalize the header conditionally on the user session existing from browser cookie
+    try {
+        const authResponse = await fetch("/me", {credentials: "include"});
+
+        if (authResponse.ok) {
+            user = await authResponse.json();
+            initializeHeader(header, user, "Group");
+        }
+        else {
         // Not logged in: Initialize header with null user
         initializeHeader(header, null, "Group");
         throw "Session not found";
+        }
+    } catch (error) {console.error("Error in the authResponse initializeHeader part", error)} 
+
+    //2. Wait for the group info to be fetched
+    try {
+        const pageURL = new URL(window.location.href);
+        const groupId = pageURL.searchParams.get("id");
+        const groupResponse = await fetch(`groupInfo?id=${groupId}`);
+        const groupData = await groupResponse.json();
+
+        let tripid = document.querySelector("#tripid");
+        const groupElement = await createGroup(groupData, groupId);
+        tripid.append(groupElement);
+        
+    } catch (error) {
+        console.error("Error in the groupResponse append the createGroup", error);
     }
-}).then(jsonResponse => {
-    // Logged in: Initialize header with user data
-    user = jsonResponse
-    initializeHeader(header, user, "Group");
-}).catch(err => {
-    console.log("Auth Check:", err);
-});
+    
+}
+let header = document.querySelector("header");
 
-let tripid = document.querySelector("#tripid")
-const pageURL = new URL(window.location.href)
-const groupId = pageURL.searchParams.get("id")
-fetch(`groupInfo?id=${groupId}`).then(response => {
-    return response.json()
-}).then(jsonResponse => {
-    tripid.append(createGroup(jsonResponse))
-})
-
-
-function createGroup(groupInfo) {
+async function createGroup(groupInfo, groupId) {
     console.table(groupInfo)
     let container = document.createElement("div")
     container.setAttribute("class", "groupPage")
@@ -62,33 +66,37 @@ function createGroup(groupInfo) {
     membersList.setAttribute("class", "membersList")
     membersList.id = "groupMembers_Id"
 
-    fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
-        .then(r => r.json())
-        .then(members => {
-            //console.log("attempting to create memberslist...")
-            createUserHTML(members, membersList, user.user_id)
-            membercount = members.length
-            hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+    let joinButton = document.createElement("button")
+    joinButton.setAttribute("class", "button button1")
+    joinButton.textContent = "Apply to join group"
+    joinButton.id = "joinButton_id";
 
-            //looks thorugh all members, if the user is in the group as member, a button gets created
-            let isAMember = false;
-            for (let m of members) {
-                let member = m.id
-                //console.log(member)
-                //console.log(user.user_id)
-                if (user.user_id === member) {
-                    isAMember = true;
-                    createSuggestActityButton(tripInfo);
-                    changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members);
-                }
+    try {
+        const response = await fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
+        const members = await response.json();
+        createUserHTML(members, membersList, user.user_id)
+
+        membercount = members.length
+        hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
+
+        //looks thorugh all members, if the user is in the group as member, a button gets created
+        let isAMember = false;
+        for (let m of members) {
+            let member = m.id
+            //console.log(member)
+            //console.log(user.user_id)
+            if (user.user_id === member) {
+                isAMember = true;
+                createSuggestActityButton(tripInfo);
+                changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members, joinButton);
             }
-            if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
-                const joinButton = document.getElementById("joinButton_id");
-                joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
-                }
-        }).catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
+        }
+        if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
+            joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
+        }
+    } catch (error) {
+        console.error("Error building the UI elements in the createGroup function", error)
+    }
 
     let aboutInfo = document.createElement("p")
     aboutInfo.setAttribute("class", "groupAbout")
@@ -130,10 +138,7 @@ function createGroup(groupInfo) {
     backButton.textContent = "Back"
     backButton.addEventListener("click", () => { window.location.href = "/" })
 
-    let joinButton = document.createElement("button")
-    joinButton.setAttribute("class", "button button1")
-    joinButton.textContent = "Apply to join group"
-    joinButton.id = "joinButton_id";
+    
 
     buttons.append(backButton, joinButton)
 
@@ -188,17 +193,16 @@ let suggestActivityButton = document.createElement("button");
     return;
 }
 
-function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members) {
+function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members, joinButton) {
     if (hostID == activeUserID) { //the active user is a member but is also the organizer, so they should be able to manage the group
-        manageGroupOption(hostID, groupId, membersList, members);
+        manageGroupOption(hostID, groupId, membersList, members, joinButton);
     }
     else { //else the active user is a member of the trip, and they don't need to apply to join the trip, so change the btn
-        leaveGroupOption(activeUserID, groupId);
+        leaveGroupOption(activeUserID, groupId, joinButton);
     }
 }
 
-function manageGroupOption(hostID, groupId, membersList, members) {
-    const joinButton = document.getElementById("joinButton_id");
+function manageGroupOption(hostID, groupId, membersList, members, joinButton) {
     joinButton.innerText = "Manage Group"
     joinButton.id = "manageButton_id"
     joinButton.addEventListener('click', (event) => { manageGroupHandler(event, membersList, hostID, members, groupId);}, {once: true});
@@ -218,8 +222,8 @@ async function manageGroupHandler (event, membersList, hostID, members, groupId)
         if (members[i].id != hostID) createKickButton(li, members[i], groupId); //if not the organize himself, create kick button
         i++;
     }
-
-    //add save manage group event handler and change the button back.
+    
+    event.target.addEventListener('click', () => location.reload());
 }
 
 async function createKickButton(li, member, groupId) {
@@ -258,8 +262,7 @@ async function kickButtonHandler(member, groupId, event) {
     }
 }
 
-function leaveGroupOption (activeUserID, groupId) {
-    const joinButton = document.getElementById("joinButton_id");
+function leaveGroupOption (activeUserID, groupId, joinButton) {
     joinButton.innerText = "Leave Group";
     joinButton.id = "leaveButton_id";
     joinButton.addEventListener('click', (event) => leaveGroupHandler(event, activeUserID, groupId));
@@ -315,3 +318,5 @@ async function applyToJoinHandler(event, groupId, activeUserId) {
         event.target.disabled = false;
     }
 }
+
+initializePage();

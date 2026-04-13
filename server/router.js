@@ -3,12 +3,13 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { deleteGroupRelation, insertGroupRelation } from "./router-APIs/groups.js"
+import { followUser, unfollowUser } from "./router-APIs/userRelations.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
 
@@ -92,6 +93,21 @@ async function createResponse(req, res) {
                 case "groupApply":{
                     await insertGroupRelation(req, res);
                     break;
+                }
+                case "followUser": {
+                    await followUser(req, res);
+                    break;
+                }
+                case "unfollowUser": {
+                    await unfollowUser(req, res);
+                    break;
+                }
+                case "followingUsers": {
+                    try {
+                        await queryResponse(res, queryFollowingUsers, req);
+                    } catch (error) {
+                        console.error(error);
+                    }
                 }
                 case "createTrip": {
                     const body = await parseJSON(req);

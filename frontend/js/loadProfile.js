@@ -75,7 +75,7 @@ function createProfile(profile) {
     followButton.setAttribute("class", "button4")
     followButton.setAttribute("type", "button")
     followButton.textContent = "Follow"
-    followButton.addEventListener('click', followUserListener)
+    followButton.addEventListener('click', (event) => followUserListener(event, profile.id, activeUserId))
 
     let messageButton = document.createElement("button")
     messageButton.setAttribute("class", "button5")
