@@ -20,7 +20,7 @@ export function loadDiscovery (req, res) {
                     break;
                 }
                 case "similar users": {
-                    await queryResponse(res, querySimilarUsers, [jsonData.user_id, jsonData.user_id]);
+                    await queryResponse(res, querySimilarUsers, [jsonData.user_id, jsonData.user_id, jsonData.user_id]);
                     //console.log("IN THE SIMILAR USERS LIST CASE");
                     if (!queryResponse) console.log("No queryResponse in similar users case");
                     break;

@@ -48,7 +48,6 @@ GROUP BY u.id
 ORDER BY followers DESC
 LIMIT 0,10;
 `
-//for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
 const sqlGetSimilarUsers = `SELECT 
     u.id,
     u.name_first,
@@ -76,6 +75,7 @@ const sqlGetSimilarUsers = `SELECT
 FROM users AS u
 LEFT JOIN user_prefs p 
  ON u.id = p.user_id
+WHERE u.id <> ?
 GROUP BY u.id
 ORDER BY Jaccard DESC, followers DESC 
 LIMIT 0, 100;

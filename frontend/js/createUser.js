@@ -110,7 +110,7 @@ export function profileClick(event) {
     window.location.href = `/profile/?id=${profileData["id"]}`
 }
 
-async function followingUsers(userID) {
+export async function followingUsers(userID) {
     try {
         const response = await fetch("/followingUsers", {
             method: "POST",
