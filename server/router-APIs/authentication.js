@@ -215,6 +215,123 @@ export async function logout(req, res) {
   return res.end(JSON.stringify({ status: "logged_out" }));
 }
 
+export async function editUser(req, res) {
+  try {
+    // Make sure user is logged in
+    const session = await getSession(req);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Not logged in yet" }));
+    }
+
+  // Find user in db
+    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
+    if (!rows.length) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Wrong user" }));
+    }
+
+    //Uses busboy to parse the data
+    let userData = {}
+    
+    const bb = busboy({headers: req.headers})
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
+    
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      console.log("Reading file")
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userData.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userData["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userData[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+      const firstname = sanitize(String(userData.firstname));
+      const lastname = sanitize(String(userData.lastname));
+      const email = sanitize(String(userData.email));
+      const password = sanitize(String(userData.password));
+      const bio = sanitize(String(userData.bio));
+
+      const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+      if (exists.length && session.user_id != exists[0].id) { //if already taken, reject
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Email already in use!" }));
+      }
+
+      const hash = await bcrypt.hash(password, 12);
+      await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?,
+          bio = ?,
+          gender = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, bio, userData.gender, session.user_id])
+      console.log("✓ Updated user profile in db");
+
+        //Create image
+      let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${session.user_id}.${userData.imageType}`);
+      fs.writeFile(newImagePath, userData.picture, (err)=>{
+        if(err){
+          throw(err)
+        }
+      })
+
+      //Update the picture path of the user
+      await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${session.user_id}.${userData.imageType}`), session.user_id]);
+      console.log("✓ Updated user profile picture");
+      
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain')
+      res.end('Updated\n');
+    })
+    } catch (e) {
+      console.error(e);
+    }
+
+/*    
+    const hash = await bcrypt.hash(password, 12);
+    await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?,
+          bio = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, bio, session.user_id])
+    console.log("✓ Updated user in db");
+  console.log(".")
+    //Create image
+    let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+    fs.writeFile(newImagePath, userData.picture, (err)=>{
+      if(err){
+        throw(err)
+      }
+    })
+
+    //Update the picture path of the user
+    await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+  console.log(".")
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/plain')
+    res.end('Updated\n');
+    */
+}
+
 function sanitize (str) {
   str = str
   .replace(/\//g,"")

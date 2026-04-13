@@ -3,13 +3,12 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import {writeFileSync} from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences,getGroupTags,addTripToDB} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout,parseJSON} from "./router-APIs/authentication.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
 import { deleteGroupRelation, insertGroupRelation } from "./router-APIs/groups.js"
-import { el } from "@faker-js/faker";
 export { createResponse }
 
 /**
@@ -53,6 +52,9 @@ async function createResponse(req, res) {
                                         break;
                                     //logout request received, log the user out (delete session in DB)
                                     case "logout": await logout(req, res);
+                                        break;
+                                    //Request to edit user profile
+                                    case "edit": await editUser(req, res);
                                         break;
                                 }
                             }
@@ -131,7 +133,11 @@ async function createResponse(req, res) {
                 }
                 case "profile": {
                     if(pathElements[2]==="profileInfo"){
-                        queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
+                        if (!url.searchParams.get("ownProfile")) {
+                            queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
+                        } else {
+                            queryResponse(res, queryOwnProfileInfo, url.searchParams.get("id"))
+                        }
                     }else{
                         fileResponse(res, "html/profile.html");  
                     }
