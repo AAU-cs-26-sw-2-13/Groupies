@@ -1,5 +1,8 @@
 import { query } from '../../database/pool.js'
 import bcrypt from "bcrypt"; //password hashing
+import busboy from 'busboy'; //HTML form data parser
+import fs from "fs"
+import path from 'path';
 
 // Helper functions for the authentication functions
 export async function parseJSON(req) {
@@ -47,33 +50,94 @@ export async function getSession(req) { //get the session for the user
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
   try {
-    const body = await parseJSON(req);
+    console.log(req.headers)
+    //Uses busboy to parse the data
+    let userData = {}
+    const bb = busboy({headers: req.headers})
+    
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
+
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userData.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userData["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userData[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+      if(!userData.password || !userData.firstName || !userData.lastName || !userData.gender || !userData.email || !userData.age || !userData.bio || !userData.picture){
+        const e = "Missing Requirement";
+        throw e
+      }else{
+        // query the username/password 
+        const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+        if (exists.length) { //if already taken, reject
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Email already in use!" }));
+        }
+
+        //Create the user
+        const hash = await bcrypt.hash(userData.password, 12);
+        let userCreationResult = await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [userData.email, hash, userData.firstName || null, userData.lastName, userData.country, userData.gender, userData.age, userData.bio || null])
+        
+        //Create image
+        let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+        fs.writeFile(newImagePath, userData.picture, (err)=>{
+          if(err){
+            throw(err)
+          }
+        })
+
+        //Update the picture path of the user
+        await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+        
+        //registration completed message
+        res.writeHead(201, { "Content-Type": "application/json" }); 
+        return res.end(JSON.stringify({ status: "registered" }));
+      }
+    })
+
+    
+
+
+    /*
     const { password, firstName, lastName, gender, email, country, age, bio, picture } = body;
-
-    if(!password || !firstName || !lastName || !gender || !email || !age || !bio || !picture){
-      const e = "Missing Requirement";
-      throw e
-    }
-
-    /* check if username AND password were received in JSON */
+    
+    
+    
+    /* check if username AND password were received in JSON 
     if (!password || !email) {
       res.writeHead(400, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Email and Password req." }))
     }
-    /* query the username/password */
+    /* query the username/password 
     const exists = await query("SELECT id FROM users WHERE email=?", [email]);
     if (exists.length) { //if already taken, reject
       res.writeHead(400, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Email already in use!" }));
     }
-    /* If username and password received and username unique, hash a password and query insert user */
+    /* If username and password received and username unique, hash a password and query insert user 
     const hash = await bcrypt.hash(password, 12);
     await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
        [email, hash, firstName || null, lastName, country, gender, age, bio || null, picture || null]);
 
     console.log(`✓ User registered: ${email}`); //Debug log
     res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
-    return res.end(JSON.stringify({ status: "registered" }));
+    return res.end(JSON.stringify({ status: "registered" }));*/
     } catch (e) {
       console.error(e);
     }
