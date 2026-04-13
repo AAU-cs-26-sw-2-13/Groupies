@@ -4,7 +4,7 @@ import { parseTags } from "./parseJson.js";
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
-let activeUserId = 0;
+let activeUserId = null;
 
 await fetch("/me", {
     method: "GET",

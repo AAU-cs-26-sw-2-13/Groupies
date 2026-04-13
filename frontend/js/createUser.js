@@ -26,7 +26,7 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
 
     userInformation.setAttribute("class", "userInfo")
     userInformation.dataset.id = id;
-    
+
     let followButton = document.createElement("button")
     followButton.setAttribute("class", "button2")
     followButton.setAttribute("type", "button")
@@ -84,17 +84,21 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
 
 export async function createUserHTML(userArray, targetList, userID) {
     //fetch array of users the userID user is already following. For each createUser, create the user html based on that information
-    const alreadyFollowing = await followingUsers(userID);
-    console.log("printing the alreadyFollowing for userId " + userID);
-    console.log(alreadyFollowing)
+    let alreadyFollowing = [];
+    if (userID) alreadyFollowing = await followingUsers(userID); //if there is a login session, get the users the active user follows
 
     for (let u of userArray) {
         //Check this user in the array for match with active user ID and for existing followage relation
         let isActiveUser = false;
         let isFollowing = false;
-        if (u.id == userID) isActiveUser = true; //if its the active user, createUser must not create a follow button
-        isFollowing = alreadyFollowing.some(follow => follow.target_user_id === u.id); //if the user is already followed by active user
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, u.country, u.picture, u.preferences, 
+
+        if (userID) {
+            if (u.id == userID) isActiveUser = true; //if its the active user, createUser must not create a follow button
+            isFollowing = alreadyFollowing.some(follow => follow.target_user_id === u.id); //if the user is already followed by active user
+        }
+
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, 
+            u.country, u.picture, u.preferences,
             isActiveUser, isFollowing, userID));
     }
 }
@@ -109,8 +113,8 @@ export function profileClick(event) {
 async function followingUsers(userID) {
     try {
         const response = await fetch("/followingUsers", {
-        method: "POST",
-        body: JSON.stringify({userId: userID})
+            method: "POST",
+            body: JSON.stringify({ userId: userID })
         });
 
         if (response.ok) {
@@ -119,21 +123,22 @@ async function followingUsers(userID) {
             return body;
         }
     } catch (error) {
-        console.error("Error in the followingUsers functions", error)   
+        console.error("Error in the followingUsers functions", error)
     }
 }
 
 export async function followUserListener(event, userId, activeUserId) {
+    if (activeUserId == null) {alert("You must login first"); return;}
     event.stopPropagation()
     if (event.target.classList.contains("following")) {
-        await unfollowUser (event, activeUserId, userId);
+        await unfollowUser(event, activeUserId, userId);
     } else {
-        await followUser (event, activeUserId, userId);
+        await followUser(event, activeUserId, userId);
         event.target.classList.add("following")
         event.target.textContent = "Following"
     }
 }
-async function unfollowUser (event, activeUserId, userId) {
+async function unfollowUser(event, activeUserId, userId) {
     try {
         event.target.disabled = true;
 
@@ -156,7 +161,7 @@ async function unfollowUser (event, activeUserId, userId) {
     }
 
 }
-async function followUser (event, activeUserId, userId) {
+async function followUser(event, activeUserId, userId) {
     try {
         console.log(`${activeUserId} wants to follow ${userId}, now attempting...`)
         event.target.disabled = true;
