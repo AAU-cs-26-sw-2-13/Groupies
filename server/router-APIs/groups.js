@@ -1,4 +1,4 @@
-import { queryGroupLeave } from "../serverQueries.js";
+import { queryGroupLeave, queryGroupJoin } from "../serverQueries.js";
 import { parseJSON } from "./authentication.js"
 
 export async function deleteGroupRelation (req, res) {
@@ -12,6 +12,23 @@ export async function deleteGroupRelation (req, res) {
 
     } catch (error) {
         console.error("Error in deleteGroupRelation:", error);
+        res.statusCode = 500;
+        res.end();
+    }
+}
+
+export  async function insertGroupRelation(req, res) {
+    try {
+
+        const body = await parseJSON(req);
+        const { userId, groupId } = body;
+
+        await queryGroupJoin(userId, groupId);
+
+        res.statusCode = 200;
+        res.end();
+    } catch (error) {
+        console.error("Error in insertGroupRelation", error);
         res.statusCode = 500;
         res.end();
     }

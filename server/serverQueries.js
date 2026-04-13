@@ -234,6 +234,12 @@ export async function queryGroupLeave(userId, groupId){
         WHERE gr.user_id = ? AND gr.group_id = ?` , [userId, groupId]);
 }
 
+export async function queryGroupJoin(userId, groupId) {
+    return query(`
+        INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,0)`,
+    [userId, groupId])
+}
+
 export async function queryGroupInfo(groupId) {
     const normalizedGroupId = Array.isArray(groupId) ? groupId[0] : groupId;
     let queryResponse = await query(sqlGetGroupInfoQuery, [normalizedGroupId, normalizedGroupId])

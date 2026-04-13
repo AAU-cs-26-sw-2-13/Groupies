@@ -8,7 +8,7 @@ import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences,parseJSON} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
-import { deleteGroupRelation } from "./router-APIs/groups.js"
+import { deleteGroupRelation, insertGroupRelation } from "./router-APIs/groups.js"
 import { el } from "@faker-js/faker";
 export { createResponse }
 
@@ -89,6 +89,10 @@ async function createResponse(req, res) {
                 }
                 case "groupLeave":{
                     await deleteGroupRelation(req, res);
+                    break;
+                }
+                case "groupApply":{
+                    await insertGroupRelation(req, res);
                     break;
                 }
                 case "createTrip": {

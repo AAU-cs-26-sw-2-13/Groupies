@@ -71,15 +71,21 @@ function createGroup(groupInfo) {
             hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
             //looks thorugh all members, if the user is in the group as member, a button gets created
+            let isAMember = false;
             for (let m of members) {
                 let member = m.id
                 //console.log(member)
                 //console.log(user.user_id)
                 if (user.user_id === member) {
+                    isAMember = true;
                     createSuggestActityButton(tripInfo);
                     changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members);
                 }
             }
+            if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
+                const joinButton = document.getElementById("joinButton_id");
+                joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
+                }
         }).catch(error => {
             console.error('There was a problem with the fetch operation:', error);
         });
@@ -263,7 +269,6 @@ function leaveGroupOption (activeUserID, groupId) {
 
 async function leaveGroupHandler (event, activeUserID, groupId) {
     try {
-        event.target.innerText = "Leaving group...";
         event.target.disabled = true;
 
         const response = await fetch("/groupLeave", { //fetch a request to DELETE the group relation for the active user
@@ -283,6 +288,30 @@ async function leaveGroupHandler (event, activeUserID, groupId) {
     } catch (err) {
         console.error(`Failed to leave group for user w id: ${activeUserID.id} from group w id: ${groupId}`, err);
         event.target.innerText = "Leave group";
+        event.target.disabled = false;
+    }
+}
+
+async function applyToJoinHandler(event, groupId, activeUserId) {
+    try {
+        event.target.innerText = "Application requested..."
+        event.target.disabled = true;
+        
+        const response = await fetch("/groupApply", {
+            method: "POST",
+            body: JSON.stringify({
+                userId: activeUserId,
+                groupId: groupId})
+        });
+        if (response.ok) {
+            event.target.innerText = "Application pending"
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        }
+    } catch (error) {
+        console.error(`Failed to join group for user w id: ${activeUserId} for group id: ${groupId}`, err);
+        event.target.innerText = "Apply to join group";
         event.target.disabled = false;
     }
 }
