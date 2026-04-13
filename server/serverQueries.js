@@ -23,6 +23,7 @@ LEFT JOIN users AS u
 	ON grp.host_user_id = u.id
 LEFT JOIN group_tags AS gt 
 	ON grp.id = gt.group_id
+WHERE date_start_at > NOW()
 GROUP BY grp.id
 ORDER BY followers DESC
 LIMIT ?, 10;
@@ -111,6 +112,7 @@ LEFT JOIN users AS u
 	ON grp.host_user_id = u.id
 LEFT JOIN group_tags AS gt 
 	ON grp.id = gt.group_id
+WHERE date_start_at > NOW()
 GROUP BY grp.id
 ORDER BY Jaccard DESC
 LIMIT ?, ?;
