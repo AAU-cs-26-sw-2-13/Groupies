@@ -272,9 +272,10 @@ export async function editUser(req, res) {
           name_last = ?,
           email = ?,
           password_hash = ?,
-          bio = ?
+          bio = ?,
+          gender = ?
         WHERE id = ?
-        `, [firstname, lastname, email, hash, bio, session.user_id])
+        `, [firstname, lastname, email, hash, bio, userData.gender, session.user_id])
       console.log("✓ Updated user profile in db");
 
         //Create image

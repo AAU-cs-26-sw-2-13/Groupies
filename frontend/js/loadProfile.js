@@ -337,6 +337,23 @@ function createEditProfile(profile) {
 
     fileLabel.append(fileIcon, fileText, profileImg, preview)
 
+    let genderTitle = document.createElement("p")
+    genderTitle.setAttribute("class", "p1")
+    genderTitle.textContent = "Gender"
+    
+    let genderContainer = document.createElement("section")
+    genderContainer.setAttribute("class", "genderChooserBox")
+    genderContainer.innerHTML = `
+        <div class="registerGenderDiv">
+            <input class="registerGenderRadioButton" type="radio" id="male" name="gender" value="Male" ${profile.gender === 'male' ? ' checked' : ''}>
+            <label class="registerGenderTextButton" for="male">Male</label><br>
+            <input class="registerGenderRadioButton" type="radio" id="female" name="gender" value="Female" ${profile.gender === 'female' ? ' checked' : ''}>
+            <label class="registerGenderTextButton" for="female">Female</label><br>
+            <input class="registerGenderRadioButton" type="radio" id="other" name="gender" value="Other" ${profile.gender === 'other' ? ' checked' : ''}>
+            <label class="registerGenderTextButton" for="other">Other</label><br>
+        </div>
+    `
+
     // Options (back & save)
     let optionsContainer = document.createElement("section")
     optionsContainer.setAttribute("class", "optionsContainer")
@@ -364,7 +381,7 @@ function createEditProfile(profile) {
     nameContainer.append(firstNameInput, lastNameInput)
     loginContainer.append(emailInput, passwordInput)
     pageHeader.append(headerText)
-    formContainer.append(pageHeader, nameTitle, nameContainer, loginTitle, loginContainer, aboutTitle, bioInput, dobLabel, fileLabel, optionsContainer)
+    formContainer.append(pageHeader, nameTitle, nameContainer, loginTitle, loginContainer, aboutTitle, bioInput, dobLabel, fileLabel, genderTitle, genderContainer, optionsContainer)
     formContainer.addEventListener('submit', (e) => {
         e.preventDefault()
         editProfile(firstNameInput.value.trim(),
@@ -377,6 +394,19 @@ function createEditProfile(profile) {
         )
     })
     main.append(formContainer)
+
+    //Eventlistener for choosing gender
+    const genderButtons = document.querySelectorAll(".registerGenderTextButton")
+
+    for(let gb of genderButtons){
+        if (gb.textContent.toLowerCase() === profile.gender.toLowerCase()) { gb.setAttribute("class","registerGenderTextButtonActive") }
+        gb.addEventListener('click', ()=>{
+            for(let gb2 of genderButtons){
+                gb2.setAttribute("class","registerGenderTextButton")
+            }
+            gb.setAttribute("class","registerGenderTextButtonActive")
+        })
+    }
 }
 
 async function editProfile(firstname, lastname, email, password, bio, dob, image) {

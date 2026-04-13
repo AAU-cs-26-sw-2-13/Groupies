@@ -71,16 +71,6 @@ registerPageReturnButton.addEventListener('click', function() {
     registerPageNextButton.hidden = false
 });
 
-//Eventlistener for choosing gender
-for(let gb of genderButtons){
-    gb.addEventListener('click', ()=>{
-        for(let gb2 of genderButtons){
-            gb2.setAttribute("class","registerGenderTextButton")
-        }
-        gb.setAttribute("class","registerGenderTextButtonActive")
-    })
-}
-
 //Event listener to update the image display
 input.addEventListener("change", updateImageDisplay);
 
