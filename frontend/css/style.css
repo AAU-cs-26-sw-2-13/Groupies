@@ -1094,6 +1094,8 @@ header {
     width: 115%;
     height: 2.5rem;
     align-items: center;
+}
+
 /*CHAT CSS*/
 .contacts{
     width: 25%;
@@ -1351,11 +1353,14 @@ header {
     width: 8rem;
     height: 8rem;
     border-radius: 10px;
+}
+
 .hidden{
     visibility: hidden;
     width: 200px;
     height: 50px;
 }
+
 #profile-box-div_id {
     position: absolute;
     width: 0;

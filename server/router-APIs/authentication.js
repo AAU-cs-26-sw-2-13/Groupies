@@ -254,18 +254,74 @@ export async function editUser(req, res) {
       res.writeHead(401, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({ error: "Wrong user" }));
     }
-    const user = rows[0];
 
-    // Sanitize input
-    const body = await parseJSON(req);
+    //Uses busboy to parse the data
+    let userData = {}
     
-    let { firstname, lastname, email, password, dob, bio, picture } = body;
-    firstname = sanitize(String(body.name_first));
-    lastname = sanitize(String(body.name_last));
-    email = sanitize(String(body.email));
-    password = sanitize(String(body.password));
-    bio = sanitize(String(body.bio));
+    const bb = busboy({headers: req.headers})
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
     
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      console.log("Reading file")
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userData.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userData["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userData[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+      console.log(userData)
+      const firstname = sanitize(String(userData.firstname));
+      const lastname = sanitize(String(userData.lastname));
+      const email = sanitize(String(userData.email));
+      const password = sanitize(String(userData.password));
+      const bio = sanitize(String(userData.bio));
+
+      const hash = await bcrypt.hash(password, 12);
+      await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?,
+          bio = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, bio, session.user_id])
+      console.log("✓ Updated user profile in db");
+
+        //Create image
+      let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${session.user_id}.${userData.imageType}`);
+      fs.writeFile(newImagePath, userData.picture, (err)=>{
+        if(err){
+          throw(err)
+        }
+      })
+
+      //Update the picture path of the user
+      await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${session.user_id}.${userData.imageType}`), session.user_id]);
+      console.log("✓ Updated user profile picture");
+      
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain')
+      res.end('Updated\n');
+    })
+    } catch (e) {
+      console.error(e);
+    }
+
+/*    
     const hash = await bcrypt.hash(password, 12);
     await query(`UPDATE users
         SET name_first = ?,
@@ -276,14 +332,91 @@ export async function editUser(req, res) {
         WHERE id = ?
         `, [firstname, lastname, email, hash, bio, session.user_id])
     console.log("✓ Updated user in db");
+  console.log(".")
+    //Create image
+    let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+    fs.writeFile(newImagePath, userData.picture, (err)=>{
+      if(err){
+        throw(err)
+      }
+    })
 
+    //Update the picture path of the user
+    await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+  console.log(".")
     res.statusCode = 200;
     res.setHeader('content-type', 'text/plain')
     res.end('Updated\n');
-  } catch (err) {
-    res.writeHead(500, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({ error: "Internal server error" }));
-  }
+    */
+}
+
+
+// -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
+export async function LregisterUserToDB(req, res) {
+  try {
+    console.log(req.headers)
+    //Uses busboy to parse the data
+    let userData = {}
+    const bb = busboy({headers: req.headers})
+    
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
+
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userData.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userData["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userData[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+      if(!userData.password || !userData.firstName || !userData.lastName || !userData.gender || !userData.email || !userData.age || !userData.bio || !userData.picture){
+        const e = "Missing Requirement";
+        throw e
+      }else{
+        // query the username/password 
+        const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+        if (exists.length) { //if already taken, reject
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Email already in use!" }));
+        }
+
+        //Create the user
+        const hash = await bcrypt.hash(userData.password, 12);
+        let userCreationResult = await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [userData.email, hash, userData.firstName || null, userData.lastName, userData.country, userData.gender, userData.age, userData.bio || null])
+        
+        //Create image
+        let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+        fs.writeFile(newImagePath, userData.picture, (err)=>{
+          if(err){
+            throw(err)
+          }
+        })
+
+        //Update the picture path of the user
+        await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+        
+        //registration completed message
+        res.writeHead(201, { "Content-Type": "application/json" }); 
+        return res.end(JSON.stringify({ status: "registered" }));
+      }
+    })
+    } catch (e) {
+      console.error(e);
+    }
 }
 
 function sanitize (str) {

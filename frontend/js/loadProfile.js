@@ -229,6 +229,7 @@ function createEditProfile(profile) {
     let firstNameInput = document.createElement("input")
     firstNameInput.setAttribute("type", "text")
     firstNameInput.setAttribute("id", "firstname")
+    firstNameInput.setAttribute("name", "firstname")
     firstNameInput.setAttribute("placeholder", "First Name")
     firstNameInput.setAttribute("class", "box-input")
     firstNameInput.style.width = "80%"
@@ -236,6 +237,7 @@ function createEditProfile(profile) {
     let lastNameInput = document.createElement("input")
     lastNameInput.setAttribute("type", "text")
     lastNameInput.setAttribute("id", "lastname")
+    lastNameInput.setAttribute("name", "lastname")
     lastNameInput.setAttribute("placeholder", "Last Name")
     lastNameInput.setAttribute("class", "box-input")
     lastNameInput.style.width = "80%"
@@ -250,6 +252,7 @@ function createEditProfile(profile) {
     let emailInput = document.createElement("input")
     emailInput.setAttribute("type", "email")
     emailInput.setAttribute("id", "email")
+    emailInput.setAttribute("name", "email")
     emailInput.setAttribute("placeholder", "Email")
     emailInput.setAttribute("class", "box-input")
     emailInput.style.width = "80%"
@@ -257,6 +260,7 @@ function createEditProfile(profile) {
     let passwordInput = document.createElement("input")
     passwordInput.setAttribute("type", "password")
     passwordInput.setAttribute("id", "password")
+    passwordInput.setAttribute("name", "password")
     passwordInput.setAttribute("placeholder", "Password")
     passwordInput.setAttribute("class", "box-input")
     passwordInput.style.width = "80%"
@@ -268,6 +272,7 @@ function createEditProfile(profile) {
     let bioInput = document.createElement("input")
     bioInput.setAttribute("type", "text")
     bioInput.setAttribute("id", "bio")
+    bioInput.setAttribute("name", "bio")
     bioInput.setAttribute("placeholder", "Bio")
     bioInput.setAttribute("class", "box-input")
     bioInput.style.height = "3rem"
@@ -281,6 +286,7 @@ function createEditProfile(profile) {
     dobText.textContent = " Date of Birth" 
     let dobBox = document.createElement("input")
     dobBox.setAttribute("type", "date")
+    dobBox.setAttribute("name", "dob")
     dobBox.setAttribute("class", "calenderDisplay")
     dobLabel.style.width = "100%"
     dobLabel.append(calendarIcon,dobText,dobBox)
@@ -301,6 +307,7 @@ function createEditProfile(profile) {
     fileText.textContent = " Profile Picture"
     let profileImg = document.createElement("input")
     profileImg.setAttribute("type", "file")
+    profileImg.setAttribute("name", "picture")
     profileImg.setAttribute("accept", "image/*")
     profileImg.style.display = "none"
     let preview = document.createElement("img")
@@ -342,7 +349,7 @@ function createEditProfile(profile) {
 
     let saveButton = document.createElement("button")
     saveButton.setAttribute("class", "box-button2")
-    saveButton.setAttribute("type", "button")
+    saveButton.setAttribute("type", "submit")
     saveButton.textContent = "Save"
 
     optionsContainer.append(backButton, saveButton)
@@ -358,7 +365,8 @@ function createEditProfile(profile) {
     loginContainer.append(emailInput, passwordInput)
     pageHeader.append(headerText)
     formContainer.append(pageHeader, nameTitle, nameContainer, loginTitle, loginContainer, aboutTitle, bioInput, dobLabel, fileLabel, optionsContainer)
-    saveButton.addEventListener('click', () => {
+    formContainer.addEventListener('submit', (e) => {
+        e.preventDefault()
         editProfile(firstNameInput.value.trim(),
             lastNameInput.value.trim(),
             emailInput.value.trim(),
@@ -380,18 +388,11 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
     if(!dob){ alert("Date of birth is required"); return; }
     if(!image){ image = null; }
     
+    const form = document.getElementById("mainContainer");
+    const formData = new FormData(form);
     const res = await fetch("/api/auth/edit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            name_first: firstname,
-            name_last: email,
-            email: email,
-            password: password,
-            dob: dob,
-            bio: bio,
-            picture: image || null,
-        })
+        body: formData,
     });
     if (!res.ok) {
         return "Server failed to update user in database!"
