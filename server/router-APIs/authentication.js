@@ -92,7 +92,7 @@ export async function registerUserToDB(req, res) {
     if(userData.country.length !== 2){
       throw "Invalid country"
     }
-    if(!userData.password || !userData.firstName || !userData.lastName || !userData.gender || !userData.email || !userData.age || !userData.bio || !userData.picture){
+    if(!userData.password || !userData.firstName || !userData.lastName || !userData.gender || !userData.email || !userData.dob || !userData.bio || !userData.picture){
       const e = "Missing Requirement";
       throw e
     }else{
@@ -105,8 +105,8 @@ export async function registerUserToDB(req, res) {
 
       //Create the user
       const hash = await bcrypt.hash(userData.password, 12);
-      let userCreationResult = await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [userData.email, hash, userData.firstName || null, userData.lastName, userData.country, userData.gender, userData.age, userData.bio || null])
+      let userCreationResult = await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, dob, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [userData.email, hash, userData.firstName || null, userData.lastName, userData.country, userData.gender, userData.dob, userData.bio || null])
 
       //Make the prefrences
       let prefsArray = userData.preferences.split(",")
@@ -264,6 +264,7 @@ export async function editUser(req, res) {
       const email = sanitize(String(userData.email));
       const password = sanitize(String(userData.password));
       const bio = sanitize(String(userData.bio));
+      const dob = sanitize(String(userData.dob));
 
       const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
       if (exists.length && session.user_id != exists[0].id) { //if already taken, reject
@@ -271,30 +272,33 @@ export async function editUser(req, res) {
         return res.end(JSON.stringify({ error: "Email already in use!" }));
       }
 
-      const hash = await bcrypt.hash(password, 12);
+      const hash = (userData.password) ? await bcrypt.hash(password, 12) : rows[0].password_hash;
       await query(`UPDATE users
         SET name_first = ?,
           name_last = ?,
           email = ?,
           password_hash = ?,
           bio = ?,
+          dob = ?,
           gender = ?
         WHERE id = ?
-        `, [firstname, lastname, email, hash, bio, userData.gender, session.user_id])
+        `, [firstname, lastname, email, hash, bio, dob, userData.gender, session.user_id])
       console.log("✓ Updated user profile in db");
 
+      if (userData["picture"].length > 0) {
         //Create image
-      let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${session.user_id}.${userData.imageType}`);
-      fs.writeFile(newImagePath, userData.picture, (err)=>{
-        if(err){
-          throw(err)
-        }
-      })
+        let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${session.user_id}.${userData.imageType}`);
+        fs.writeFile(newImagePath, userData.picture, (err)=>{
+          if(err){
+            throw(err)
+          }
+        })
 
-      //Update the picture path of the user
-      await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${session.user_id}.${userData.imageType}`), session.user_id]);
-      console.log("✓ Updated user profile picture");
-      
+        //Update the picture path of the user
+        await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${session.user_id}.${userData.imageType}`), session.user_id]);
+        console.log("✓ Updated user profile picture");
+      }
+
       res.statusCode = 200;
       res.setHeader('content-type', 'text/plain')
       res.end('Updated\n');

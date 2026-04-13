@@ -295,9 +295,17 @@ function createEditProfile(profile) {
         dobBox.showPicker()
     })
     dobLabel.addEventListener("change", () => {
-        dobText.textContent = " " + dobBox.value || " Start Date"
+        dobText.textContent = " " + dobBox.value || " Date of Birth"
         dobText.style.color = dobBox.value ? "#333" : "#717171"
     })
+    const dob = profile.dob.trim().split('T')[0]; // clean dob
+    if (dob) {
+        dobBox.value = dob
+        dobText.textContent = " " + dob
+    } else {
+        dobText.textContent = " Date of Birth"
+    }
+    dobText.style.color = dobBox.value ? "#333" : "#717171"
 
     let fileIcon = document.createElement("i")
     fileIcon.setAttribute("class", "fa-regular fa-image")
@@ -413,10 +421,10 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
     if(!firstname){ alert("First Name is required"); return; }
     if(!lastname){ alert("Last Name is required"); return; }
     if(!email){ alert("Email is required"); return; }
-    if(!password){ alert("Password is required"); return; }
+    //if(!password){ alert("Password is required"); return; }
     if(!bio){ alert("Bio is required"); return; }
     if(!dob){ alert("Date of birth is required"); return; }
-    if(!image){ image = null; }
+    //if(!image){ image = null; }
     
     const form = document.getElementById("mainContainer");
     const formData = new FormData(form);

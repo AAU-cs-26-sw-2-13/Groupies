@@ -41,6 +41,12 @@ function genMockDateTimePair() { // Returns 2x YYYY-MM-DD HH:MI:SS formatted dat
     return { startDate: formatDate(date1), endDate: formatDate(date2) };
 }
 
+function genAge(min,max) { // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
+    let now = new Date();
+    now.setFullYear(now.getFullYear() - min);
+    return formatDate(faker.date.past({years: min, refDate: now}));
+}
+
 async function mockUserPreferences(userAmount) {
     const prefDictionary = await query(`SELECT * FROM preferences`);
     const prefAmount = prefDictionary.length;
@@ -243,7 +249,7 @@ export async function mockUsers(userAmount) {
             faker.internet.password(),
             faker.location.countryCode(),
             gender,
-            await genNumber(18, 70), // 18 to 100 years of age, consider changing age to date of birth instead?
+            await genAge(18, 70),
             faker.person.bio(),
             faker.image.personPortrait({ sex: gender, size: '128' })
         ];
@@ -251,7 +257,7 @@ export async function mockUsers(userAmount) {
     }
 
     await query(
-        `INSERT INTO users (name_first, name_last, email, password_hash, country, gender, age, bio, picture) VALUES ?`,
+        `INSERT INTO users (name_first, name_last, email, password_hash, country, gender, dob, bio, picture) VALUES ?`,
         [users]
     );
 

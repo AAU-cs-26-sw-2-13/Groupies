@@ -36,7 +36,7 @@ SELECT
     u.name_last,
     u.country,
     u.gender,
-    u.age,
+    u.dob,
     u.picture,
     JSON_ARRAYAGG(p.preference_id) AS preferences,
     (SELECT COUNT(id) FROM user_relations WHERE target_user_id = u.id) AS followers
@@ -54,7 +54,7 @@ const sqlGetSimilarUsers = `SELECT
     u.name_last,
     u.country,
     u.gender,
-    u.age,
+    u.dob,
     u.picture,
     JSON_ARRAYAGG(p.preference_id) AS preferences,
 
@@ -146,7 +146,7 @@ LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 `
 
 const getOwnProfileInfoQuery = `
-SELECT u.name_first, u.name_last, u.email, u.country, u.gender, u.age, u.bio, u.picture, u.id,
+SELECT u.name_first, u.name_last, u.email, u.country, u.gender, u.dob, u.bio, u.picture, u.id,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -156,7 +156,7 @@ WHERE u.id = ?
 `
 
 const getProfileInfoQuery = `
-SELECT u.id, u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+SELECT u.id, u.name_first, u.name_last, u.country, u.gender, u.dob, u.bio, u.picture,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -217,7 +217,7 @@ export async function queryJaccardSortedGroups(params) {
 
 export async function queryGroupMembers(groupId) {
     return query(`
-        SELECT u.id, u.picture, u.name_first, u.name_last, u.age, u.country, u.gender,
+        SELECT u.id, u.picture, u.name_first, u.name_last, u.dob, u.country, u.gender,
                gr.organizer, gr.member,
         JSON_ARRAYAGG(p.preference_id) AS preferences
         FROM group_relations gr
