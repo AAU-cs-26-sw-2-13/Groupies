@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(50) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,  
   country VARCHAR(2),
-  gender ENUM('male', 'female', 'undefined') NOT NULL DEFAULT 'undefined',
+  gender ENUM('male', 'female', 'other','undefined') NOT NULL DEFAULT 'undefined',
   age INT,
   bio TEXT,
   picture VARCHAR(255),
