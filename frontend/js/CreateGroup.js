@@ -1,9 +1,19 @@
 import { initializeHeader } from "./loadHeader.js"
 let HTMLdoc = document.querySelector("#CreateGroup");
 let header = document.querySelector("header");
+let user = { user_id: null }
+
+// fetch the user, so the host id for the group can be set to the user id and the header initalized
+    try {
+        const authResponse = await fetch("/me", {credentials: "include"});
+
+        if (authResponse.ok) { //you can only create a trip if logged in so this is the only case
+            user = await authResponse.json();
+        }
+    } catch (error) {console.error("Error in the authResponse initializeHeader part", error)} 
 
 //Generates the HTML
-function createHTML(header) {
+function createHTML() {
     let container = document.createElement("div");
     container.setAttribute("class", "createTripPage");
 
@@ -250,15 +260,7 @@ function createHTML(header) {
         const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
         submitButton.disabled = true
    
-       // fetch the user, so the host id for the group can be set to the user id
-       let user = { user_id: null }
-       fetch("/me", {
-       method: "GET",
-       credentials: "include"
-       }).then(response => {
-       if (response.status === 200) {
-       return response.json()}}).then(jsonResponse => {
-        user = jsonResponse;   
+        
         //insert into group db and refer the user back to main page
         fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
         host_user_id: user.user_id,
@@ -272,7 +274,7 @@ function createHTML(header) {
         group_openess: membershipType,
         tags_list: selectedTags})}).then(r => r.json())
         .then(() => {window.location.href = "/"})}
-    )})    
+    )    
     
     buttons.append(backButton, submitButton)
     infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc, fileLabel)
@@ -283,4 +285,5 @@ function createHTML(header) {
     return container
 }
 
-HTMLdoc.append(createHTML(header));
+initializeHeader(header, user, "Group");
+HTMLdoc.append(createHTML());
