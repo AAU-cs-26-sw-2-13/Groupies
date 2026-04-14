@@ -41,7 +41,7 @@ function genMockDateTimePair() { // Returns 2x YYYY-MM-DD HH:MI:SS formatted dat
     return { startDate: formatDate(date1), endDate: formatDate(date2) };
 }
 
-function genAge(min,max) { // Returns 2x YYYY-MM-DD HH:MI:SS formatted datetime for SQL
+function genAge(min,max) { // Returns YYYY-MM-DD HH:MI:SS formatted datetime for SQL
     let now = new Date();
     now.setFullYear(now.getFullYear() - min);
     return formatDate(faker.date.past({years: min, refDate: now}));
