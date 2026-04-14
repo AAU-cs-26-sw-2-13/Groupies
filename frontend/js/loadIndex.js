@@ -1,4 +1,4 @@
-import { createUserHTML } from "./User_creation.js";
+import { createUserHTML } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js";
 import { generateUserListButtons } from "./indexHelpers/indexUserListButtons.js";
 import { parseTags } from "./parseJson.js"
@@ -105,8 +105,8 @@ tripButton.addEventListener("click", createTripClick)
 
 function createTripClick() {
     if(user.user_id){   //if the user has an id, i.e. is logged in, redirect them to the html file
-         window.location.href = "/html/CreateTrip.html"}
-    else alert("You need to be logged in to create a trip.")
+         window.location.href = "/html/createGroup.html"}
+    else alert("You need to be logged in to create a group.")
     }
    
 
@@ -146,55 +146,49 @@ function createDiscoverButtons(Amount) {
     }
 }
 // Build the header and load page content based on Auth state
-fetch("/me", {
-    method: "GET",
-    credentials: "include"
-}).then(response => {
-    if (response.status === 200) {
-        return response.json();
-    } else {
-        // Not logged in: Initialize header with null user and load public data
-        initializeHeader(header, null, "Index");
-        generateTrips({ user_id: null }, discovered);
-        generateUsers({ user_id: null });
-        throw "Session not found";
-    }
-}).then(jsonResponse => {
-    // Logged in: Initialize header with user data and load personalized data
-    user = jsonResponse;
-    initializeHeader(header, user, "Index");
-    generateUsers(user);
-    generateSimilarUsers(user);
-    generateTrips(user, discovered);
-    generateUserListButtons(user);
-}).catch(err => {
-    console.log("Auth Check:", err);
-});
+fetch("/me", { method: "GET", credentials: "include" })
+    .then(response => {
+        if (response.ok) return response.json();
+        return { user_id: null };
+    })
+    .then(jsonResponse => {
+        user = jsonResponse || { user_id: null };
+        initializeHeader(header, user, "Index");
+        
+        generateUsers(user);
+        generateTrips(user, discovered);
+        
+        if (user && user.user_id) {
+            generateSimilarUsers(user);
+            generateUserListButtons(user);
+        }
+    })
+    .catch(err => console.log("Auth Check:", err));
+
 
 //Get users sorted by # followers
-async function generateUsers(user) {
-    console.log("attempting to generate users...");
-    user.query = "users";
-    let usersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
-    usersQuery.then(userResponse => {
-        return userResponse.json();
-    }).then(jsonUserResponse => {
-        console.log("received json User list response");
-        createUserHTML(jsonUserResponse, userList);
-    })
+async function generateUsers(currentUser) {
+    console.log("the current user in generateUsers;")
+    console.table(currentUser)
+    const requestData = { ...currentUser, query: "users" }; // Create a local copy so we don't change the global 'user'
+    
+    let userResponse = await fetch("/", { 
+        method: 'POST', 
+        body: JSON.stringify(requestData) 
+    });
+    let jsonUserResponse = await userResponse.json();
+
+    createUserHTML(jsonUserResponse, userList, currentUser.user_id); //use the copied id 
 }
 
-async function generateSimilarUsers(user) {
-    console.log("attempting to generate similar users...");
-    user.query = "similar users";
-    let similarUsersQuery = fetch("/", { method: 'POST', body: JSON.stringify(user) });
-    similarUsersQuery.then(similarUsersResponse => {
-        return similarUsersResponse.json();
-    }).then(jsonSimilarUsersResponse => {
-        console.log("received json similar user list response");
-        createUserHTML(jsonSimilarUsersResponse, similarUserList);
-    })
+async function generateSimilarUsers(currentUser) {
+    const requestData = { ...currentUser, query: "similar users" };
+    
+    let similarUsersQuery = await fetch("/", { method: 'POST', body: JSON.stringify(requestData) });
+    let jsonSimilarUsersResponse = await similarUsersQuery.json();
 
+    console.log("received json similar user list response");
+    createUserHTML(jsonSimilarUsersResponse, similarUserList, currentUser.user_id);
 }
 
 //Get groups

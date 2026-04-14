@@ -1,5 +1,8 @@
 import { query } from '../../database/pool.js'
 import bcrypt from "bcrypt"; //password hashing
+import busboy from 'busboy'; //HTML form data parser
+import fs from "fs"
+import path from 'path';
 
 // Helper functions for the authentication functions
 export async function parseJSON(req) {
@@ -46,68 +49,105 @@ export async function getSession(req) { //get the session for the user
 
 // -----  function registerUserToDB: Input validate, check uniqueness, hash password and insert user to. ------
 export async function registerUserToDB(req, res) {
+  //Allowed image file types
+  const fileTypes = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+  ];
   try {
-    const body = await parseJSON(req);
-    const { password, firstName, lastName, gender, email, country, age, bio, picture } = body;
+    let userData = {}
+    await new Promise((resolve, reject) => {
+      //Uses busboy to parse the data
+      const bb = busboy({headers: req.headers})
+      
+      //Takes the readable stream from the request and gives it to busboy as a writeable stream
+      req.pipe(bb)
 
-    if(!password || !firstName || !lastName || !gender || !email || !age || !bio || !picture){
+      //When a file is loaded
+      bb.on('file', async (name, file, info) => {
+        //Array for reading chunks from the file
+        const extension = info.mimeType.split('/')[1];
+        userData.imageType = extension
+        const chunks = [];
+
+        //When new chunks comes, push it to the chunk array.
+        file.on('data', async (chunk) => {
+          chunks.push(chunk);
+        });
+
+        file.on('close',async () => {
+          userData["picture"] = Buffer.concat(chunks);
+        });
+      })
+      bb.on('field',async (fieldname, value) => {
+        userData[fieldname]=value
+      })
+      bb.on('close', resolve)
+      bb.on('error', reject)
+    })
+    if(!fileTypes.includes("image/"+userData.imageType)){
+      throw "Invalid file type"
+    }
+    if(userData.country.length !== 2){
+      throw "Invalid country"
+    }
+    if(!userData.password || !userData.firstName || !userData.lastName || !userData.gender || !userData.email || !userData.age || !userData.bio || !userData.picture){
       const e = "Missing Requirement";
       throw e
-    }
+    }else{
+      // query the username/password 
+      const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+      if (exists.length) { //if already taken, reject
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Email already in use!" }));
+      }
 
-    /* check if username AND password were received in JSON */
-    if (!password || !email) {
-      res.writeHead(400, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Email and Password req." }))
-    }
-    /* query the username/password */
-    const exists = await query("SELECT id FROM users WHERE email=?", [email]);
-    if (exists.length) { //if already taken, reject
-      res.writeHead(400, { "Content-Type": "application/json" });
-      return res.end(JSON.stringify({ error: "Email already in use!" }));
-    }
-    /* If username and password received and username unique, hash a password and query insert user */
-    const hash = await bcrypt.hash(password, 12);
-    await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio, picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-       [email, hash, firstName || null, lastName, country, gender, age, bio || null, picture || null]);
+      //Create the user
+      const hash = await bcrypt.hash(userData.password, 12);
+      let userCreationResult = await query("INSERT INTO users (email, password_hash, name_first, name_last, country, gender, age, bio) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [userData.email, hash, userData.firstName || null, userData.lastName, userData.country, userData.gender, userData.age, userData.bio || null])
 
-    console.log(`✓ User registered: ${email}`); //Debug log
-    res.writeHead(201, { "Content-Type": "application/json" }); //registration completed message
-    return res.end(JSON.stringify({ status: "registered" }));
-    } catch (e) {
-      console.error(e);
-    }
-}
+      //Make the prefrences
+      let prefsArray = userData.preferences.split(",")
+      let rowsToInsert = prefsArray.map(pref => [userCreationResult.insertId, pref, 1])
+      if(prefsArray.length > 0){
+        await query("INSERT INTO user_prefs (user_id, preference_id, preference_value) VALUES ?", [rowsToInsert])
+      }
 
-// -----  function registerPreferences
-export async function registerPreferences(req, res){
-  try {
-    const body = await parseJSON(req);
-    const { preference, email } = body;
+      //Create image
+      let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+      fs.writeFile(newImagePath, userData.picture, (err)=>{
+        if(err){
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Coult not create image!" }));
+        }
+      })
 
-    const user = await query("SELECT id FROM users WHERE email=?", [email]);
-    if(!user || user.length ===0){
-      res.writeHead(404, { "Content-Type": "application/json"});
-      return res.end(JSON.stringify({status: "User not found"}));
-    }
-
-    for (let v of preference){
-      await query(`
-        INSERT INTO user_prefs (user_id, preference_id, preference_value) 
-        VALUES (?, ?, 1)
-        ON DUPLICATE KEY UPDATE
-          preference_value = IF(preference_value = 1, 0, 1)`,
-        [user[0].id, v]
+      //Update the picture path of the user
+      await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+      
+      //Logs the user in
+      // Create session
+      const sid = crypto.randomUUID(); //set a pseudorandom RNG key for the session id
+      const ttl = 60 * 60 * 24 * 7; // 7 dage
+      const expires = new Date(Date.now() + ttl * 1000); //for cookie expiration from Date.now
+      // query to insert session id into database
+      await query(
+        "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)",
+        [sid, userCreationResult.insertId, expires]
       );
+      setSessionCookie(res, sid, ttl); //set the browser cookie with the session id and a 7 day expiration
+
+      res.writeHead(201, { "Content-Type": "application/json" }); 
+      return res.end(JSON.stringify({ status: "registered" }));
     }
-    res.writeHead(201, { "Content-Type": "application/json" });
-    return res.end(JSON.stringify({status: "Preferences Added"}));
-  } catch(e) {
-    console.error(e);
   }
-
+  catch (e) {
+    res.writeHead(400, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ error: e }));
+  }
 }
-
 
 // -----  function loginUser: Check user credentials, create session and set session cookie. ------
 export async function loginUser(req, res) {
@@ -173,6 +213,123 @@ export async function logout(req, res) {
   res.setHeader("Set-Cookie", "sid=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax");
   res.writeHead(200, { "Content-Type": "application/json" });
   return res.end(JSON.stringify({ status: "logged_out" }));
+}
+
+export async function editUser(req, res) {
+  try {
+    // Make sure user is logged in
+    const session = await getSession(req);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Not logged in yet" }));
+    }
+
+  // Find user in db
+    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
+    if (!rows.length) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Wrong user" }));
+    }
+
+    //Uses busboy to parse the data
+    let userData = {}
+    
+    const bb = busboy({headers: req.headers})
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
+    
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      console.log("Reading file")
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userData.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userData["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userData[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+      const firstname = sanitize(String(userData.firstname));
+      const lastname = sanitize(String(userData.lastname));
+      const email = sanitize(String(userData.email));
+      const password = sanitize(String(userData.password));
+      const bio = sanitize(String(userData.bio));
+
+      const exists = await query("SELECT id FROM users WHERE email=?", [userData.email]);
+      if (exists.length && session.user_id != exists[0].id) { //if already taken, reject
+        res.writeHead(400, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: "Email already in use!" }));
+      }
+
+      const hash = await bcrypt.hash(password, 12);
+      await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?,
+          bio = ?,
+          gender = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, bio, userData.gender, session.user_id])
+      console.log("✓ Updated user profile in db");
+
+        //Create image
+      let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${session.user_id}.${userData.imageType}`);
+      fs.writeFile(newImagePath, userData.picture, (err)=>{
+        if(err){
+          throw(err)
+        }
+      })
+
+      //Update the picture path of the user
+      await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${session.user_id}.${userData.imageType}`), session.user_id]);
+      console.log("✓ Updated user profile picture");
+      
+      res.statusCode = 200;
+      res.setHeader('content-type', 'text/plain')
+      res.end('Updated\n');
+    })
+    } catch (e) {
+      console.error(e);
+    }
+
+/*    
+    const hash = await bcrypt.hash(password, 12);
+    await query(`UPDATE users
+        SET name_first = ?,
+          name_last = ?,
+          email = ?,
+          password_hash = ?,
+          bio = ?
+        WHERE id = ?
+        `, [firstname, lastname, email, hash, bio, session.user_id])
+    console.log("✓ Updated user in db");
+  console.log(".")
+    //Create image
+    let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
+    fs.writeFile(newImagePath, userData.picture, (err)=>{
+      if(err){
+        throw(err)
+      }
+    })
+
+    //Update the picture path of the user
+    await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
+  console.log(".")
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/plain')
+    res.end('Updated\n');
+    */
 }
 
 function sanitize (str) {

@@ -3,12 +3,13 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import { writeFileSync } from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryAllPreferences, getGroupTags, addTripToDB, getAllPreferences, addActivityToDB, queryActivites } from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers,queryActivites} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
-import { registerUserToDB, loginUser, getLoginSession, logout, registerPreferences, parseJSON } from "./router-APIs/authentication.js";
-import { loadDiscovery, regPreferences } from "./router-APIs/pageRouting.js";
+import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser} from "./router-APIs/authentication.js";
+import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
 import { setUserPreferences } from "./router-APIs/userPreferences.js"
-import { el } from "@faker-js/faker";
+import { deleteGroupRelation, insertGroupRelation } from "./router-APIs/groups.js"
+import { followUser, unfollowUser } from "./router-APIs/userRelations.js"
 export { createResponse }
 
 /**
@@ -47,13 +48,14 @@ async function createResponse(req, res) {
                                     //The server sent a register request, we must check username is unique, hash a password and insert to db
                                     case "register": await registerUserToDB(req, res);
                                         break;
-                                    case "regPrefs": await registerPreferences(req, res);
-                                        break;
                                     //The server sent a login request, we must check login is valid and create a login session  
                                     case "login": await loginUser(req, res);
                                         break;
                                     //logout request received, log the user out (delete session in DB)
                                     case "logout": await logout(req, res);
+                                        break;
+                                    //Request to edit user profile
+                                    case "edit": await editUser(req, res);
                                         break;
                                 }
                             }
@@ -86,24 +88,49 @@ async function createResponse(req, res) {
                     })
                     break;
                 }
+                case "groupLeave":{
+                    await deleteGroupRelation(req, res);
+                    break;
+                }
+                case "groupApply":{
+                    await insertGroupRelation(req, res);
+                    break;
+                }
+                case "followUser": {
+                    await followUser(req, res);
+                    break;
+                }
+                case "unfollowUser": {
+                    await unfollowUser(req, res);
+                    break;
+                }
+                case "followingUsers": {
+                    try {
+                        await queryResponse(res, queryFollowingUsers, req);
+                    } catch (error) {
+                        console.error(error);
+                    }
+                }
                 case "createTrip": {
                     const body = await parseJSON(req);
                     let picturePath = null
-                    if (body.picture) {
-                        const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
-                        const fileName = crypto.randomUUID() + ".jpg"
-                        const filePath = path.join("frontend/img", fileName)
-                        writeFileSync(filePath, Buffer.from(base64Data, "base64"))
-                        picturePath = "../img/" + fileName
-                    }
-                    await addTripToDB(body.host_user_id, body.title, body.destination, body.about, body.date_start_at, body.date_end_at, picturePath, body.max_members, body.group_openess, body.tags_list);
-                    res.writeHead(200, { "Content-Type": "application/json" })
-                    res.end(JSON.stringify({ status: "created" }))
+                    
+                    if(body.picture){
+                    const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
+                    const fileName = crypto.randomUUID() + ".jpg"
+                    const filePath = path.join("frontend/img", fileName)
+                    writeFileSync(filePath, Buffer.from(base64Data, "base64"))
+                    picturePath = "../img/" + fileName
+                }
+                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
+                    res.writeHead(200, {"Content-Type": "application/json"})
+                    res.end(JSON.stringify({status: "created"}))
+                break;
+                }
+                case "regPrefs":{ await regPreferences(req, res)
                     break;
                 }
-                case "regPrefs": await regPreferences(req, res); {
-                    break;
-                }
+                
                 case "createActivity": {
                     const body = await parseJSON(req);
                     await addActivityToDB(body.user_id, body.group_id, body.title, body.about, body.date_start_at);
@@ -131,11 +158,19 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "profile": {
-                    if (pathElements[2] === "profileInfo") {
-                        queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
-                    } else {
-                        fileResponse(res, "html/profile.html");
+                    if(pathElements[2]==="profileInfo"){
+                        if (!url.searchParams.get("ownProfile")) {
+                            queryResponse(res, queryProfileInfo, url.searchParams.get("id"))
+                        } else {
+                            queryResponse(res, queryOwnProfileInfo, url.searchParams.get("id"))
+                        }
+                    }else{
+                        fileResponse(res, "html/profile.html");  
                     }
+                    break;
+                }
+                case "chat": {
+                    loadChat(req, res, pathElements, url.searchParams);
                     break;
                 }
                 //Server wants current user, check for active session for user from browser session cookie
@@ -143,7 +178,6 @@ async function createResponse(req, res) {
                     await getLoginSession(req, res);
                     break;
                 case "images": {
-                    console.log("Image request received...")
                     handleImage(req, res, pathElements, decodeURIComponent(url.pathname));
                     break;
                 }

@@ -1,5 +1,6 @@
 import { query } from "../database/pool.js";
 import { pool } from "../database/pool.js";
+import { parseJSON } from "./router-APIs/authentication.js"
 //Constants
 const pagesLoaded = 10;
 
@@ -47,7 +48,6 @@ GROUP BY u.id
 ORDER BY followers DESC
 LIMIT 0,10;
 `
-//for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
 const sqlGetSimilarUsers = `SELECT 
     u.id,
     u.name_first,
@@ -75,6 +75,7 @@ const sqlGetSimilarUsers = `SELECT
 FROM users AS u
 LEFT JOIN user_prefs p 
  ON u.id = p.user_id
+WHERE u.id <> ?
 GROUP BY u.id
 ORDER BY Jaccard DESC, followers DESC 
 LIMIT 0, 100;
@@ -124,7 +125,7 @@ ORDER BY id
 `
 
 const sqlGetGroupInfoQuery = `
-SELECT grp.created_at, grp.title, grp.destination, grp.about, 
+SELECT grp.id, grp.created_at, grp.title, grp.destination, grp.about, grp.host_user_id,
 	   grp.date_end_at, grp.date_start_at, grp.picture, grp.max_members,
        (SELECT COUNT(id) FROM group_relations WHERE group_id = ? AND member = 1) AS member_count,
        CONCAT(u.name_first, " ",u.name_last) as host_name
@@ -145,9 +146,8 @@ JOIN group_relations as grp_r ON grp.id = grp_r.group_id AND grp_r.user_id = ? A
 LEFT JOIN users as hu ON hu.id = grp.host_user_id;
 `
 
-
-const getProfileInfoQuery = `
-SELECT u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture, u.id,
+const getOwnProfileInfoQuery = `
+SELECT u.name_first, u.name_last, u.email, u.country, u.gender, u.age, u.bio, u.picture, u.id,
 	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
        (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
        JSON_ARRAYAGG(p.preference_id) AS preferences
@@ -156,14 +156,50 @@ LEFT JOIN user_prefs p ON u.id = p.user_id
 WHERE u.id = ?
 `
 
-export async function getAllPreferences() {
-    let queryResponse = await query(sqlGetPreferences);
-    return queryResponse;
-}
+const getProfileInfoQuery = `
+SELECT u.id, u.name_first, u.name_last, u.country, u.gender, u.age, u.bio, u.picture,
+	   (SELECT COUNT(id) FROM user_relations WHERE target_user_id = ? AND follow_value = 1) as follower_count,
+       (SELECT COUNT(id) FROM user_relations WHERE user_id = ? AND follow_value = 1) as following_count,
+       JSON_ARRAYAGG(p.preference_id) AS preferences
+FROM users as u
+LEFT JOIN user_prefs p ON u.id = p.user_id
+WHERE u.id = ?
+`
+
+const getUserContactsQuery = `
+SELECT
+DISTINCT
+u.id,
+u.picture,
+concat(u.name_first, " ", u.name_last) AS contact_name
+FROM users u
+JOIN chat_users cu ON u.id = CASE
+WHEN cu.sender_id = ? THEN cu.target_id
+WHEN cu.target_id = ? THEN cu.sender_id
+END
+
+`
+const getUserChatHistoryQuery = `SELECT sender_id, target_id, chat_text FROM chat_users 
+WHERE (sender_id = ? AND target_id = ?) OR (sender_id = ? AND target_id = ?)
+ORDER BY created_at;`
+
+const getGroupChatHistoryQuery = `SELECT sender_id, CONCAT(u.name_first, " ",u.name_last) AS sender_name, chat_text FROM chat_groups cg
+JOIN users u ON u.id = sender_id
+WHERE target_id = ?
+ORDER BY cg.created_at;`
+
+const getGroupContactsQuery = `SELECT *  FROM \`groups\` g
+JOIN group_relations gr ON g.id = gr.group_id
+WHERE gr.user_id = ? AND member = 1;`
+
+const getFollowingUsers = `
+SELECT target_user_id FROM user_relations
+WHERE user_id = ?`
+
 
 export async function queryPopularUsers() {
     let queryResponse = await query(sqlGetPopularUsers);
-    return queryResponse;
+    return queryResponse
 }
 
 export async function querySimilarUsers(params) {
@@ -204,6 +240,18 @@ export async function getGroupTags(groupId){
          `, [groupId])
 }
 
+export async function queryGroupLeave(userId, groupId){
+    return query(`
+        DELETE FROM group_relations gr
+        WHERE gr.user_id = ? AND gr.group_id = ?` , [userId, groupId]);
+}
+
+export async function queryGroupJoin(userId, groupId) {
+    return query(`
+        INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,0)`,
+    [userId, groupId])
+}
+
 export async function queryGroupInfo(groupId) {
     const normalizedGroupId = Array.isArray(groupId) ? groupId[0] : groupId;
     let queryResponse = await query(sqlGetGroupInfoQuery, [normalizedGroupId, normalizedGroupId])
@@ -218,8 +266,56 @@ export async function queryProfileInfo(userId) {
     return queryResponse[0]
 }
 
+export async function queryOwnProfileInfo(userId) {
+    const normalizedUserId = Array.isArray(userId) ? userId[0] : userId;
+    let queryResponse = await query(getOwnProfileInfoQuery, [normalizedUserId, normalizedUserId, normalizedUserId])
+    let queryResponseGroups = await query(getProfileGroupsQuery, [normalizedUserId]) // Past groups
+    queryResponse[0].groups = queryResponseGroups;
+    return queryResponse[0]
+}
+
 export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
+    return queryResponse
+}
+
+export async function queryFollowingUsers(req) {
+    const body = await parseJSON(req);
+    const activeUserId = body.userId;
+    let queryResponse = await query(getFollowingUsers, activeUserId);
+    return queryResponse;
+}
+
+export async function queryFollowUser(targetUserId, activeUserId) {
+    return query(`
+        INSERT IGNORE INTO user_relations (user_id, target_user_id, follow_value) VALUES (?,?,1)`,
+    [activeUserId, targetUserId])
+}
+
+export async function queryUnfollowUser(targetUserId, activeUserId) {
+    return query(`
+        DELETE FROM user_relations ur
+        WHERE ur.user_id = ? AND ur.target_user_id = ?`,
+    [activeUserId, targetUserId])
+}
+
+export async function getUserContacts(params) {
+    let queryResponse = await query(getUserContactsQuery, params)
+    return queryResponse
+}
+
+export async function getUserChatHistory(params) {
+    let queryResponse = await query(getUserChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupChatHistory(params) {
+    let queryResponse = await query(getGroupChatHistoryQuery, params)
+    return queryResponse
+}
+
+export async function getGroupContacs(params) {
+    let queryResponse = await query(getGroupContactsQuery, params)
     return queryResponse
 }
 export async function queryUpdateUserPreferences(user_id, preferenceList) {
