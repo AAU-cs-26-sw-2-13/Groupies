@@ -1,5 +1,6 @@
 import { query } from "../database/pool.js";
 import { pool } from "../database/pool.js";
+import { parseJSON } from "./router-APIs/authentication.js"
 //Constants
 const pagesLoaded = 10;
 
@@ -47,7 +48,6 @@ GROUP BY u.id
 ORDER BY followers DESC
 LIMIT 0,10;
 `
-//for now equal to getPopularUsers for testing the routing and HTML listeners work until i get the query right.
 const sqlGetSimilarUsers = `SELECT 
     u.id,
     u.name_first,
@@ -75,6 +75,7 @@ const sqlGetSimilarUsers = `SELECT
 FROM users AS u
 LEFT JOIN user_prefs p 
  ON u.id = p.user_id
+WHERE u.id <> ?
 GROUP BY u.id
 ORDER BY Jaccard DESC, followers DESC 
 LIMIT 0, 100;
@@ -191,7 +192,9 @@ const getGroupContactsQuery = `SELECT *  FROM \`groups\` g
 JOIN group_relations gr ON g.id = gr.group_id
 WHERE gr.user_id = ? AND member = 1;`
 
-
+const getFollowingUsers = `
+SELECT target_user_id FROM user_relations
+WHERE user_id = ?`
 
 
 export async function queryPopularUsers() {
@@ -274,6 +277,26 @@ export async function queryOwnProfileInfo(userId) {
 export async function queryAllPreferences() {
     let queryResponse = await query(sqlGetPreferences)
     return queryResponse
+}
+
+export async function queryFollowingUsers(req) {
+    const body = await parseJSON(req);
+    const activeUserId = body.userId;
+    let queryResponse = await query(getFollowingUsers, activeUserId);
+    return queryResponse;
+}
+
+export async function queryFollowUser(targetUserId, activeUserId) {
+    return query(`
+        INSERT IGNORE INTO user_relations (user_id, target_user_id, follow_value) VALUES (?,?,1)`,
+    [activeUserId, targetUserId])
+}
+
+export async function queryUnfollowUser(targetUserId, activeUserId) {
+    return query(`
+        DELETE FROM user_relations ur
+        WHERE ur.user_id = ? AND ur.target_user_id = ?`,
+    [activeUserId, targetUserId])
 }
 
 export async function getUserContacts(params) {

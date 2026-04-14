@@ -39,9 +39,11 @@ function createHTML(header) {
     let tripStart = document.createElement("input")
     tripStart.setAttribute("type", "date")
     tripStart.setAttribute("class", "calenderDisplay")
-    startLabel.append(calendarIcon1,startText,tripStart)
+   
     let calendarIcon1 = document.createElement("i");
     calendarIcon1.setAttribute("class", "fa-regular fa-calendar");
+    
+    startLabel.append(calendarIcon1,startText,tripStart)
     let calendarIcon2 = document.createElement("i");
     calendarIcon2.setAttribute("class", "fa-regular fa-calendar");
 
