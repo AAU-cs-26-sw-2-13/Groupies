@@ -1,4 +1,4 @@
-import { followUserListener } from "./createUser.js";
+import { followUserListener, getAge } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js"
 import { parseTags } from "./parseJson.js";
 
@@ -66,7 +66,7 @@ function createProfile(profile) {
 
     let infoP = document.createElement("p")
     infoP.setAttribute("class", "pGrey")
-    infoP.textContent = profile.age + ", " + profile.gender + ", " + profile.country
+    infoP.textContent = getAge(profile.dob) + ", " + profile.gender + ", " + profile.country
 
     // ProfileContainer - Follow and Message Buttons section (not needed if user is loading their own profile)
     let profileInteractions = document.createElement("div")
