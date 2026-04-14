@@ -1,10 +1,11 @@
 import { followUserListener } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js"
 import { parseTags } from "./parseJson.js";
+import { followingUsers } from "./createUser.js"
 
 let main = document.querySelector("main")
 let header = document.querySelector("header")
-let activeUserId = 0;
+let activeUserId = null;
 
 await fetch("/me", {
     method: "GET",
@@ -27,16 +28,22 @@ await fetch("/me", {
 });
 
 const pageURL = new URL(window.location.href)
-const profileId = pageURL.searchParams.get("id")
-const includeEmail = activeUserId === Number(profileId) ? "&ownProfile=true" : ""
+const profileId = Number(pageURL.searchParams.get("id"))
+const includeEmail = activeUserId === profileId ? "&ownProfile=true" : ""
+
 fetch(`profileInfo?id=${profileId}${includeEmail}`).then(response => {
     return response.json()
-}).then(jsonResponse => {
-    createProfile(jsonResponse)
-    generateTrips(jsonResponse)
+}).then(async jsonResponse => {
+    let isFollowing = false;
+    let alreadyFollowing = [];
+    if (activeUserId) alreadyFollowing = await followingUsers(activeUserId);
+    isFollowing = alreadyFollowing.some(follow => Number(follow.target_user_id) === profileId); //if active user follows the profile user already
+
+    createProfile(jsonResponse, isFollowing); //create the profile, but follow button conditionally on isFollowing
+    generateTrips(jsonResponse); //generate HTML elements for past trips for the profile user
 })
 
-function createProfile(profile) {
+function createProfile(profile, isFollowing) {
     document.getElementById("mainContainer")?.remove()
     console.table(profile);
 
@@ -75,8 +82,15 @@ function createProfile(profile) {
     let followButton = document.createElement("button")
     followButton.setAttribute("class", "button4")
     followButton.setAttribute("type", "button")
-    followButton.textContent = "Follow"
-    followButton.addEventListener('click', followUserListener)
+
+    if (isFollowing) {
+        followButton.textContent = "Following";
+        followButton.classList.add("following");
+    }
+    else {
+        followButton.textContent = "Follow";
+    }
+    followButton.addEventListener('click', (event) => followUserListener(event, profile.id, activeUserId))
 
     let messageButton = document.createElement("button")
     messageButton.setAttribute("class", "button5")
