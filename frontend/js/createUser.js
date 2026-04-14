@@ -107,7 +107,7 @@ export async function createUserHTML(userArray, targetList, userID) {
             isFollowing = alreadyFollowing.some(follow => follow.target_user_id === u.id); //if the user is already followed by active user
         }
 
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, 
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.dob, u.gender, 
             u.country, u.picture, u.preferences,
             isActiveUser, isFollowing, userID));
     }
