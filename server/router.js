@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import { writeFileSync } from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers,queryActivites} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers, addActivityToDB, queryActivites} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";

@@ -72,6 +72,10 @@ async function createGroup(groupInfo, groupId) {
     joinButton.textContent = "Apply to join group"
     joinButton.id = "joinButton_id";
 
+    let activities = document.createElement("p")
+    activities.setAttribute("class", "activityPlanText")
+    activities.textContent = "Planned activities:"
+
     let suggestActivityButton = document.createElement("button")
     suggestActivityButton.setAttribute("class", "suggestActivityButt")
     suggestActivityButton.textContent = "Suggest an Activity"
@@ -92,7 +96,6 @@ async function createGroup(groupInfo, groupId) {
             //console.log(user.user_id)
             if (user.user_id === member) {
                 isAMember = true;
-                createSuggestActityButton(tripInfo);
                 changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members, joinButton);
                 activities.append(suggestActivityButton)
             }
@@ -168,9 +171,6 @@ async function createGroup(groupInfo, groupId) {
     tripInfo.append(tagsList)
 
     //group activities start here
-    let activities = document.createElement("p")
-    activities.setAttribute("class", "activityPlanText")
-    activities.textContent = "Planned activities:"
 
     //hide the memberlist, and show new elements, that create the activity, 
     suggestActivityButton.addEventListener("click", () => {
@@ -180,16 +180,15 @@ async function createGroup(groupInfo, groupId) {
         suggestActivityButton.disabled = true
         let activityHead = document.createElement("h2")
         activityHead.textContent = "Suggest an activity"
-        //litteraly same code for input as createGroup.js(with different textual content)
+        //litteraly same code for input as createGroup.js(with mostly only different textual content)
         let activityTitle = document.createElement("input")
         activityTitle.setAttribute("type", "text")
-        activityTitle.setAttribute("class", "text-input-box") //need to do smth about the look as a whole as it was based on smth else before.
+        activityTitle.setAttribute("class", "text-input-box") 
         activityTitle.setAttribute("placeholder", "Enter activity name")
 
+        
         let calendarIcon1 = document.createElement("i")
         calendarIcon1.setAttribute("class", "fa-regular fa-calendar")
-        let calendarIcon2 = document.createElement("i")
-        calendarIcon2.setAttribute("class", "fa-regular fa-calendar")
 
         let startLabel = document.createElement("label")
         startLabel.setAttribute("class", "trip-interactable-boxes")
@@ -197,7 +196,7 @@ async function createGroup(groupInfo, groupId) {
         startText.textContent = " Start Date"
         let activityStart = document.createElement("input")
         activityStart.setAttribute("type", "date")
-        activityStart.setAttribute("class", "tripDisplayCreate")
+        activityStart.setAttribute("class", "calenderDisplay")
         startLabel.append(calendarIcon1, startText, activityStart)
         startLabel.addEventListener("click", (e) => {
             e.preventDefault()
@@ -348,14 +347,6 @@ function formatDate(dateString) {
         month: "long",
         year: "numeric"
     })
-}
-
-function createSuggestActityButton (groupInfo) {
-let suggestActivityButton = document.createElement("button");
-    suggestActivityButton.setAttribute("class", "button button1");
-    suggestActivityButton.textContent = "Suggest an Activity";
-    groupInfo.append(suggestActivityButton);
-    return;
 }
 
 function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members, joinButton) {

@@ -285,5 +285,5 @@ function createHTML() {
     return container
 }
 
-initializeHeader(header, user, "Group");
+initializeHeader(header, user, "createGroup");
 HTMLdoc.append(createHTML());
