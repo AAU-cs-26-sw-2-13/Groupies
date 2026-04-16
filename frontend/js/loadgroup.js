@@ -67,10 +67,15 @@ async function createGroup(groupInfo, groupId) {
     membersList.setAttribute("class", "membersList")
     membersList.id = "groupMembers_Id"
 
+    const now = new Date();
+    const endDate = new Date(groupInfo.date_end_at);
+    let joinable = (endDate < now) ? 0 : 1;
+
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button1")
     joinButton.textContent = "Apply to join group"
     joinButton.id = "joinButton_id";
+    joinButton.hidden = (joinable ? 0 : 1);
 
     let activities = document.createElement("p")
     activities.setAttribute("class", "activityPlanText")
@@ -101,7 +106,7 @@ async function createGroup(groupInfo, groupId) {
             }
         }
         if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
-            joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
+            if (!joinable) { joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true}); }
         }
     } catch (error) {
         console.error("Error building the UI elements in the createGroup function", error)
