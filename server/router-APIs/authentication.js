@@ -306,37 +306,9 @@ export async function editUser(req, res) {
     } catch (e) {
       console.error(e);
     }
-
-/*    
-    const hash = await bcrypt.hash(password, 12);
-    await query(`UPDATE users
-        SET name_first = ?,
-          name_last = ?,
-          email = ?,
-          password_hash = ?,
-          bio = ?
-        WHERE id = ?
-        `, [firstname, lastname, email, hash, bio, session.user_id])
-    console.log("✓ Updated user in db");
-  console.log(".")
-    //Create image
-    let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "profilePictures", `${userCreationResult.insertId}.${userData.imageType}`);
-    fs.writeFile(newImagePath, userData.picture, (err)=>{
-      if(err){
-        throw(err)
-      }
-    })
-
-    //Update the picture path of the user
-    await query("UPDATE users SET picture=? WHERE id=?", [path.join("/","images","profilePictures", `${userCreationResult.insertId}.${userData.imageType}`), userCreationResult.insertId]);
-  console.log(".")
-    res.statusCode = 200;
-    res.setHeader('content-type', 'text/plain')
-    res.end('Updated\n');
-    */
 }
 
-function sanitize (str) {
+export function sanitize (str) {
   str = str
   .replace(/\//g,"")
   .replace(/\\/g,"")

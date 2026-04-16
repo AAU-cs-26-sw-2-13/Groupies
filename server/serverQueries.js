@@ -1,6 +1,9 @@
 import { query } from "../database/pool.js";
 import { pool } from "../database/pool.js";
-import { parseJSON } from "./router-APIs/authentication.js"
+import { parseJSON, sanitize, getSession } from "./router-APIs/authentication.js"
+import busboy from 'busboy'; //HTML form data parser
+import fs from "fs"
+import path from 'path';
 //Constants
 const pagesLoaded = 10;
 
@@ -337,7 +340,105 @@ export async function queryUpdateUserPreferences(user_id, preferenceList) {
         throw e;
     }
 }
-     
+
+export async function addTripToDB(req, res) {
+    try {
+    // Make sure user is logged in
+    const session = await getSession(req);
+    if (!session) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Not logged in yet" }));
+    }
+
+  // Find user in db
+    const rows = await query("SELECT * FROM users WHERE id=?", [session.user_id]);
+    if (!rows.length) {
+      res.writeHead(401, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ error: "Wrong user" }));
+    }
+
+    //Uses busboy to parse the data
+    let userRequest = {}
+    
+    const bb = busboy({headers: req.headers})
+    //Takes the readable stream from the request and gives it to busboy as a writeable stream
+    req.pipe(bb)
+    
+    //When a file is loaded
+    bb.on('file', async (name, file, info) => {
+      console.log("Reading file")
+      //Array for reading chunks from the file
+      const extension = info.mimeType.split('/')[1];
+      userRequest.imageType = extension
+      const chunks = [];
+
+      //When new chunks comes, push it to the chunk array.
+      file.on('data', async (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on('close',async () => {
+        userRequest["picture"] = Buffer.concat(chunks);
+      });
+    })
+    bb.on('field',async (fieldname, value) => {
+      userRequest[fieldname]=value
+    })
+    bb.on('close', async ()=>{
+        const title = sanitize(String(userRequest.title));
+        const startDate = sanitize(String(userRequest.start_date));
+        const endDate = sanitize(String(userRequest.end_date));
+        const destination = sanitize(String(userRequest.destination));
+        const description = sanitize(String(userRequest.description));
+        const maxMembers = sanitize(String(userRequest.max_members));
+        const groupOpeness = Number(sanitize(String(userRequest.group_openess)));
+        const tags = sanitize(String(userRequest.tags)).split(',');
+
+        let queryRes = await query(`INSERT INTO \`groups\`
+        SET host_user_id = ?,
+            title = ?,
+            destination = ?,
+            about = ?,
+            date_start_at = ?,
+            date_end_at = ?,
+            max_members = ?,
+            group_openess = ?
+        `, [session.user_id, title, destination, description, startDate, endDate, maxMembers, groupOpeness])
+        console.log("✓ Created trip in db");
+
+        await query("INSERT INTO group_relations (user_id, group_id, follower,member,organizer) VALUES (?,?,1,1,1)" , [session.user_id, queryRes.insertId])
+
+        if(tags && tags.length > 0){
+            for(let tag of tags){
+                await query("INSERT INTO group_tags (group_id, tag_id, tag_value) VALUES (?,?,?)", [queryRes.insertId, tag, 1])
+            }
+        }
+
+        if (userRequest["picture"].length > 0) {
+            //Create image
+            let newImagePath = path.join(process.cwd(), "database", "uploads", "images", "groupPictures", `${queryRes.insertId}.${userRequest.imageType}`);
+            fs.writeFile(newImagePath, userRequest.picture, (err)=>{
+                if(err){
+                throw(err)
+                }
+            })
+
+            //Update the picture path of the group
+            await query("UPDATE \`groups\` SET picture=? WHERE id=?", [path.join("/","images","groupPictures", `${queryRes.insertId}.${userRequest.imageType}`), queryRes.insertId]);
+            console.log("✓ Updated trip picture");
+        }
+
+        res.statusCode = 200;
+        res.setHeader('content-type', 'text/json')
+        res.end(JSON.stringify({id: queryRes.insertId}));
+        return res;
+    })
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+/*
 export async function addTripToDB(host_user_id, title, destination, about, date_start_at, date_end_at, picturePath, max_members, group_openess, tags_list){ 
 let result = await query("INSERT INTO `groups` (host_user_id, title, destination, about, date_start_at, date_end_at, picture, max_members, group_openess) VALUES (?,?,?,?,?,?,?,?,?)", [host_user_id,title,destination,about,date_start_at,date_end_at,picturePath,max_members,group_openess])
 let groupID = result.insertId    
@@ -347,7 +448,8 @@ if(tags_list && tags_list.length > 0){
             await query("INSERT INTO group_tags (group_id, tag_id, tag_value) VALUES (?,?,?)", [groupID, tag, 1])
         }
     }
-}       
+}     
+*/  
 
 export async function addActivityToDB(user_id, group_id, title, about, date_start_at){ 
 return query("INSERT INTO group_activities (user_id, group_id, title, about, date_start_at) VALUES (?,?,?,?,?)", [user_id, group_id,title,about,date_start_at])

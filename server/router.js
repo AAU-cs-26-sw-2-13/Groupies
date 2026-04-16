@@ -3,7 +3,7 @@ import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
 import { writeFileSync } from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers, addActivityToDB, queryActivites} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags, addTripToDB, queryFollowingUsers, addActivityToDB, queryActivites} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
@@ -110,22 +110,11 @@ async function createResponse(req, res) {
                     } catch (error) {
                         console.error(error);
                     }
+                    break;
                 }
                 case "createTrip": {
-                    const body = await parseJSON(req);
-                    let picturePath = null
-                    
-                    if(body.picture){
-                    const base64Data = body.picture.replace(/^data:image\/\w+;base64,/, "")
-                    const fileName = crypto.randomUUID() + ".jpg"
-                    const filePath = path.join("frontend/img", fileName)
-                    writeFileSync(filePath, Buffer.from(base64Data, "base64"))
-                    picturePath = "../img/" + fileName
-                }
-                    await addTripToDB(body.host_user_id,body.title,body.destination,body.about,body.date_start_at,body.date_end_at, picturePath,body.max_members, body.group_openess, body.tags_list);
-                    res.writeHead(200, {"Content-Type": "application/json"})
-                    res.end(JSON.stringify({status: "created"}))
-                break;
+                    await addTripToDB(req, res);
+                    break;
                 }
                 case "regPrefs":{ await regPreferences(req, res)
                     break;

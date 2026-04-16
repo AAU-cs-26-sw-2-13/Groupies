@@ -236,8 +236,6 @@ async function createGroup(groupInfo, groupId) {
 
         //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
         submitButton.addEventListener("click", () => {
-            //same checks as in creategroup, still has the downsides of being able to be injected into
-
             if (!activityTitle.value) {
                 alert("Activity name is required")
                 return

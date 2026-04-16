@@ -21,8 +21,9 @@ function createHTML() {
     page.setAttribute("class", "register-box-top");
     let pageHeader = document.createElement("h3");
     pageHeader.textContent = "Travel Group Creation";
-    let inputholder = document.createElement("div");
+    let inputholder = document.createElement("form");
     inputholder.setAttribute("class", "register-box");
+    inputholder.setAttribute("id", "formContainer")
 
     let formRow = document.createElement("div");
     formRow.setAttribute("class", "createTripFormRow");
@@ -35,6 +36,7 @@ function createHTML() {
 
     //group creation input fields
     let groupTitle = document.createElement("input")
+    groupTitle.setAttribute("name", "title")
     groupTitle.setAttribute("type", "text")
     groupTitle.setAttribute("class", "text-input-box")
     groupTitle.setAttribute("placeholder", "Enter Group title")
@@ -47,6 +49,7 @@ function createHTML() {
     let startText = document.createElement("span")
     startText.textContent = " Start Date"
     let tripStart = document.createElement("input")
+    tripStart.setAttribute("name", "start_date")
     tripStart.setAttribute("type", "date")
     tripStart.setAttribute("class", "calenderDisplay")
    
@@ -71,6 +74,7 @@ function createHTML() {
     let endText = document.createElement("span")
     endText.textContent = " End Date"
     let tripEnd = document.createElement("input")
+    tripEnd.setAttribute("name", "end_date")
     tripEnd.setAttribute("type", "date")
     tripEnd.setAttribute("class", "calenderDisplay")
     endLabel.append(calendarIcon2,endText,tripEnd)
@@ -86,11 +90,13 @@ function createHTML() {
     dateRow.append(startLabel, endLabel);
 
     let groupDest = document.createElement("input")
+    groupDest.setAttribute("name", "destination")
     groupDest.setAttribute("type", "text")
     groupDest.setAttribute("class", "text-input-box")
     groupDest.setAttribute("placeholder", "Enter destination")
 
     let groupDesc = document.createElement("textarea");
+    groupDesc.setAttribute("name", "description")
     groupDesc.setAttribute("type", "text");
     groupDesc.setAttribute("class", "description");
     groupDesc.setAttribute("placeholder", "Description (optional)");
@@ -103,6 +109,7 @@ function createHTML() {
     let fileText = document.createElement("span");
     fileText.textContent = " Travel Group Photo";
     let tripImg = document.createElement("input");
+    tripImg.setAttribute("name", "picture")
     tripImg.setAttribute("type", "file");
     tripImg.setAttribute("accept", "image/*");
     tripImg.style.display = "none";
@@ -137,6 +144,7 @@ function createHTML() {
     MemberTitle.textContent = "Membership";
 
     let Members = document.createElement("input")
+    Members.setAttribute("name", "max_members")
     Members.setAttribute("type", "number")
     Members.setAttribute("class", "text-input-box")
     Members.setAttribute("placeholder", "Maximum joinable members")
@@ -218,9 +226,9 @@ function createHTML() {
     let submitButton = document.createElement("button")
     submitButton.setAttribute("class", "button CreateTripButton")
     submitButton.textContent = "Finish trip creation"
-    submitButton.addEventListener("click", () => {
 
-        //maybe add proper validation, so no injection can happend
+    inputholder.addEventListener("submit", async (e) => {
+        e.preventDefault()
         if (!groupTitle.value.trim()) {
             alert("Group title is required")
             return
@@ -258,23 +266,44 @@ function createHTML() {
             return
         }
         const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
-        submitButton.disabled = true
-   
+        //submitButton.disabled = true
         
         //insert into group db and refer the user back to main page
-        fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-        host_user_id: user.user_id,
-        title: groupTitle.value,
-        destination: groupDest.value,
-        about: groupDesc.value,
-        date_start_at: tripStart.value,  
-        date_end_at: tripEnd.value,
-        picture: validImageData,
-        max_members: Members.value,
-        group_openess: membershipType,
-        tags_list: selectedTags})}).then(r => r.json())
-        .then(() => {window.location.href = "/"})}
-    )    
+
+        const form = document.getElementById("formContainer");
+        const formData = new FormData(formContainer);
+        formData.append("description", groupDesc.value)
+        formData.append("tags", selectedTags)
+        formData.append("group_openess", membershipType)
+        console.log(formData)
+        const res = await fetch("/createTrip", {
+            method: "POST",
+            body: formData,
+        })
+        if (!res.ok) {
+            return "Server failed to create group!"
+        }
+        const resData = await res.json();
+        console.log(resData)
+        if (resData && resData.id) {
+            window.location.href = `/group/?id=${resData.id}`
+        }
+    })
+        /*
+            ("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
+            host_user_id: user.user_id,
+            title: groupTitle.value,
+            destination: groupDest.value,
+            about: groupDesc.value,
+            date_start_at: tripStart.value,  
+            date_end_at: tripEnd.value,
+            picture: validImageData,
+            max_members: Members.value,
+            group_openess: membershipType,
+            tags_list: selectedTags})}).then(r => r.json())
+            .then(() => {window.location.href = "/"})}  
+        )    
+        */
     
     buttons.append(backButton, submitButton)
     infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc, fileLabel)
