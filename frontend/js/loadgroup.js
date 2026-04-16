@@ -69,13 +69,12 @@ async function createGroup(groupInfo, groupId) {
 
     const now = new Date();
     const endDate = new Date(groupInfo.date_end_at);
-    let joinable = ((endDate < now) && (membercount < maxAllowed)) ? 0 : 1;
+    let joinable = ((endDate < now) || (membercount >= maxAllowed)) ? 0 : 1;
 
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button1")
     joinButton.textContent = "Apply to join group"
     joinButton.id = "joinButton_id";
-    joinButton.hidden = (joinable ? 0 : 1);
 
     let activities = document.createElement("p")
     activities.setAttribute("class", "activityPlanText")
@@ -91,6 +90,8 @@ async function createGroup(groupInfo, groupId) {
         createUserHTML(members, membersList, user.user_id)
 
         membercount = members.length
+        joinable = ((endDate < now) || (membercount >= maxAllowed)) ? 0 : 1;
+        joinButton.hidden = (joinable ? 0 : 1);
         hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
         //looks thorugh all members, if the user is in the group as member, a button gets created
@@ -106,7 +107,7 @@ async function createGroup(groupInfo, groupId) {
             }
         }
         if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
-            if (!joinable) { joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true}); }
+            if (joinable) { joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true}); }
         }
     } catch (error) {
         console.error("Error building the UI elements in the createGroup function", error)
