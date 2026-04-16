@@ -69,7 +69,7 @@ async function createGroup(groupInfo, groupId) {
 
     const now = new Date();
     const endDate = new Date(groupInfo.date_end_at);
-    let joinable = ((endDate < now) && (membercount < maxAllowed)) ? 0 : 1;
+    let joinable = ((endDate < now) || (membercount < maxAllowed)) ? 0 : 1;
 
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button1")
