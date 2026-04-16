@@ -275,7 +275,7 @@ function createHTML() {
         formData.append("description", groupDesc.value)
         formData.append("tags", selectedTags)
         formData.append("group_openess", membershipType)
-        
+
         const res = await fetch("/createTrip", {
             method: "POST",
             body: formData,
@@ -289,21 +289,6 @@ function createHTML() {
             window.location.href = `/group/?id=${resData.id}`
         }
     })
-        /*
-            ("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
-            host_user_id: user.user_id,
-            title: groupTitle.value,
-            destination: groupDest.value,
-            about: groupDesc.value,
-            date_start_at: tripStart.value,  
-            date_end_at: tripEnd.value,
-            picture: validImageData,
-            max_members: Members.value,
-            group_openess: membershipType,
-            tags_list: selectedTags})}).then(r => r.json())
-            .then(() => {window.location.href = "/"})}  
-        )    
-        */
     
     buttons.append(backButton, submitButton)
     infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc, fileLabel)
