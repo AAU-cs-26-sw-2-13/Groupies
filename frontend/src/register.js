@@ -32,6 +32,8 @@ fetchPreferences();
 
 //Submit button (Send data to server)
 form.addEventListener("submit", (event) => {
+    const submitButton = document.getElementById("submit");
+    submitButton.disabled = true
     event.preventDefault();
     sendData();
 });
@@ -92,6 +94,9 @@ async function sendData() {
         console.log(jsonData)
         if(jsonData.status && jsonData.status === "registered"){
             window.location.href = "/"
+        } else {
+            const submitButton = document.getElementById("submit");
+            submitButton.disabled = false
         }
     })
 };

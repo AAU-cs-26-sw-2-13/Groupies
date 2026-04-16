@@ -266,7 +266,7 @@ function createHTML() {
             return
         }
         const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
-        //submitButton.disabled = true
+        submitButton.disabled = true
         
         //insert into group db and refer the user back to main page
 
@@ -287,6 +287,8 @@ function createHTML() {
 
         if (resData && resData.id) {
             window.location.href = `/group/?id=${resData.id}`
+        } else {
+            submitButton.disabled = false
         }
     })
     

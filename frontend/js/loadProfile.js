@@ -389,6 +389,7 @@ function createEditProfile(profile) {
     let saveButton = document.createElement("button")
     saveButton.setAttribute("class", "box-button2")
     saveButton.setAttribute("type", "submit")
+    saveButton.setAttribute("id", "submitButton")
     saveButton.textContent = "Save"
 
     optionsContainer.append(backButton, saveButton)
@@ -438,7 +439,8 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
     //if(!password){ alert("Password is required"); return; }
     if(!bio){ alert("Bio is required"); return; }
     if(!dob){ alert("Date of birth is required"); return; }
-    //if(!image){ image = null; }
+    const submitButton = document.getElementById("saveButton");
+    submitButton.disabled = true
     
     const form = document.getElementById("mainContainer");
     const formData = new FormData(form);
@@ -447,6 +449,7 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
         body: formData,
     });
     if (!res.ok) {
+        submitButton.disabled = false
         return "Server failed to update user in database!"
     }
     window.location.href = `/profile/?id=${activeUserId}`
