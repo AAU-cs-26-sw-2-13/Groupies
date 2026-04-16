@@ -97,7 +97,7 @@ function createProfile(profile, isFollowing) {
     messageButton.setAttribute("type", "button")
     messageButton.textContent = "message"
     messageButton.addEventListener('click', ()=>{
-        console.log(profile)
+        if (activeUserId == null) {alert("You must login first"); return;}
         window.location.href = `/chat/users/?id=${profile.id}`
     })
 
