@@ -275,7 +275,7 @@ function createHTML() {
         formData.append("description", groupDesc.value)
         formData.append("tags", selectedTags)
         formData.append("group_openess", membershipType)
-        console.log(formData)
+        
         const res = await fetch("/createTrip", {
             method: "POST",
             body: formData,
@@ -284,7 +284,7 @@ function createHTML() {
             return "Server failed to create group!"
         }
         const resData = await res.json();
-        console.log(resData)
+
         if (resData && resData.id) {
             window.location.href = `/group/?id=${resData.id}`
         }
