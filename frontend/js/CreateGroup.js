@@ -1,9 +1,19 @@
 import { initializeHeader } from "./loadHeader.js"
 let HTMLdoc = document.querySelector("#CreateGroup");
 let header = document.querySelector("header");
+let user = { user_id: null }
+
+// fetch the user, so the host id for the group can be set to the user id and the header initalized
+    try {
+        const authResponse = await fetch("/me", {credentials: "include"});
+
+        if (authResponse.ok) { //you can only create a trip if logged in so this is the only case
+            user = await authResponse.json();
+        }
+    } catch (error) {console.error("Error in the authResponse initializeHeader part", error)} 
 
 //Generates the HTML
-function createHTML(header) {
+function createHTML() {
     let container = document.createElement("div");
     container.setAttribute("class", "createTripPage");
 
@@ -24,18 +34,18 @@ function createHTML(header) {
     infoTitle.textContent = "Information";
 
     //group creation input fields
-    let groupTitle = document.createElement("input");
-    groupTitle.setAttribute("type", "text");
-    groupTitle.setAttribute("class", "reg-box-inputs");
-    groupTitle.setAttribute("placeholder", "Enter Group title");
+    let groupTitle = document.createElement("input")
+    groupTitle.setAttribute("type", "text")
+    groupTitle.setAttribute("class", "text-input-box")
+    groupTitle.setAttribute("placeholder", "Enter Group title")
 
-    let dateRow = document.createElement("div");
-    dateRow.setAttribute("class", "center-align");
+    let dateRow = document.createElement("div")
+    dateRow.setAttribute("class", "center-align")
 
     let startLabel = document.createElement("label")
     startLabel.setAttribute("class", "trip-interactable-boxes")
     let startText = document.createElement("span")
-    startText.textContent = " Start Date" 
+    startText.textContent = " Start Date"
     let tripStart = document.createElement("input")
     tripStart.setAttribute("type", "date")
     tripStart.setAttribute("class", "calenderDisplay")
@@ -59,7 +69,7 @@ function createHTML(header) {
     let endLabel = document.createElement("label")
     endLabel.setAttribute("class", "trip-interactable-boxes")
     let endText = document.createElement("span")
-    endText.textContent = " End Date" 
+    endText.textContent = " End Date"
     let tripEnd = document.createElement("input")
     tripEnd.setAttribute("type", "date")
     tripEnd.setAttribute("class", "calenderDisplay")
@@ -75,10 +85,10 @@ function createHTML(header) {
 
     dateRow.append(startLabel, endLabel);
 
-    let groupDest = document.createElement("input");
-    groupDest.setAttribute("type", "text");
-    groupDest.setAttribute("class", "reg-box-inputs");
-    groupDest.setAttribute("placeholder", "Enter destination");
+    let groupDest = document.createElement("input")
+    groupDest.setAttribute("type", "text")
+    groupDest.setAttribute("class", "text-input-box")
+    groupDest.setAttribute("placeholder", "Enter destination")
 
     let groupDesc = document.createElement("textarea");
     groupDesc.setAttribute("type", "text");
@@ -126,10 +136,10 @@ function createHTML(header) {
     MemberTitle.setAttribute("class", "p1");
     MemberTitle.textContent = "Membership";
 
-    let Members = document.createElement("input");
-    Members.setAttribute("type", "number");
-    Members.setAttribute("class", "reg-box-inputs");
-    Members.setAttribute("placeholder", "Maximum joinable members");
+    let Members = document.createElement("input")
+    Members.setAttribute("type", "number")
+    Members.setAttribute("class", "text-input-box")
+    Members.setAttribute("placeholder", "Maximum joinable members")
 
     let membershipRow = document.createElement("div");
     membershipRow.setAttribute("class", "center-align");
@@ -209,54 +219,49 @@ function createHTML(header) {
     submitButton.setAttribute("class", "button CreateTripButton")
     submitButton.textContent = "Finish trip creation"
     submitButton.addEventListener("click", () => {
-        
-    if(!groupTitle.value.trim()){
-        alert("Group title is required")
-        return
-    }
-    if(!groupDest.value.trim()){
-        alert("Destination is required")
-        return
-    }
-    if(!tripStart.value){
-        alert("Start date is required")
-        return
-    }
-    if(!tripEnd.value){
-        alert("End date is required")
-        return
-    }
-    const today = new Date().toISOString().split("T")[0]  
-    if(tripStart.value < today){
-    alert("Start date cannot be in the past")
-    return
-    }
-    if(tripEnd.value < tripStart.value){
-    alert("End date cannot be before start date")
-    return
-    }
-    if(!Members.value || Members.value < 1 || Members.value >= 1000){
-        alert("Member limit is required or has to atleast equal 1 and less than 1000")
-        return
-    }
-    if(!validImageData){
-        alert("A trip picture is required")
-        return
-    }   
+
+        //maybe add proper validation, so no injection can happend
+        if (!groupTitle.value.trim()) {
+            alert("Group title is required")
+            return
+        }
+        if (!groupDest.value.trim()) {
+            alert("Destination is required")
+            return
+        }
+        if (!tripStart.value) {
+            alert("Start date is required")
+            return
+        }
+        if (!tripEnd.value) {
+            alert("End date is required")
+            return
+        }
+        const today = new Date()  //tripStrat.value format eks: 2026-04-13 , New Date()=nuværende date format eks: Mon May 11 og lidt ekstra grimt stof
+            .toISOString() //, to ISOString converter today til same format som tripStart.value, dog med lidt ekstra eks. 2026-04-13T21:07:39.750Z nuværende tidspunkt(ikke helt der noget i forhold til tidszoner)
+            .split("T")[0]  //så man ville ikke kunne vælge den nuværende dag, så det laves om til et array, der splitter når den rammer bogstavet "T", så vi får eks: [2026-04-13,  T21:07:39.750Z], og sætter today til at være lige med [0], som er altid den nuværende dato i samme format som  tripStart.value 
+
+        if (tripStart.value < today) {
+            alert("Start date cannot be in the past")
+            return
+        }
+        if (tripEnd.value < tripStart.value) {
+            alert("End date cannot be before start date")
+            return
+        }
+        if (!Members.value || Members.value < 1 || Members.value >= 1000) {
+            alert("Member limit is required or has to atleast equal 1 and less than 1000")
+            return
+        }
+        if (!validImageData) {
+            alert("A trip picture is required")
+            return
+        }
         const selectedTags = [...tagsSide.querySelectorAll("button[data-selected='true']")].map(btn => btn.textContent)
         submitButton.disabled = true
    
-       // fetch the user, so the host id for the group can be set to the user id
-       let user = { user_id: null }
-       fetch("/me", {
-       method: "GET",
-       credentials: "include"
-       }).then(response => {
-       if (response.status === 200) {
-       return response.json()}}).then(jsonResponse => {
-        user = jsonResponse;   
+        
         //insert into group db and refer the user back to main page
-        const sendFetchImage = (imageData) => {
         fetch("/createTrip", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({
         host_user_id: user.user_id,
         title: groupTitle.value,
@@ -264,18 +269,15 @@ function createHTML(header) {
         about: groupDesc.value,
         date_start_at: tripStart.value,  
         date_end_at: tripEnd.value,
-        picture: imageData || null,
+        picture: validImageData,
         max_members: Members.value,
         group_openess: membershipType,
         tags_list: selectedTags})}).then(r => r.json())
         .then(() => {window.location.href = "/"})}
-    
-        if(validImageData)sendFetchImage(validImageData)
-        else sendFetchImage(null)
-    })})    
+    )    
     
     buttons.append(backButton, submitButton)
-    infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc,fileLabel)
+    infoSide.append(infoTitle, groupTitle, dateRow, groupDest, groupDesc, fileLabel)
     formRow.append(infoSide, tagsSide)
     inputholder.append(formRow, MemberTitle, membershipRow, Members, buttons)
     page.append(pageHeader, inputholder)
@@ -283,4 +285,5 @@ function createHTML(header) {
     return container
 }
 
-HTMLdoc.append(createHTML(header));
+initializeHeader(header, user, "createGroup");
+HTMLdoc.append(createHTML());

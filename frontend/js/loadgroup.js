@@ -2,6 +2,7 @@ import { createUserHTML } from "./createUser.js"
 import { initializeHeader } from "./loadHeader.js"
 
 let user = { user_id: null }
+let submitting = 0;
 
 async function initializePage () {
     //1. Initalize the header conditionally on the user session existing from browser cookie
@@ -67,9 +68,17 @@ async function createGroup(groupInfo, groupId) {
     membersList.id = "groupMembers_Id"
 
     let joinButton = document.createElement("button")
-    joinButton.setAttribute("class", "button button1")
+    joinButton.setAttribute("class", "button1")
     joinButton.textContent = "Apply to join group"
     joinButton.id = "joinButton_id";
+
+    let activities = document.createElement("p")
+    activities.setAttribute("class", "activityPlanText")
+    activities.textContent = "Planned activities:"
+
+    let suggestActivityButton = document.createElement("button")
+    suggestActivityButton.setAttribute("class", "suggestActivityButt")
+    suggestActivityButton.textContent = "Suggest an Activity"
 
     try {
         const response = await fetch("/groupMembers", { method: "POST", body: JSON.stringify({ groupId: groupId }) })
@@ -87,8 +96,8 @@ async function createGroup(groupInfo, groupId) {
             //console.log(user.user_id)
             if (user.user_id === member) {
                 isAMember = true;
-                createSuggestActityButton(tripInfo);
                 changeApplyToJoinButton(hostID, groupId, user.user_id, membersList, members, joinButton);
+                activities.append(suggestActivityButton)
             }
         }
         if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
@@ -161,14 +170,169 @@ async function createGroup(groupInfo, groupId) {
         })
     tripInfo.append(tagsList)
 
-    //group activities develop here and append to tripInfo
-    let activities = document.createElement("p")
-    activities.setAttribute("class", "p1")
-    activities.textContent = "Planned activities:"
+    //group activities start here
 
-    //check if user is a member to the group, if use create button which allows them to suggest a activity
+    //hide the memberlist, and show new elements, that create the activity, 
+    suggestActivityButton.addEventListener("click", () => {
+        let createActivity = document.createElement("div")
+        createActivity.setAttribute("class", "aside-box createActivityBox")
+        membersElement.style.display = "none"
+        suggestActivityButton.disabled = true
+        let activityHead = document.createElement("h2")
+        activityHead.textContent = "Suggest an activity"
+        //litteraly same code for input as createGroup.js(with mostly only different textual content)
+        let activityTitle = document.createElement("input")
+        activityTitle.setAttribute("type", "text")
+        activityTitle.setAttribute("class", "text-input-box") 
+        activityTitle.setAttribute("placeholder", "Enter activity name")
+
+        
+        let calendarIcon1 = document.createElement("i")
+        calendarIcon1.setAttribute("class", "fa-regular fa-calendar")
+
+        let startLabel = document.createElement("label")
+        startLabel.setAttribute("class", "trip-interactable-boxes")
+        let startText = document.createElement("span")
+        startText.textContent = " Start Date"
+        let activityStart = document.createElement("input")
+        activityStart.setAttribute("type", "date")
+        activityStart.setAttribute("class", "calenderDisplay")
+        startLabel.append(calendarIcon1, startText, activityStart)
+        startLabel.addEventListener("click", (e) => {
+            e.preventDefault()
+            activityStart.showPicker()
+        })
+        activityStart.addEventListener("change", () => {
+            startText.textContent = " " + activityStart.value || " Start Date"
+            startText.style.color = activityStart.value ? "#333" : "#717171"
+        })
+
+
+        let activityDesc = document.createElement("textarea")
+        activityDesc.setAttribute("type", "text")
+        activityDesc.setAttribute("class", "description")
+        activityDesc.setAttribute("placeholder", "Describe the activity")
+        activityDesc.setAttribute("maxlength", "210")
+
+        createActivity.append(activityHead, activityTitle, startLabel, activityDesc)
+
+        let activityButtons = document.createElement("div")
+        activityButtons.setAttribute("class", "groupActions")
+
+        let backButton = document.createElement("button")
+        backButton.setAttribute("class", "buttonBack")
+        backButton.setAttribute("type", "button")
+        backButton.textContent = "Close activity creation"
+        backButton.addEventListener("click", () => {
+            createActivity.style.display = "none"
+            membersElement.style.display = "flex"
+            suggestActivityButton.disabled = false
+        })
+        let submitButton = document.createElement("button")
+        submitButton.setAttribute("class", "button CreateTripButton")
+        submitButton.textContent = "Post the activity suggestion"
+        activityButtons.append(backButton, submitButton)
+        createActivity.append(activityButtons)
+
+        //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
+        submitButton.addEventListener("click", () => {
+            //same checks as in creategroup, still has the downsides of being able to be injected into
+
+            if (!activityTitle.value) {
+                alert("Activity name is required")
+                return
+            }
+            if (!activityStart.value) {
+                alert("Start date is required")
+                return
+            }
+            if (activityStart.value < groupInfo.date_start_at) {
+                alert("Start date cannot be before the trip starts")
+                return
+            }
+            const tripEnd = new Date(groupInfo.date_end_at)  //pga. den måde datoer er opbevaret bliver date_end_at set som dagen før den reele slut dato
+            tripEnd.setDate(tripEnd.getDate() + 1)
+            const tripEndPlusOne = tripEnd.toISOString().split("T")[0] //har lavet et forklaring til disse funktioner i CreateGroup.js for "today" variablen
+
+            if (activityStart.value > tripEndPlusOne) {
+                alert("Start date cannot be after the trip ends")
+                return
+            }
+            if (!activityDesc.value) {
+                alert("Activity has to be described")
+                return
+            }
+
+
+            submitButton.disabled = true
+
+            //insert into activity db and close the activity creation
+            fetch("/createActivity", {
+                method: "POST", body: JSON.stringify({
+                    user_id: user.user_id,
+                    group_id: groupId,
+                    title: activityTitle.value,
+                    about: activityDesc.value,
+                    date_start_at: activityStart.value
+                })
+            }).then(() => {
+                createActivity.style.display = "none"
+                membersElement.style.display = "flex"
+                suggestActivityButton.disabled = false
+                submitButton.disabled = false
+                submitting = 1;
+                showActivites(submitting) //runs the show activites again to show the newly created one aswell, so the user does not need to refresh to see their own
+            })
+        })
+        container.append(createActivity)
+    })
+    //display the activities by fetching the groups activites and for each one creating display elements
+    let listOfActivities = document.createElement("li")
+    listOfActivities.setAttribute("class", "activityList")
+
+    const showActivites = (submitting) => {
+        fetch(`/activities?id=${groupId}`, { method: "GET" })
+            .then(r => r.json()).then(activities => {
+
+                for (let activity of activities) {
+                    let activityItem = document.createElement("div")
+                    activityItem.setAttribute("class", "activityItem")
+                    let activitesTop = document.createElement("div")
+                    let activitiesIcon = document.createElement("i")
+                    activitiesIcon.setAttribute("class", "fa-regular fa-calendar")
+                    let activityStartDateandName = document.createElement("h2")
+                    activityStartDateandName.setAttribute("class", "tripText")
+                    let activityDesc = document.createElement("p")
+
+                    if (submitting === 0) {
+                        activityStartDateandName.textContent = "  " + formatDate(activity.date_start_at) + ", " + activity.title
+                        activityDesc.textContent = activity.about
+
+                        activitesTop.append(activitiesIcon, activityStartDateandName)
+                        activityItem.append(activitesTop, activityDesc)
+                        listOfActivities.append(activityItem)
+                    }
+
+                    else {
+                        let activity = activities[activities.length - 1]
+
+                        activityStartDateandName.textContent = "  " + formatDate(activity.date_start_at) + ", " + activity.title
+                        activityDesc.textContent = activity.about
+
+                        activitesTop.append(activitiesIcon, activityStartDateandName)
+                        activityItem.append(activitesTop, activityDesc)
+                        listOfActivities.append(activityItem) //sort listen gennem datoer? nok alt for meget arbejde(faker gør det allerede når den faker dataen)
+                        return
+                    }
+                    tripInfo.append(listOfActivities)
+                }
+            })
+    }
+
+
+
+    showActivites(submitting)
     tripInfo.append(activities)
-
     membersElement.append(membersTitle, membersList, buttons)
     container.append(tripInfo, membersElement)
     return container
@@ -183,14 +347,6 @@ function formatDate(dateString) {
         month: "long",
         year: "numeric"
     })
-}
-
-function createSuggestActityButton (groupInfo) {
-let suggestActivityButton = document.createElement("button");
-    suggestActivityButton.setAttribute("class", "button button1");
-    suggestActivityButton.textContent = "Suggest an Activity";
-    groupInfo.append(suggestActivityButton);
-    return;
 }
 
 function changeApplyToJoinButton(hostID, groupId, activeUserID, membersList, members, joinButton) {

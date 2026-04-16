@@ -1,9 +1,9 @@
 //JS module imports
 import { fileResponse, queryResponse } from "./server.js";
 import crypto from "node:crypto";
-import {writeFileSync} from "fs"
+import { writeFileSync } from "fs"
 import path, { relative } from "path"
-import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers} from "./serverQueries.js";
+import { queryGroupMembers, queryGroupInfo, queryProfileInfo, queryOwnProfileInfo, queryAllPreferences,getGroupTags,addTripToDB, queryFollowingUsers, addActivityToDB, queryActivites} from "./serverQueries.js";
 import { handleImage } from "./router-APIs/uploads.js";
 import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser} from "./router-APIs/authentication.js";
 import { loadDiscovery, regPreferences, loadChat} from "./router-APIs/pageRouting.js";
@@ -66,7 +66,7 @@ async function createResponse(req, res) {
                     }
                     break;
                 }
-                case "groupMembers":{
+                case "groupMembers": {
                     let data = ""
                     req.on('data', chunk => {
                         data += chunk.toString()
@@ -77,7 +77,7 @@ async function createResponse(req, res) {
                     })
                     break;
                 }
-                 case "groupTags":{
+                case "groupTags": {
                     let data = ""
                     req.on('data', chunk => {
                         data += chunk.toString()
@@ -127,8 +127,18 @@ async function createResponse(req, res) {
                     res.end(JSON.stringify({status: "created"}))
                 break;
                 }
-                case "regPrefs": await regPreferences(req, res);
+                case "regPrefs":{ await regPreferences(req, res)
                     break;
+                }
+                
+                case "createActivity": {
+                    const body = await parseJSON(req);
+                    await addActivityToDB(body.user_id, body.group_id, body.title, body.about, body.date_start_at);
+                    res.statusCode = 200;
+                    res.end();
+                    break;
+                }
+
             }
             break;
         }
@@ -140,10 +150,10 @@ async function createResponse(req, res) {
                     break;
                 }
                 case "group": {
-                    if(pathElements[2]==="groupInfo"){
+                    if (pathElements[2] === "groupInfo") {
                         queryResponse(res, queryGroupInfo, url.searchParams.get("id"))
-                    }else{
-                        fileResponse(res, "html/group.html");  
+                    } else {
+                        fileResponse(res, "html/group.html");
                     }
                     break;
                 }
@@ -179,6 +189,15 @@ async function createResponse(req, res) {
                     }
                     break;
                 }
+                case "activities": {
+                    try {
+                        await queryResponse(res, queryActivites, url.searchParams.get("id"))
+                    } catch (error) {
+                        console.error(error);
+                    }
+                    break;
+                }
+
                 //Fallback to file response
                 default: {
                     fileResponse(res, url.pathname);

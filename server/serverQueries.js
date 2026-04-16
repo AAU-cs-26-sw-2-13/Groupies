@@ -348,4 +348,15 @@ if(tags_list && tags_list.length > 0){
         }
     }
 }       
- 
+
+export async function addActivityToDB(user_id, group_id, title, about, date_start_at){ 
+return query("INSERT INTO group_activities (user_id, group_id, title, about, date_start_at) VALUES (?,?,?,?,?)", [user_id, group_id,title,about,date_start_at])
+}  
+
+export async function queryActivites(groupId){
+    return query(`
+        SELECT ga.user_id, ga.title, ga.about, ga.date_start_at
+        FROM group_activities ga
+        WHERE ga.group_id = ?
+         `, [groupId])
+}
