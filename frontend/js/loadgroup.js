@@ -67,6 +67,12 @@ async function createGroup(groupInfo, groupId) {
     membersList.setAttribute("class", "membersList")
     membersList.id = "groupMembers_Id"
 
+    const now = new Date();
+    const endDate = new Date(groupInfo.date_end_at);
+    console.log(user.user_id)
+    let joinable = ((endDate < now) || (membercount >= maxAllowed) || (user.user_id === null)) ? 0 : 1;
+    console.log(joinable)
+
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button1")
     joinButton.textContent = "Apply to join group"
@@ -86,6 +92,8 @@ async function createGroup(groupInfo, groupId) {
         createUserHTML(members, membersList, user.user_id)
 
         membercount = members.length
+        joinable = ((endDate < now) || (membercount >= maxAllowed) || (user.user_id === null)) ? 0 : 1;
+        joinButton.hidden = (joinable ? 0 : 1);
         hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
         //looks thorugh all members, if the user is in the group as member, a button gets created
@@ -101,7 +109,7 @@ async function createGroup(groupInfo, groupId) {
             }
         }
         if (!isAMember) { //the user is not a member or organizer, should have the option to join the group
-            joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true});
+            if (joinable) { joinButton.addEventListener('click', (event) => { applyToJoinHandler(event, groupId, user.user_id) }, {once: true}); }
         }
     } catch (error) {
         console.error("Error building the UI elements in the createGroup function", error)
@@ -236,8 +244,6 @@ async function createGroup(groupInfo, groupId) {
 
         //Maybe the activity should have to be approved by an organizer before posting it?(not a development priority imo)
         submitButton.addEventListener("click", () => {
-            //same checks as in creategroup, still has the downsides of being able to be injected into
-
             if (!activityTitle.value) {
                 alert("Activity name is required")
                 return
@@ -419,6 +425,7 @@ async function kickButtonHandler(member, groupId, event) {
 }
 
 function leaveGroupOption (activeUserID, groupId, joinButton) {
+    joinButton.hidden = 0;
     joinButton.innerText = "Leave Group";
     joinButton.id = "leaveButton_id";
     joinButton.addEventListener('click', (event) => leaveGroupHandler(event, activeUserID, groupId));
