@@ -69,7 +69,9 @@ async function createGroup(groupInfo, groupId) {
 
     const now = new Date();
     const endDate = new Date(groupInfo.date_end_at);
-    let joinable = ((endDate < now) || (membercount >= maxAllowed)) ? 0 : 1;
+    console.log(user.user_id)
+    let joinable = ((endDate < now) || (membercount >= maxAllowed) || (user.user_id === null)) ? 0 : 1;
+    console.log(joinable)
 
     let joinButton = document.createElement("button")
     joinButton.setAttribute("class", "button1")
@@ -90,7 +92,7 @@ async function createGroup(groupInfo, groupId) {
         createUserHTML(members, membersList, user.user_id)
 
         membercount = members.length
-        joinable = ((endDate < now) || (membercount >= maxAllowed)) ? 0 : 1;
+        joinable = ((endDate < now) || (membercount >= maxAllowed) || (user.user_id === null)) ? 0 : 1;
         joinButton.hidden = (joinable ? 0 : 1);
         hostedBy.textContent = "Organized by " + host + " with " + membercount + "/" + maxAllowed
 
@@ -423,6 +425,7 @@ async function kickButtonHandler(member, groupId, event) {
 }
 
 function leaveGroupOption (activeUserID, groupId, joinButton) {
+    joinButton.hidden = 0;
     joinButton.innerText = "Leave Group";
     joinButton.id = "leaveButton_id";
     joinButton.addEventListener('click', (event) => leaveGroupHandler(event, activeUserID, groupId));
