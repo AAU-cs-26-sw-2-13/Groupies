@@ -439,7 +439,7 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
     //if(!password){ alert("Password is required"); return; }
     if(!bio){ alert("Bio is required"); return; }
     if(!dob){ alert("Date of birth is required"); return; }
-    const submitButton = document.getElementById("saveButton");
+    const submitButton = document.getElementById("submitButton");
     submitButton.disabled = true
     
     const form = document.getElementById("mainContainer");
