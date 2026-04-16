@@ -17,6 +17,10 @@ const preview = document.querySelector(".preview");//Used for the image
 
 const genderButtons = document.querySelectorAll(".registerGenderTextButton")
 
+const dobButton = document.querySelector("#dobBox")
+const dobInput = document.querySelector("#dob")
+const dobText = document.querySelector("#dobText")
+
 //Allowed image types
 const fileTypes = [
     "image/png",
@@ -161,3 +165,13 @@ function createPrefs(pref){
         prefList.append(prefButton);
     }
 }
+
+// Date of Birth selector
+dobButton.addEventListener("click", (e) => {
+    e.preventDefault()
+    dobInput.showPicker()
+})
+dobButton.addEventListener("change", () => {
+    dobText.textContent = " " + dobInput.value || " Start Date"
+    dobText.style.color = dobInput.value ? "#333" : "#717171"
+})

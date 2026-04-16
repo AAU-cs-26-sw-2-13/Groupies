@@ -1,7 +1,17 @@
 import { parseTags } from "./parseJson.js"
 
+export function getAge(date) {
+    let now = new Date();
+    let dob = new Date(date);
+
+    let age = now.getFullYear() - dob.getFullYear();
+    if ((now.getMonth() - dob.getMonth()) <= 0 && now.getDate() < dob.getDate()) { age--; }
+
+    return age;
+}
+
 //Generates the HTML object for a new user
-export function createUser(id, name, age, gender, country, picture, tags, isActiveUser, isFollowing, activeUserId) {
+export function createUser(id, name, dob, gender, country, picture, tags, isActiveUser, isFollowing, activeUserId) {
     let list = document.createElement("li")
     let article = document.createElement("article")
 
@@ -47,7 +57,7 @@ export function createUser(id, name, age, gender, country, picture, tags, isActi
     userName.setAttribute("class", "userName")
     userName.textContent = name
     userInfoText.setAttribute("class", "userInfoText")
-    userInfoText.textContent = age + ", " + gender + ", " + country
+    userInfoText.textContent = getAge(dob) + ", " + gender + ", " + country
 
     genreList.setAttribute("class", "prefListFront")
 
@@ -97,7 +107,7 @@ export async function createUserHTML(userArray, targetList, userID) {
             isFollowing = alreadyFollowing.some(follow => follow.target_user_id === u.id); //if the user is already followed by active user
         }
 
-        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.age, u.gender, 
+        targetList.append(createUser(u.id, u.name_first + " " + u.name_last, u.dob, u.gender, 
             u.country, u.picture, u.preferences,
             isActiveUser, isFollowing, userID));
     }

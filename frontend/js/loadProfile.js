@@ -1,4 +1,4 @@
-import { followUserListener } from "./createUser.js";
+import { followUserListener, getAge } from "./createUser.js";
 import { initializeHeader } from "./loadHeader.js"
 import { parseTags } from "./parseJson.js";
 import { followingUsers } from "./createUser.js"
@@ -73,7 +73,7 @@ function createProfile(profile, isFollowing) {
 
     let infoP = document.createElement("p")
     infoP.setAttribute("class", "pGrey")
-    infoP.textContent = profile.age + ", " + profile.gender + ", " + profile.country
+    infoP.textContent = getAge(profile.dob) + ", " + profile.gender + ", " + profile.country
 
     // ProfileContainer - Follow and Message Buttons section (not needed if user is loading their own profile)
     let profileInteractions = document.createElement("div")
@@ -309,9 +309,17 @@ function createEditProfile(profile) {
         dobBox.showPicker()
     })
     dobLabel.addEventListener("change", () => {
-        dobText.textContent = " " + dobBox.value || " Start Date"
+        dobText.textContent = " " + dobBox.value || " Date of Birth"
         dobText.style.color = dobBox.value ? "#333" : "#717171"
     })
+    const dob = profile.dob.trim().split('T')[0]; // clean dob
+    if (dob) {
+        dobBox.value = dob
+        dobText.textContent = " " + dob
+    } else {
+        dobText.textContent = " Date of Birth"
+    }
+    dobText.style.color = dobBox.value ? "#333" : "#717171"
 
     let fileIcon = document.createElement("i")
     fileIcon.setAttribute("class", "fa-regular fa-image")
@@ -427,10 +435,10 @@ async function editProfile(firstname, lastname, email, password, bio, dob, image
     if(!firstname){ alert("First Name is required"); return; }
     if(!lastname){ alert("Last Name is required"); return; }
     if(!email){ alert("Email is required"); return; }
-    if(!password){ alert("Password is required"); return; }
+    //if(!password){ alert("Password is required"); return; }
     if(!bio){ alert("Bio is required"); return; }
     if(!dob){ alert("Date of birth is required"); return; }
-    if(!image){ image = null; }
+    //if(!image){ image = null; }
     
     const form = document.getElementById("mainContainer");
     const formData = new FormData(form);
