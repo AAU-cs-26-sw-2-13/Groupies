@@ -62,11 +62,10 @@ test('setUserPreferences updates the user preferences for test user to an array 
   //Execute: "send the request" to the function
   await setUserPreferences(mockObject.req, mockObject.res);
 
-  //Verify: the status code is 200 and the preferencelist for the user is now equal to the test list
+  //Verify: the status code is 200 and the preferencelist set for the user is now equal to the test list set
   assert.strictEqual(mockObject.responseData.status, 200, "Status code must be 200");
 
   const session = await query("SELECT preference_id FROM user_prefs WHERE user_id = ?", [TEST_ID])
-  
   //Sort the lists same way, as the query does not guarantee same order of array as the test list. Logically, they must be equal as sets, order does not matter.
   session.sort();
   testPrefList.sort();

@@ -3,7 +3,6 @@ import { parseJSON } from "./authentication.js"
 import { queryUpdateUserPreferences } from "../serverQueries.js"
 
 export async function setUserPreferences(req, res) {
-    console.log("we are in setUserPreferences")
     try {
         const body = await parseJSON(req);
         const { user_id, preferenceList } = body;
@@ -15,8 +14,6 @@ export async function setUserPreferences(req, res) {
         }
 
         await queryUpdateUserPreferences(user_id, preferenceList); //query the db with an update with the array of preferences to save
-
-        console.log(`Successfully updated list with ${preferenceList.length} preferences active for user ${user_id}`);
 
         res.writeHead(200, { "Content-type": "application/json" });
         return res.end(JSON.stringify({
