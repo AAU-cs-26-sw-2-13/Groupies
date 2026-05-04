@@ -178,7 +178,6 @@ export async function loginUser(req, res) {
     "INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)",
     [sid, user.id, expires]
   );
-  console.log(`Login recorded: ${email} , ${password} , ${sid}`)
   setSessionCookie(res, sid, ttl); //set the browser cookie with the session id and a 7 day expiration
   res.writeHead(200, { "Content-Type": "application/json" });
   return res.end(JSON.stringify({ status: "logged_in :)" }));

@@ -290,7 +290,7 @@ export async function queryFollowingUsers(req) {
 }
 
 export async function queryFollowUser(targetUserId, activeUserId) {
-    return query(`
+    return await query(`
         INSERT IGNORE INTO user_relations (user_id, target_user_id, follow_value) VALUES (?,?,1)`,
     [activeUserId, targetUserId])
 }
