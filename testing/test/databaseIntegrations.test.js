@@ -1,7 +1,10 @@
+/* The test modules to set up tests */
 import { test, after } from 'node:test';
 import { Readable } from 'node:stream';
 import assert from 'node:assert';
 import bcrypt from 'bcrypt';
+
+/* The functions to unit test */
 import { queryFollowUser } from '../../server/serverQueries.js';
 import { registerUserToDB, loginUser, getLoginSession, logout, parseJSON, editUser } from "../../server/router-APIs/authentication.js";
 import { setUserPreferences } from "../../server/router-APIs/userPreferences.js"
@@ -16,14 +19,11 @@ after(() => { pool.end(); });
 /* (test 1) Make a login with credentials for existing user (admin user) */
 
 test('loginUser Function: Succesful login from admin credentials', async () => {
+  // SETUP: Test credentials (the admin account always exists in the database)
   const TEST_EMAIL = "admin", TEST_PASS = "123", TEST_ID = 1;
-  await query("DELETE FROM sessions WHERE user_id = ?", [TEST_ID]);
 
-  // Setup: Mock request as a readable stream (Readable.from), like a real request
-  const mockObject = mockReqRes({ email: TEST_EMAIL, password: TEST_PASS });
-
-  // Execute: send the mocked req res to loginUser function
-  await loginUser(mockObject.req, mockObject.res);
+  // Execute: run the login function
+  const mockObject = await loginTestAccount(TEST_EMAIL, TEST_PASS, TEST_ID);
 
   // Verify: response.status = 200 and the session exists in DB
   assert.strictEqual(mockObject.responseData.status, 200, "Status code must be 200");
@@ -69,12 +69,11 @@ test('setUserPreferences updates the user preferences for test user to an array 
   //Sort the lists same way, as the query does not guarantee same order of array as the test list. Logically, they must be equal as sets, order does not matter.
   session.sort();
   testPrefList.sort();
-  
+
   for (let i = 0; i < session.length; i++) {
     assert.strictEqual(session[i].preference_id, testPrefList[i], "Preferences must match exactly to the test list");
   }
 });
-
 
 /* -------- Helper functions for the test functions -------- */
 function mockReqRes(requestObject) {
@@ -99,4 +98,17 @@ function mockReqRes(requestObject) {
   };
 
   return { req, res, responseData };
+}
+
+async function loginTestAccount(TEST_EMAIL, TEST_PASS, TEST_ID) {
+  await query("DELETE FROM sessions WHERE user_id = ?", [TEST_ID]);
+
+  // Setup: Mock request as a readable stream (Readable.from), like a real request
+  const mockObject = mockReqRes({ email: TEST_EMAIL, password: TEST_PASS });
+
+  // Execute: send the mocked req res to loginUser function
+  await loginUser(mockObject.req, mockObject.res);
+  assert.ok(mockObject.res, 'The login setup for editUser() test was unsuccesful');
+
+  return mockObject;
 }
